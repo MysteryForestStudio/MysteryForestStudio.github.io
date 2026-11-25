@@ -3,1353 +3,625 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mystery Forest: 神秘森林合成傳奇</title>
-<meta name="description" content="Mystery Forest: Merge Legend — 全年 6 大節日自動巡航、森林管家三語配音、治癒系寵物，單手合成重建夢幻森林咖啡屋。立即下載！">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
+<title>Mystery Forest Studio</title>
 <style>
-  :root{
-    --deep:#0b1f16; --deep2:#0f2a1d; --green:#1f6b45; --green-light:#3fa76e;
-    --gold:#ffd166; --gold-soft:#ffe9b0; --text:#eaf5ee; --text-dim:#a9c4b5;
-    --glass:rgba(255,255,255,0.07); --glass-border:rgba(255,255,255,0.14);
-    --shadow:0 8px 32px rgba(0,0,0,0.35);
-    --frame-color:rgba(63,167,110,0.45); --frame-glow:rgba(63,167,110,0.65);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:"Noto Sans TC","Noto Sans JP","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
-    background:radial-gradient(1200px 800px at 10% -10%,rgba(63,167,110,0.25),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.12),transparent 55%),radial-gradient(900px 900px at 50% 120%,rgba(31,107,69,0.35),transparent 60%),linear-gradient(180deg,var(--deep) 0%,var(--deep2) 50%,#0a1a12 100%);
-    color:var(--text);min-height:100vh;line-height:1.7;overflow-x:hidden;transition:background 1.2s ease;
-  }
-  .container{max-width:1140px;margin:0 auto;padding:0 20px}
-  #fxCanvas{position:fixed;inset:0;pointer-events:none;z-index:50;width:100%;height:100%}
-
-  .festival-banner{
-    position:fixed;top:0;left:0;right:0;z-index:120;padding:12px 60px 12px 20px;text-align:center;
-    font-weight:700;font-size:14.5px;color:#1a1205;
-    background:linear-gradient(90deg,#e63946,#ffd166,#e63946);background-size:200% 100%;
-    animation:bannerShine 6s linear infinite;box-shadow:0 4px 20px rgba(0,0,0,0.4);
-    letter-spacing:.3px;display:none;transition:background .6s;
-  }
-  .festival-banner.show{display:block}
-  @keyframes bannerShine{0%{background-position:0% 0}100%{background-position:200% 0}}
-
-  .top-controls{
-    position:fixed;top:14px;right:14px;z-index:130;display:flex;gap:8px;align-items:center;transition:top .3s;
-  }
-  body.has-banner .top-controls{top:58px}
-  .lang-bar{
-    display:flex;gap:6px;background:rgba(11,31,22,0.75);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--glass-border);border-radius:999px;padding:5px;box-shadow:var(--shadow);
-  }
-  .lang-btn{
-    background:transparent;border:none;color:var(--text-dim);font-size:13px;font-weight:600;
-    padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .25s;font-family:inherit;
-  }
-  .lang-btn:hover{color:var(--text)}
-  .lang-btn.active{background:linear-gradient(135deg,var(--green-light),var(--green));color:#fff;box-shadow:0 2px 10px rgba(63,167,110,0.4)}
-  .music-btn{
-    width:42px;height:42px;border-radius:50%;background:rgba(11,31,22,0.75);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--glass-border);color:var(--gold);font-size:18px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);
-    transition:transform .2s,background .2s;
-  }
-  .music-btn:hover{transform:scale(1.08);background:rgba(31,107,69,0.6)}
-  .music-btn.muted{color:var(--text-dim);opacity:.7}
-
-  .hero{min-height:100vh;display:flex;align-items:center;padding:100px 0 60px;position:relative;transition:padding-top .3s}
-  body.has-banner .hero{padding-top:140px}
-  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(63,167,110,0.15),transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,209,102,0.08),transparent 40%);pointer-events:none}
-  .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
-  .hero-icon-wrap{display:flex;justify-content:center;align-items:center;position:relative}
-  .hero-icon-glow{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,var(--frame-glow),transparent 70%);filter:blur(30px);animation:pulse 4s ease-in-out infinite;transition:background 1.2s}
-  @keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
-  .hero-icon{width:240px;height:240px;border-radius:52px;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);position:relative;z-index:1;animation:floaty 6s ease-in-out infinite;object-fit:cover}
-  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-  .hero-icon-fallback{width:240px;height:240px;border-radius:52px;background:linear-gradient(135deg,#1f6b45,#0f2a1d);display:flex;align-items:center;justify-content:center;font-size:120px;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;z-index:1}
-  .hero-text h1{font-size:clamp(26px,3.8vw,44px);font-weight:800;line-height:1.2;margin-bottom:16px;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff 30%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .hero-text .subtitle{font-size:clamp(15px,1.8vw,18px);color:var(--text-dim);margin-bottom:8px;font-weight:500}
-  .hero-text .desc{font-size:16px;color:var(--text-dim);margin-bottom:32px;max-width:520px}
-  .btn-download{
-    display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#3fa76e,#1f6b45);
-    color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:16px 32px;border-radius:16px;
-    box-shadow:0 8px 30px rgba(63,167,110,0.45),inset 0 1px 0 rgba(255,255,255,0.25);
-    transition:transform .2s,box-shadow .2s;border:1px solid rgba(255,255,255,0.15);
-  }
-  .btn-download:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(63,167,110,0.6)}
-  .btn-download svg{width:26px;height:26px;flex-shrink:0}
-  .btn-secondary{display:inline-flex;align-items:center;gap:8px;color:var(--gold);text-decoration:none;font-weight:600;font-size:15px;padding:16px 8px;margin-left:8px;transition:color .2s}
-  .btn-secondary:hover{color:var(--gold-soft)}
-
-  section{padding:80px 0;position:relative}
-  .section-title{text-align:center;font-size:clamp(24px,3vw,34px);font-weight:800;margin-bottom:12px;letter-spacing:-0.3px}
-  .section-sub{text-align:center;color:var(--text-dim);font-size:15px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto}
-
-  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
-  .feature-card{
-    background:var(--glass);border:1px solid var(--glass-border);
-    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    border-radius:22px;padding:30px 26px;transition:transform .3s,border-color .3s,box-shadow .3s;
-  }
-  .feature-card:hover{transform:translateY(-6px);border-color:var(--frame-color);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
-  .feature-icon{font-size:40px;margin-bottom:16px;display:block}
-  .feature-card h3{font-size:19px;font-weight:700;margin-bottom:10px;color:#fff}
-  .feature-card p{font-size:14.5px;color:var(--text-dim);line-height:1.65}
-
-  .video-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-bottom:48px}
-  .video-title{font-size:clamp(18px,2.4vw,24px);font-weight:800;text-align:center}
-  .video-card{width:100%;max-width:320px;aspect-ratio:9/16;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px var(--glass-border);background:#000}
-  .video-card iframe{width:100%;height:100%;border:0;display:block}
-
-  .demo-wrap{
-    display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;
-    background:var(--glass);border:1px solid var(--glass-border);
-    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    border-radius:28px;padding:40px;transition:box-shadow .6s,border-color .6s;
-  }
-  .demo-left h2{font-size:clamp(22px,2.6vw,30px);font-weight:800;margin-bottom:14px}
-  .demo-left p{color:var(--text-dim);font-size:15px;margin-bottom:20px}
-  .demo-hint{display:flex;align-items:flex-start;gap:10px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:14px;padding:14px 16px;font-size:14px;color:var(--gold-soft)}
-  .demo-hint span{font-size:18px;flex-shrink:0}
-
-  .board-area{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative}
-  .merge-board{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:rgba(0,0,0,0.3);
-    padding:12px;border-radius:20px;width:100%;max-width:340px;aspect-ratio:1;
-    border:2px solid var(--frame-color);
-    box-shadow:inset 0 2px 20px rgba(0,0,0,0.4),0 0 18px var(--frame-glow);
-    transition:border-color .6s,box-shadow .6s;animation:frameBreath 3s ease-in-out infinite;
-  }
-  @keyframes frameBreath{
-    0%,100%{box-shadow:inset 0 2px 20px rgba(0,0,0,0.4),0 0 12px var(--frame-glow)}
-    50%{box-shadow:inset 0 2px 20px rgba(0,0,0,0.4),0 0 28px var(--frame-glow)}
-  }
-  .cell{
-    background:rgba(255,255,255,0.05);border-radius:12px;display:flex;align-items:center;justify-content:center;
-    font-size:clamp(22px,4vw,32px);cursor:pointer;transition:transform .15s,background .2s;
-    user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.06);position:relative;
-  }
-  .cell:hover{background:rgba(255,255,255,0.1)}
-  .cell.selected{background:rgba(63,167,110,0.35);border-color:var(--green-light);box-shadow:0 0 0 2px var(--green-light),0 0 20px rgba(63,167,110,0.5);transform:scale(1.06)}
-  .cell.pop{animation:popIn .3s ease}
-  @keyframes popIn{0%{transform:scale(0.4)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-  .btn-summon{
-    background:linear-gradient(135deg,#ffd166,#f0a500);color:#1a1205;border:none;font-weight:800;
-    font-size:15px;padding:12px 28px;border-radius:14px;cursor:pointer;font-family:inherit;
-    box-shadow:0 6px 20px rgba(255,209,102,0.35);transition:transform .2s,box-shadow .2s;
-  }
-  .btn-summon:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,209,102,0.5)}
-  .score-line{font-size:14px;color:var(--text-dim);font-weight:600}
-  .score-line b{color:var(--gold);font-size:18px}
-  .btn-share{
-    display:inline-flex;align-items:center;gap:10px;
-    background:linear-gradient(135deg,rgba(63,167,110,0.25),rgba(31,107,69,0.25));
-    color:var(--gold);border:1px solid rgba(255,209,102,0.35);
-    font-weight:700;font-size:14.5px;padding:12px 24px;border-radius:14px;
-    cursor:pointer;font-family:inherit;transition:all .25s;margin-top:6px;
-  }
-  .btn-share:hover{background:linear-gradient(135deg,rgba(63,167,110,0.4),rgba(31,107,69,0.4));transform:translateY(-2px)}
-
-  .maid-bubble{
-    position:absolute;top:-10px;left:50%;transform:translate(-50%,-100%);
-    background:rgba(255,255,255,0.95);color:#1a2e24;padding:10px 16px;border-radius:16px;
-    font-size:13.5px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;
-    transition:opacity .3s,transform .3s;box-shadow:0 6px 24px rgba(0,0,0,0.25);z-index:20;
-  }
-  .maid-bubble::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:7px solid rgba(255,255,255,0.95)}
-  .maid-bubble.show{opacity:1;transform:translate(-50%,-100%) translateY(-4px)}
-
-  .particle{position:fixed;pointer-events:none;z-index:200;font-size:20px;animation:particleFly .9s ease-out forwards}
-  @keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.3)}}
-
-  .toast{
-    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);
-    background:linear-gradient(135deg,#3fa76e,#1f6b45);color:#fff;padding:16px 28px;border-radius:16px;
-    font-weight:700;font-size:15px;box-shadow:0 12px 40px rgba(63,167,110,0.5);z-index:300;
-    transition:transform .4s cubic-bezier(.34,1.56,.64,1);text-align:center;
-    border:1px solid rgba(255,255,255,0.2);max-width:90vw;
-  }
-  .toast.show{transform:translateX(-50%) translateY(0)}
-  .toast a{color:var(--gold);text-decoration:underline}
-
-  .copy-toast{
-    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);
-    background:rgba(26,46,36,0.95);color:var(--gold);padding:12px 24px;border-radius:12px;
-    font-weight:700;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,0.4);z-index:310;
-    transition:transform .4s cubic-bezier(.34,1.56,.64,1);border:1px solid rgba(255,209,102,0.3);
-  }
-  .copy-toast.show{transform:translateX(-50%) translateY(0)}
-
-  footer{padding:50px 0 40px;border-top:1px solid var(--glass-border);text-align:center;color:var(--text-dim);font-size:14px}
-  footer .footer-brand{font-weight:700;color:var(--text);font-size:16px;margin-bottom:8px}
-  footer .footer-links{margin:14px 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
-  footer .footer-links a{color:var(--green-light);text-decoration:none;transition:color .2s}
-  footer .footer-links a:hover{color:var(--gold)}
-  footer .copyright{margin-top:18px;font-size:13px;opacity:.7}
-
-  @media (max-width:860px){
-    .hero-inner{grid-template-columns:1fr;gap:40px;text-align:center}
-    .hero-text .desc{margin-left:auto;margin-right:auto}
-    .hero-text .btn-row{justify-content:center}
-    .hero-icon,.hero-icon-fallback{width:180px;height:180px;border-radius:40px}
-    .hero-icon-fallback{font-size:90px}
-    .hero-icon-glow{width:240px;height:240px}
-    .demo-wrap{grid-template-columns:1fr;gap:32px;padding:28px 20px}
-    .btn-secondary{margin-left:0;margin-top:8px}
-    section{padding:56px 0}
-    .top-controls{top:10px;right:10px}
-    body.has-banner .top-controls{top:54px}
-    .festival-banner{font-size:12.5px;padding:10px 70px 10px 14px}
-  }
-  @media (max-width:480px){
-    .lang-btn{padding:6px 10px;font-size:12px}
-    .feature-card{padding:24px 20px}
-    .music-btn{width:38px;height:38px;font-size:16px}
-  }
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans TC,Noto Sans JP,sans-serif}
+body{
+  min-height:100vh;
+  background:linear-gradient(160deg,#0b2e1e,#144632,#0f3b28);
+  color:#f0f8f4;
+  padding:16px;
+  overflow-x:hidden;
+}
+#particleCanvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:50;
+}
+.fest-border{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:49;
+  border:0px solid transparent;
+  transition:border-color 1s,box-shadow 1s;
+}
+.glass{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2);
+}
+.container{
+  max-width:720px;
+  margin:0 auto;
+  position:relative;
+  z-index:10;
+}
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo-img{
+  width:52px;height:52px;border-radius:14px;
+  object-fit:cover;
+}
+.lang-row{
+  display:flex;gap:8px;
+}
+.lang-btn,audio-toggle{
+  padding:8px 12px;border-radius:10px;border:none;
+  background:rgba(255,255,255,0.15);color:#fff;
+  cursor:pointer;transition:0.2s;
+}
+.lang-btn:hover,audio-toggle:hover{background:rgba(255,255,255,0.25)}
+.audio-toggle{
+  margin-left:6px;
+}
+.capsule{
+  margin-bottom:20px;text-align:center;padding:14px;
+}
+.capsule .countdown{margin-top:8px;font-size:0.95em;opacity:0.9}
+.youtube-wrap{
+  max-width:320px;margin:0 auto 24px;
+}
+.youtube-wrap iframe{
+  width:100%;aspect-ratio:9/16;border-radius:16px;border:none;
+}
+h1{font-size:1.6em;margin-bottom:6px}
+.game-subtitle{opacity:0.85;margin-bottom:20px}
+.card-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:24px 0;
+}
+.merge-demo{margin:28px 0;text-align:center}
+.board{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  max-width:360px;margin:16px auto;
+}
+.cell{
+  aspect-ratio:1/1;border-radius:12px;
+  background:rgba(255,255,255,0.1);
+  display:grid;place-items:center;font-size:2.2rem;
+  cursor:pointer;transition:0.15s;
+  user-select:none;
+}
+.cell:hover{background:rgba(255,255,255,0.18)}
+.cell.selected{box-shadow:0 0 0 3px #9ff;border-color:#9ff}
+.demo-buttons{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;
+}
+.demo-btn{
+  padding:10px 16px;border-radius:12px;border:none;
+  background:#287d58;color:#fff;font-weight:500;cursor:pointer;
+}
+.demo-btn:hover{background:#34966c}
+.bubble{
+  position:fixed;z-index:100;
+  background:#fff;color:#111;padding:10px 14px;border-radius:14px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.25);
+  pointer-events:none;opacity:0;transform:translateY(10px);
+  transition:opacity 0.3s,transform 0.3s;
+}
+.bubble.show{opacity:1;transform:translateY(0)}
+.download-card{
+  display:none;margin-top:16px;padding:16px;
+}
+.download-card.show{display:block}
+a{color:#8ee8bb;text-decoration:none}
+a:hover{text-decoration:underline}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.15);font-size:0.9em;opacity:0.85}
+footer p{margin:6px 0}
+@media(max-width:480px){
+  h1{font-size:1.3em}
+  .card-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-
-<canvas id="fxCanvas" aria-hidden="true"></canvas>
-
-<div class="festival-banner" id="festivalBanner" role="status" aria-live="polite"></div>
-
-<div class="top-controls">
-  <div class="lang-bar" role="group" aria-label="Language">
-    <button class="lang-btn active" data-lang="zh" aria-pressed="true">繁中</button>
-    <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
-    <button class="lang-btn" data-lang="ja" aria-pressed="false">日本語</button>
+<canvas id="particleCanvas"></canvas>
+<div class="fest-border" id="festBorder"></div>
+<div class="container">
+  <div class="header">
+    <div class="logo-wrap">
+      <img class="logo-img" src="icon.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'" alt="Icon">
+      <span style="font-size:2rem;display:none">🌲</span>
+      <div>
+        <h1>Mystery Forest Studio</h1>
+        <div class="game-subtitle" data-i18n="gameTitle">Mystery Forest: 神秘森林合成傳奇</div>
+      </div>
+    </div>
+    <div class="lang-row">
+      <button class="lang-btn" data-lang="zh">繁</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="ja">日本語</button>
+      <button class="audio-toggle" id="audioBtn">🔊</button>
+    </div>
   </div>
-  <button class="music-btn" id="musicBtn" aria-label="Toggle background music" title="背景音樂開關">🔊</button>
+
+  <div class="glass capsule" id="capsule">
+    <div id="todayDate">📅 2026年11月25日</div>
+    <div class="countdown" id="countdownText"></div>
+  </div>
+
+  <div class="youtube-wrap">
+    <h3 data-i18n="videoTitle">🎬 宣傳短片</h3>
+    <iframe id="ytFrame" src="https://www.youtube.com/embed/91k2erfq9lw?enablejsapi=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+
+  <div class="glass merge-demo">
+    <h3 data-i18n="demoTitle">4x4 迷你森林合成搶先體驗版</h3>
+    <p data-i18n="demoHint">點擊兩個相同物品進行合併升級！</p>
+    <div class="board" id="board"></div>
+    <div class="demo-buttons">
+      <button class="demo-btn" id="spawnBtn" data-i18n="spawn">🌰 召喚新種子</button>
+      <button class="demo-btn" id="shareBtn" data-i18n="share">📤 分享給朋友試玩</button>
+    </div>
+    <div class="glass download-card" id="downloadCard">
+      <p data-i18n="congrats">🎉 恭喜合成高階物品！下載完整版遊戲體驗更多內容</p>
+      <br>
+      <a href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank">Google Play</a>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="glass">
+      <h4 data-i18n="card1Title">🌍 全年6大節日自動巡航</h4>
+      <p data-i18n="card1Desc">跟隨季節自動切換特效、背景音樂與限定氛圍</p>
+    </div>
+    <div class="glass">
+      <h4 data-i18n="card2Title">🧚 森林管家與三語支援</h4>
+      <p data-i18n="card2Desc">繁體中文、英文、日文即時切換，記住你的偏好</p>
+    </div>
+    <div class="glass">
+      <h4 data-i18n="card3Title">🦋 治癒系寵物與專屬音效</h4>
+      <p data-i18n="card3Desc">八音盒旋律、粒子特效、柔和聲音陪伴冒險</p>
+    </div>
+    <div class="glass">
+      <h4 data-i18n="card4Title">🎮 輕鬆合成玩法</h4>
+      <p data-i18n="card4Desc">合併物品、解鎖進化，探索神秘森林</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Mystery Forest Studio. All rights reserved.</p>
+    <p><a href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank">Google Play</a></p>
+    <p><a href="https://mysteryforeststudio.github.io/mystery-forest-privacy/" target="_blank" data-i18n="privacy">私隱權政策</a></p>
+    <p>Email: <a href="mailto:mysteryforest.dev@gmail.com">mysteryforest.dev@gmail.com</a></p>
+  </footer>
 </div>
 
-<header class="hero">
-  <div class="container hero-inner">
-    <div class="hero-icon-wrap">
-      <div class="hero-icon-glow"></div>
-      <img class="hero-icon"
-           src="https://play-lh.googleusercontent.com/s20bvGtHbFhxnOqgJrRd1g6kpju3WfhBBVllVKSEkgZB2dDx1i2tCp4ATzH_UyDdlYkc4iiyo2wVgMCXnmzSDKU=w240-h480"
-           alt="Mystery Forest: Merge Legend"
-           onerror="this.outerHTML='&lt;div class=&quot;hero-icon-fallback&quot;&gt;🌲&lt;/div&gt;'">
-    </div>
-    <div class="hero-text">
-      <p class="subtitle" data-i18n="hero.studio">Mystery Forest Studio 呈獻</p>
-      <h1 data-i18n="hero.title">Mystery Forest: 神秘森林合成傳奇</h1>
-      <p class="desc" data-i18n="hero.desc">繼承婆婆的森林咖啡店，用合併魔法合成物品、重建咖啡屋、解除黑暗咒語！全年 6 大節日自動巡航，森林管家換上限定服飾為你三語打氣。</p>
-      <div class="btn-row">
-        <a class="btn-download"
-           href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest"
-           target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.6 2.4c-.3.2-.5.6-.5 1.1v17c0 .5.2.9.5 1.1l9.1-9.2L3.6 2.4zM14 11.3l2.8-2.8L5.3 2.1c-.3-.2-.7-.2-1 .1L14 11.3zm0 1.4L4.3 21.8c.3.3.7.3 1 .1l11.5-6.4L14 12.7zm4.3-2.3l-2.9 2.9 2.9 2.9 3.5-1.9c.7-.4.7-1.5 0-1.9l-3.5-2z"/></svg>
-          <span data-i18n="hero.cta">立即下載</span>
-        </a>
-        <a class="btn-secondary" href="#demo" data-i18n="hero.try">先玩迷你合成 →</a>
-      </div>
-    </div>
-  </div>
-</header>
-
-<section id="features">
-  <div class="container">
-    <h2 class="section-title" data-i18n="features.title">遊戲核心亮點</h2>
-    <p class="section-sub" data-i18n="features.sub">治癒系森林冒險，等你一步步重建夢幻咖啡屋。</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon">🎄</span>
-        <h3 data-i18n="feat.festival.title">全年 6 大節日自動巡航</h3>
-        <p data-i18n="feat.festival.desc">涵蓋聖誕、元旦、農曆新年、情人節、復活節及萬聖節，自動切換彩燈外框、專屬 BGM 與合成金星獎勵。</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🎩</span>
-        <h3 data-i18n="feat.maid.title">森林管家與三語配音</h3>
-        <p data-i18n="feat.maid.desc">管家隨節日換上限定服飾，帶來暖心對話氣泡及粵語、英語、日語三語節日語音祝福。</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🐾</span>
-        <h3 data-i18n="feat.pet.title">治癒系寵物與專屬音效</h3>
-        <p data-i18n="feat.pet.desc">收集可愛森林夥伴，實裝專屬互動音效，陪伴你一步步重建夢幻森林咖啡屋。</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🌏</span>
-        <h3 data-i18n="feat.lang.title">支援繁中・英文・日文</h3>
-        <p data-i18n="feat.lang.desc">完整支援繁體中文、英文及日文介面，隨時隨地輕鬆享受單手合成樂趣。</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="demo">
-  <div class="container">
-    <div class="video-wrap">
-      <h2 class="video-title" data-i18n="video.title">觀看官方宣傳片</h2>
-      <div class="video-card">
-        <iframe id="ytFrame"
-          src="https://www.youtube.com/embed/91k2erfq9lw?enablejsapi=1"
-          title="Mystery Forest: Merge Legend — Official Short"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      </div>
-    </div>
-
-    <div class="demo-wrap">
-      <div class="demo-left">
-        <h2 data-i18n="demo.title">迷你合成小遊戲</h2>
-        <p data-i18n="demo.desc">點擊兩個相同物品，合併進化！由小樹苗一路合成到森林皇冠。感受 Mystery Forest 的核心樂趣。</p>
-        <div class="demo-hint">
-          <span>💡</span>
-          <div data-i18n="demo.hint">點選相同的物品合成升級：🌱 → 🌿 → 🌸 → 🍄 → 🎄 → 👑。合成到 🎄 或 👑 解鎖驚喜！</div>
-        </div>
-      </div>
-      <div class="board-area">
-        <div class="maid-bubble" id="maidBubble"></div>
-        <div class="merge-board" id="mergeBoard" role="grid" aria-label="Mini merge demo board"></div>
-        <div class="score-line"><span data-i18n="demo.score">已合成次數</span>：<b id="scoreVal">0</b></div>
-        <button class="btn-summon" id="btnSummon" data-i18n="demo.summon">🌰 召喚新種子</button>
-        <button class="btn-share" id="btnShare" data-i18n="demo.share">📤 分享給朋友試玩</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <div class="footer-brand">Mystery Forest Studio</div>
-    <div data-i18n="footer.tagline">用心打造治癒系森林遊戲 🌲</div>
-    <div class="footer-links">
-      <a href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank" rel="noopener" data-i18n="footer.play">Google Play 下載</a>
-      <a href="https://mysteryforeststudio.github.io/mystery-forest-privacy/" target="_blank" rel="noopener" data-i18n="footer.privacy">私隱權政策</a>
-      <a href="mailto:mysteryforest.dev@gmail.com" data-i18n="footer.contact">聯絡我們</a>
-    </div>
-    <div class="copyright" data-i18n="footer.copyright">© 2026 Mystery Forest Studio. All rights reserved.</div>
-  </div>
-</footer>
+<div class="bubble" id="bubble"></div>
 
 <script>
-/* ============ i18n ============ */
-var I18N = {
-  zh: {
-    "hero.studio": "Mystery Forest Studio 呈獻",
-    "hero.title": "Mystery Forest: 神秘森林合成傳奇",
-    "hero.desc": "繼承婆婆的森林咖啡店，用合併魔法合成物品、重建咖啡屋、解除黑暗咒語！全年 6 大節日自動巡航，森林管家換上限定服飾為你三語打氣。",
-    "hero.cta": "立即下載",
-    "hero.try": "先玩迷你合成 →",
-    "features.title": "遊戲核心亮點",
-    "features.sub": "治癒系森林冒險，等你一步步重建夢幻咖啡屋。",
-    "feat.festival.title": "全年 6 大節日自動巡航",
-    "feat.festival.desc": "涵蓋聖誕、元旦、農曆新年、情人節、復活節及萬聖節，自動切換彩燈外框、專屬 BGM 與合成金星獎勵。",
-    "feat.maid.title": "森林管家與三語配音",
-    "feat.maid.desc": "管家隨節日換上限定服飾，帶來暖心對話氣泡及粵語、英語、日語三語節日語音祝福。",
-    "feat.pet.title": "治癒系寵物與專屬音效",
-    "feat.pet.desc": "收集可愛森林夥伴，實裝專屬互動音效，陪伴你一步步重建夢幻森林咖啡屋。",
-    "feat.lang.title": "支援繁中・英文・日文",
-    "feat.lang.desc": "完整支援繁體中文、英文及日文介面，隨時隨地輕鬆享受單手合成樂趣。",
-    "video.title": "觀看官方宣傳片",
-    "demo.title": "迷你合成小遊戲",
-    "demo.desc": "點擊兩個相同物品，合併進化！由小樹苗一路合成到森林皇冠。感受 Mystery Forest 的核心樂趣。",
-    "demo.hint": "點選相同的物品合成升級：🌱 → 🌿 → 🌸 → 🍄 → 🎄 → 👑。合成到 🎄 或 👑 解鎖驚喜！",
-    "demo.score": "已合成次數",
-    "demo.summon": "🌰 召喚新種子",
-    "demo.share": "📤 分享給朋友試玩",
-    "demo.share.done": "✅ 已複製網址，快啲分享啦！",
-    "demo.share.fail": "複製失敗，請手動複製網址",
-    "demo.maid.idle": "園主，試下合併兩粒相同嘅種子啦！",
-    "demo.maid.merge": "做得好！繼續加油！",
-    "demo.maid.final": "哇！你合到奇蹟樹喇！快啲下載玩完整版啦！",
-    "demo.maid.max": "森林皇冠！你係真正嘅合成大師！",
-    "demo.toast": "🎉 你已合成 {name}！<br>下載完整版，解鎖 15+ 種物品與 6 大節日冒險！",
-    "footer.tagline": "用心打造治癒系森林遊戲 🌲",
-    "footer.play": "Google Play 下載",
-    "footer.privacy": "私隱權政策",
-    "footer.contact": "聯絡我們",
-    "footer.copyright": "© 2026 Mystery Forest Studio. All rights reserved.",
-    "festival.christmas": "🎄 聖誕節限定活動進行中！下載解鎖聖誕管家與專屬音樂",
-    "festival.newyear": "🎆 新年快樂！開啟全新森林咖啡屋奇幻旅程",
-    "festival.lunar": "🧧 農曆新年限定慶典！粵英日三語管家為你送上新春祝福",
-    "festival.valentine": "💝 浪漫情人節限定！來森林咖啡屋體驗甜蜜合併魔法",
-    "festival.easter": "🐣 春日復活節奇蹟！尋找森林彩蛋與限定驚喜",
-    "festival.halloween": "🎃 萬聖節魔法之夜！換上神秘南瓜彩燈外框",
-    "festival.default": "🌲 四季奇幻巡航・涵蓋全年 6 大節日自動換裝與三語配音",
-    "music.on": "背景音樂：開",
-    "music.off": "背景音樂：關"
+// i18n
+const i18n = {
+  zh:{
+    gameTitle:"Mystery Forest: 神秘森林合成傳奇",
+    videoTitle:"🎬 宣傳短片",
+    demoTitle:"4x4 迷你森林合成搶先體驗版",
+    demoHint:"點擊兩個相同物品進行合併升級！",
+    spawn:"🌰 召喚新種子",
+    share:"📤 分享給朋友試玩",
+    congrats:"🎉 恭喜合成高階物品！下載完整版遊戲體驗更多內容",
+    privacy:"私隱權政策",
+    card1Title:"🌍 全年6大節日自動巡航",
+    card1Desc:"跟隨季節自動切換特效、背景音樂與限定氛圍",
+    card2Title:"🧚 森林管家與三語支援",
+    card2Desc:"繁體中文、英文、日文即時切換，記住你的偏好",
+    card3Title:"🦋 治癒系寵物與專屬音效",
+    card3Desc:"八音盒旋律、粒子特效、柔和聲音陪伴冒險",
+    card4Title:"🎮 輕鬆合成玩法",
+    card4Desc:"合併物品、解鎖進化，探索神秘森林",
+    eventLive:"🎉 特別日子進行中：{name}！（Special Event Live!）",
+    countdown:"⏳ 距離下一個特別日子【{name}】還有 {days} 天",
+    shareOk:"已複製網址，可以分享啦！",
+    mergeGood:"很棒！繼續合成吧～",
+    mergeGreat:"太厲害了！",
+    mergeWow:"哇，稀有物品！",
+    christmas:"🎄 聖誕節限定慶典",
+    new_year:"🎆 元旦慶典",
+    lunar_new_year:"🧧 農曆新年",
+    valentine:"💖 情人節",
+    easter:"🌼 復活節",
+    halloween:"🎃 萬聖節"
   },
-  en: {
-    "hero.studio": "Presented by Mystery Forest Studio",
-    "hero.title": "Mystery Forest: Merge Legend",
-    "hero.desc": "You inherited your grandma's forest cafe, but a dark spell has ruined it. Use Merge Magic to combine items, rebuild the cafe, and lift the spell! Six seasonal festivals auto-rotate, and your Forest Steward cheers you on in three languages.",
-    "hero.cta": "Download Now",
-    "hero.try": "Try the mini merge →",
-    "features.title": "Core Highlights",
-    "features.sub": "A healing forest adventure. Rebuild your dream cafe step by step.",
-    "feat.festival.title": "6 Seasonal Festivals, Auto-Rotating",
-    "feat.festival.desc": "Christmas, New Year, Lunar New Year, Valentine's, Easter and Halloween — each auto-switches light frames, exclusive BGM and golden-star merge rewards.",
-    "feat.maid.title": "Forest Steward & Tri-lingual Voice",
-    "feat.maid.desc": "Your Steward dresses up for each festival and brings warm speech bubbles plus Cantonese, English and Japanese voice blessings.",
-    "feat.pet.title": "Healing Pets & Exclusive SFX",
-    "feat.pet.desc": "Collect cute forest companions with unique interaction sounds, helping you rebuild the dream forest cafe.",
-    "feat.lang.title": "Traditional Chinese · English · Japanese",
-    "feat.lang.desc": "Full UI support for Traditional Chinese, English and Japanese. Enjoy one-hand merge fun anytime, anywhere.",
-    "video.title": "Watch the Official Trailer",
-    "demo.title": "Mini Merge Demo",
-    "demo.desc": "Tap two identical items to merge and evolve! From a tiny sprout all the way to the Forest Crown. Feel the core fun of Mystery Forest.",
-    "demo.hint": "Tap identical items to merge: 🌱 → 🌿 → 🌸 → 🍄 → 🎄 → 👑. Reach 🎄 or 👑 for a surprise!",
-    "demo.score": "Merges",
-    "demo.summon": "🌰 Summon New Seed",
-    "demo.share": "📤 Share with friends",
-    "demo.share.done": "✅ Link copied! Share it now!",
-    "demo.share.fail": "Copy failed. Please copy the URL manually.",
-    "demo.maid.idle": "Master, try merging two identical seeds!",
-    "demo.maid.merge": "Well done! Keep going!",
-    "demo.maid.final": "Wow! You made the Miracle Tree! Download the full version now!",
-    "demo.maid.max": "The Forest Crown! You're a true merge master!",
-    "demo.toast": "🎉 You merged {name}!<br>Download the full version to unlock 15+ items and 6 festivals!",
-    "footer.tagline": "Crafting healing forest games with love 🌲",
-    "footer.play": "Get it on Google Play",
-    "footer.privacy": "Privacy Policy",
-    "footer.contact": "Contact Us",
-    "footer.copyright": "© 2026 Mystery Forest Studio. All rights reserved.",
-    "festival.christmas": "🎄 Christmas event is live! Download to unlock the Christmas Steward & exclusive music",
-    "festival.newyear": "🎆 Happy New Year! Begin a brand-new fantasy journey at the forest cafe",
-    "festival.lunar": "🧧 Lunar New Year celebration! Your tri-lingual Steward sends festive blessings",
-    "festival.valentine": "💝 Romantic Valentine's! Experience sweet merge magic at the forest cafe",
-    "festival.easter": "🐣 Spring Easter miracle! Hunt for forest eggs and limited surprises",
-    "festival.halloween": "🎃 Halloween magic night! Switch to the mystic pumpkin light frame",
-    "festival.default": "🌲 Four-season fantasy cruise · 6 festivals auto-decorate with tri-lingual voice",
-    "music.on": "Music: On",
-    "music.off": "Music: Off"
+  en:{
+    gameTitle:"Mystery Forest: Merge Legend",
+    videoTitle:"🎬 Promo Shorts",
+    demoTitle:"4x4 Mini Forest Merge Demo",
+    demoHint:"Tap two identical items to merge!",
+    spawn:"🌰 Spawn Seed",
+    share:"📤 Share with friends",
+    congrats:"🎉 You merged rare item! Download full game for more",
+    privacy:"Privacy Policy",
+    card1Title:"🌍 Auto 6 Festivals All Year",
+    card1Desc:"Auto switch visuals, music and atmosphere by season",
+    card2Title:"🧚 Forest Butler & Multilanguage",
+    card2Desc:"Traditional Chinese, English, Japanese, save preference",
+    card3Title:"🦋 Healing Pets & Custom SFX",
+    card3Desc:"Music box melody, particles and soft ambient sounds",
+    card4Title:"🎮 Relaxing Merge Gameplay",
+    card4Desc:"Merge items, evolve, explore the mystery forest",
+    eventLive:"🎉 Special Event Live: {name}!",
+    countdown:"⏳ Next special event【{name}】in {days} days",
+    shareOk:"Link copied to clipboard!",
+    mergeGood:"Nice merge! Keep going.",
+    mergeGreat:"Awesome!",
+    mergeWow:"Wow, rare find!",
+    christmas:"🎄 Christmas Event",
+    new_year:"🎆 New Year",
+    lunar_new_year:"🧧 Lunar New Year",
+    valentine:"💖 Valentine's Day",
+    easter:"🌼 Easter",
+    halloween:"🎃 Halloween"
   },
-  ja: {
-    "hero.studio": "Mystery Forest Studio 提供",
-    "hero.title": "Mystery Forest：神秘の森のマージ伝説",
-    "hero.desc": "おばあちゃんの森のカフェを継いだあなた。しかし闇の呪文がカフェを壊してしまいました。マージ魔法でアイテムを合成し、カフェを再建して呪いを解こう！年間6大フェスティバルが自動巡回、森の執事が三言語であなたを応援します。",
-    "hero.cta": "今すぐダウンロード",
-    "hero.try": "ミニマージを試す →",
-    "features.title": "ゲームの魅力",
-    "features.sub": "癒し系の森の冒険。夢のカフェを少しずつ再建しよう。",
-    "feat.festival.title": "年間6大フェスティバル自動巡回",
-    "feat.festival.desc": "クリスマス、元日、旧正月、バレンタイン、イースター、ハロウィンを収録。彩灯フレーム、専用BGM、金星合成報酬が自動で切り替わります。",
-    "feat.maid.title": "森の執事と三言語ボイス",
-    "feat.maid.desc": "執事はフェスティバルごとに限定衣装に着替え、温かいセリフと広東語・英語・日本語の祝福ボイスをお届けします。",
-    "feat.pet.title": "癒し系ペットと専用SE",
-    "feat.pet.desc": "可愛い森の仲間を集め、専用のインタラクションSEで夢の森カフェ再建を一緒に楽しもう。",
-    "feat.lang.title": "繁体字中国語・英語・日本語対応",
-    "feat.lang.desc": "繁体字中国語、英語、日本語のUIを完全サポート。いつでもどこでも片手でマージを楽しめます。",
-    "video.title": "公式トレーラーを見る",
-    "demo.title": "ミニマージゲーム",
-    "demo.desc": "同じアイテムを2つタップして合成進化！小さな芽から森の王冠まで。Mystery Forestの核心的な楽しさを体験しよう。",
-    "demo.hint": "同じアイテムをタップして合成：🌱 → 🌿 → 🌸 → 🍄 → 🎄 → 👑。🎄 か 👑 に到達するとサプライズ！",
-    "demo.score": "合成回数",
-    "demo.summon": "🌰 新しい種を召喚",
-    "demo.share": "📤 友達にシェア",
-    "demo.share.done": "✅ URLをコピーしました！シェアしよう！",
-    "demo.share.fail": "コピーに失敗しました。手動でURLをコピーしてください。",
-    "demo.maid.idle": "ご主人様、同じ種を2つ合成してみてください！",
-    "demo.maid.merge": "よくできました！その調子です！",
-    "demo.maid.final": "わあ！奇跡の木ができました！完全版をダウンロードしてね！",
-    "demo.maid.max": "森の王冠！あなたは真のマージマスターです！",
-    "demo.toast": "🎉 {name} を合成しました！<br>完全版をダウンロードして、15+アイテムと6大フェスティバルを解放しよう！",
-    "footer.tagline": "癒し系森ゲームを心を込めて制作 🌲",
-    "footer.play": "Google Play で入手",
-    "footer.privacy": "プライバシーポリシー",
-    "footer.contact": "お問い合わせ",
-    "footer.copyright": "© 2026 Mystery Forest Studio. All rights reserved.",
-    "festival.christmas": "🎄 クリスマス限定イベント開催中！ダウンロードでクリスマス執事と専用音楽を解放",
-    "festival.newyear": "🎆 あけましておめでとう！森のカフェで新たなファンタジーの旅を始めよう",
-    "festival.lunar": "🧧 旧正月限定のお祝い！三言語の執事が新春の祝福をお届け",
-    "festival.valentine": "💝 ロマンチックなバレンタイン限定！森のカフェで甘いマージ魔法を体験",
-    "festival.easter": "🐣 春のイースター奇跡！森の卵と限定サプライズを探そう",
-    "festival.halloween": "🎃 ハロウィンの魔法の夜！神秘的なカボチャ彩灯フレームに衣替え",
-    "festival.default": "🌲 四季ファンタジークルーズ・年間6大フェスティバルが自動で衣替え＆三言語ボイス",
-    "music.on": "音楽：オン",
-    "music.off": "音楽：オフ"
+  ja:{
+    gameTitle:"Mystery Forest：神秘の森のマージ伝説",
+    videoTitle:"🎬 プロモーション動画",
+    demoTitle:"4x4 ミニマージ体験版",
+    demoHint:"同じアイテムを2つタップして合成！",
+    spawn:"🌰 種を召喚",
+    share:"📤 友達にシェア",
+    congrats:"🎉 レアアイテム合成！フル版をダウンロード",
+    privacy:"プライバシーポリシー",
+    card1Title:"🌍 年間6イベント自動切替",
+    card1Desc:"季節に合わせてエフェクトと音楽が変わる",
+    card2Title:"🧚 フォレスト執事と多言語",
+    card2Desc:"繁体中文・英語・日本語、設定保存",
+    card3Title:"🦋 癒しペットと効果音",
+    card3Desc:"オルゴール、パーティクル、柔らかい音",
+    card4Title:"🎮 まったりマージゲーム",
+    card4Desc:"アイテムを合成して進化、森を探索",
+    eventLive:"🎉 イベント開催中：{name}！",
+    countdown:"⏳ 次のイベント【{name}】まで {days} 日",
+    shareOk:"リンクをコピーしました",
+    mergeGood:"いいね、続けよう",
+    mergeGreat:"すごい！",
+    mergeWow:"レアアイテム！",
+    christmas:"🎄 クリスマスイベント",
+    new_year:"🎆 新年",
+    lunar_new_year:"🧧 旧正月",
+    valentine:"💖 バレンタイン",
+    easter:"🌼 イースター",
+    halloween:"🎃 ハロウィン"
   }
 };
+let lang = localStorage.getItem("mfLang") || "zh";
+function setLang(l){
+  lang=l;localStorage.setItem("mfLang",l);
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k=el.dataset.i18n;
+    if(i18n[l][k]) el.textContent=i18n[l][k];
+  });
+  updateCalendar();
+}
+document.querySelectorAll(".lang-btn").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+setLang(lang);
 
-var currentLang = "zh";
-var LANG_KEY = "mf_lang";
-
-function applyLang(lang){
-  if(!I18N[lang]) lang = "zh";
-  currentLang = lang;
-  document.documentElement.lang = (lang === "zh") ? "zh-Hant" : lang;
-  var nodes = document.querySelectorAll("[data-i18n]");
-  for(var i=0;i<nodes.length;i++){
-    var el = nodes[i];
-    var key = el.getAttribute("data-i18n");
-    var val = I18N[lang][key];
-    if(val !== undefined){
-      if(val.indexOf("<br>") !== -1) el.innerHTML = val;
-      else el.textContent = val;
+// Festivals
+const festDefs = {
+  christmas:{type:"fixed",start:[12,15],end:[12,28],nameKey:"christmas",border:"rgba(255,50,50,0.35),rgba(0,180,80,0.35),rgba(255,210,0,0.35)",particles:"snow"},
+  new_year:{type:"fixed",start:[12,29],end:[1,5],nameKey:"new_year",border:"rgba(255,210,0,0.4)",particles:"sparkle"},
+  lunar_new_year:{type:"lunar",offset:-7,span:14,nameKey:"lunar_new_year",border:"rgba(220,20,20,0.4),rgba(255,200,0,0.35)",particles:"redpetal"},
+  valentine:{type:"fixed",start:[2,10],end:[2,16],nameKey:"valentine",border:"rgba(255,100,160,0.35),rgba(180,100,255,0.3)",particles:"heart"},
+  easter:{type:"easter",offset:-7,span:14,nameKey:"easter",border:"rgba(160,255,180,0.35),rgba(255,230,100,0.3)",particles:"bloom"},
+  halloween:{type:"fixed",start:[10,24],end:[11,2],nameKey:"halloween",border:"rgba(120,40,180,0.35),rgba(255,140,0,0.35)",particles:"pumpkin"}
+};
+const lunarNewYear = {
+  2026:{y:2026,m:2,d:17},2027:{y:2027,m:2,d:6},2028:{y:2028,m:1,d:26},2029:{y:2029,m:2,d:13},2030:{y:2030,m:2,d:3},
+  2031:{y:2031,m:1,d:23},2032:{y:2032,m:2,d:11},2033:{y:2033,m:1,d:31},2034:{y:2034,m:2,d:19},2035:{y:2035,m:2,d:8},
+  2036:{y:2036,m:1,d:28},2037:{y:2037,m:2,d:15},2038:{y:2038,m:2,d:4},2039:{y:2039,m:1,d:24},2040:{y:2040,m:2,d:12},
+  2041:{y:2041,m:2,d:1},2042:{y:2042,m:1,d:22},2043:{y:2043,m:2,d:10},2044:{y:2044,m:1,d:30},2045:{y:2045,m:2,d:17},
+  2046:{y:2046,m:2,d:6},2047:{y:2047,m:1,d:26},2048:{y:2048,m:2,d:14}
+};
+function computeEaster(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),n=h+l-7*m+1;
+  const month=Math.floor(n/31)+3,day=(n%31)+1;
+  return new Date(y,month-1,day);
+}
+function getFestForDate(now){
+  const qs=new URLSearchParams(location.search);
+  const force=qs.get("fest");
+  if(force && festDefs[force]) return force;
+  const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
+  for(const [k,f] of Object.entries(festDefs)){
+    if(f.type==="fixed"){
+      const [sm,sd]=f.start,[em,ed]=f.end;
+      if((m===sm && d>=sd) || (m===em && d<=ed) || (sm>em && ((m>=sm)||(m<=em)))) return k;
+    }else if(f.type==="lunar"){
+      const ln=lunarNewYear[y];if(!ln)continue;
+      const s=new Date(ln.y,ln.m-1,ln.d+f.offset),e=new Date(s);e.setDate(e.getDate()+f.span-1);
+      if(now>=s && now<=e) return k;
+    }else if(f.type==="easter"){
+      const eas=computeEaster(y);
+      const s=new Date(eas);s.setDate(s.getDate()+f.offset);
+      const e=new Date(s);e.setDate(e.getDate()+f.span-1);
+      if(now>=s && now<=e) return k;
     }
   }
-  var btns = document.querySelectorAll(".lang-btn");
-  for(var j=0;j<btns.length;j++){
-    var on = btns[j].dataset.lang === lang;
-    btns[j].classList.toggle("active", on);
-    btns[j].setAttribute("aria-pressed", on ? "true" : "false");
+  return null;
+}
+function nextFestDate(now){
+  const candidates=[];
+  const y=now.getFullYear();
+  for(const [k,f] of Object.entries(festDefs)){
+    let dt;
+    if(f.type==="fixed"){
+      const [sm,sd]=f.start;dt=new Date(y,sm-1,sd);
+      if(dt<now) dt=new Date(y+1,sm-1,sd);
+    }else if(f.type==="lunar"){
+      let ln=lunarNewYear[y];if(!ln)continue;
+      dt=new Date(ln.y,ln.m-1,ln.d+f.offset);
+      if(dt<now){ln=lunarNewYear[y+1];if(!ln)continue;dt=new Date(ln.y,ln.m-1,ln.d+f.offset);}
+    }else if(f.type==="easter"){
+      let eas=computeEaster(y);
+      dt=new Date(eas);dt.setDate(dt.getDate()+f.offset);
+      if(dt<now){eas=computeEaster(y+1);dt=new Date(eas);dt.setDate(dt.getDate()+f.offset);}
+    }
+    candidates.push({key:k,date:dt});
   }
-  try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
-  refreshFestivalBanner();
-  updateMusicBtnTitle();
+  candidates.sort((a,b)=>a.date-b.date);
+  return candidates[0];
 }
-
-/* ============ Audio Context & chimes ============ */
-var audioCtx = null;
-function getAudioCtx(){
-  if(!audioCtx){
-    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    catch(e){ audioCtx = null; }
+function updateCalendar(){
+  const now=new Date();
+  const festKey=getFestForDate(now);
+  const capsule=document.getElementById("capsule");
+  const countdownEl=document.getElementById("countdownText");
+  const todayStr=`📅 ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+  document.getElementById("todayDate").textContent=todayStr;
+  if(festKey){
+    const name=i18n[lang][festDefs[festKey].nameKey];
+    countdownEl.textContent=i18n[lang].eventLive.replace("{name}",name);
+  }else{
+    const nf=nextFestDate(now);
+    const diff=Math.ceil((nf.date-now)/(1000*60*60*24));
+    const name=i18n[lang][festDefs[nf.key].nameKey];
+    countdownEl.textContent=i18n[lang].countdown.replace("{name}",name).replace("{days}",diff);
   }
-  if(audioCtx && audioCtx.state === "suspended"){ try{ audioCtx.resume(); }catch(e){} }
-  return audioCtx;
+  applyFestStyle(festKey||"normal");
+  setParticleScene(festKey||"normal");
+  scheduleMusic(festKey||"normal");
 }
-function playChime(baseFreq, steps){
-  var ctx = getAudioCtx(); if(!ctx) return;
-  var now = ctx.currentTime; steps = steps || 2;
-  for(var i=0;i<steps;i++){
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(baseFreq * Math.pow(1.25, i), now + i*0.07);
-    gain.gain.setValueAtTime(0.0001, now + i*0.07);
-    gain.gain.exponentialRampToValueAtTime(0.18, now + i*0.07 + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + i*0.07 + 0.35);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now + i*0.07); osc.stop(now + i*0.07 + 0.4);
+function applyFestStyle(scene){
+  const b=document.getElementById("festBorder");
+  const def=festDefs[scene];
+  if(def){
+    b.style.borderWidth="14px";
+    b.style.borderColor=def.border;
+    b.style.boxShadow=`inset 0 0 120px ${def.border}`;
+  }else{
+    b.style.borderWidth="0px";
+    b.style.boxShadow="none";
   }
 }
-function playMergeSound(tier){ playChime(520 + tier*60, tier >= 4 ? 3 : 2); }
-function playSummonSound(){ playChime(380, 3); }
 
-/* ============ Background Music (Web Audio synth music box) ============ */
-var BG_VOLUME = 0.25;
-var musicBtn = document.getElementById("musicBtn");
-var bgMasterGain = null;
-var bgMusicOn = false;
-var bgUserWantsMusic = true;
-var bgScheduler = null;
-var bgStep = 0;
-var bgNextNoteTime = 0;
-var bgMuteByYt = false;
-
-/* Note frequencies */
-var F = {
-  A4:440.00, B4:493.88,
-  C5:523.25, Csh5:554.37, D5:587.33, Dsh5:622.25, E5:659.25, F5:698.46, Fsh5:739.99, G5:783.99, Gsh5:830.61, A5:880.00, Ash5:932.33, B5:987.77,
-  C6:1046.50, Csh6:1108.73, D6:1174.66, Dsh6:1244.51, E6:1318.51, F6:1396.91, Fsh6:1479.98, G6:1567.98, Gsh6:1661.22, A6:1760.00, Ash6:1864.66, B6:1975.53
-};
-
-/* Melodies — classic, festival-accurate.
-   Each note: {f: frequency, d: beat (seconds), v: velocity} or {f:null,d:rest,v:0}
-   BPM ~ 100 → one beat ≈ 0.60s, we fine-tune. */
-var MELODIES = {
-  /* Jingle Bells chorus (classic): E-E-E | E-E-E | E-G-C-D-E ...
-     Simplified, warm music-box rendering. */
-  christmas: [
-    {f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:1.0,v:1.0},
-    {f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:1.0,v:1.0},
-    {f:F.E5,d:0.5,v:0.95},{f:F.G5,d:0.5,v:1.0},{f:F.C5,d:0.75,v:0.95},{f:F.D5,d:0.5,v:0.95},
-    {f:F.E5,d:1.4,v:1.0},
-    {f:null,d:0.6,v:0},
-    {f:F.F5,d:0.5,v:0.95},{f:F.F5,d:0.5,v:0.95},{f:F.F5,d:0.75,v:1.0},{f:F.F5,d:0.5,v:0.95},
-    {f:F.F5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
-    {f:F.E5,d:0.5,v:0.95},{f:F.D5,d:0.5,v:0.95},{f:F.D5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
-    {f:F.D5,d:1.0,v:1.0},{f:F.G5,d:1.0,v:1.0},
-    {f:null,d:0.8,v:0}
-  ],
-  /* Auld Lang Syne (opening): C | F-F-F-A | G-F-G-A | F-F-A-C | D ...
-     Traditional, warm. */
-  newyear: [
-    {f:F.C5,d:0.75,v:0.9},
-    {f:F.F5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.A5,d:1.0,v:1.0},
-    {f:F.G5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.G5,d:0.75,v:0.95},{f:F.A5,d:1.0,v:1.0},
-    {f:F.F5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.A5,d:0.75,v:1.0},{f:F.C6,d:1.0,v:1.0},
-    {f:F.D6,d:0.75,v:1.0},{f:F.D6,d:0.75,v:1.0},{f:F.C6,d:0.75,v:1.0},{f:F.A5,d:1.0,v:1.0},
-    {f:F.F5,d:0.75,v:0.95},{f:F.G5,d:0.75,v:0.95},{f:F.A5,d:0.75,v:1.0},{f:F.G5,d:0.75,v:0.95},
-    {f:F.F5,d:0.75,v:0.95},{f:F.G5,d:0.75,v:0.95},{f:F.A5,d:0.75,v:1.0},{f:F.F5,d:1.4,v:0.95},
-    {f:null,d:0.9,v:0}
-  ],
-  /* 恭喜恭喜 (Chinese New Year classic). Simplified pentatonic contour that
-     evokes the festive tune, music-box style. */
-  lunar_new_year: [
-    {f:F.E5,d:0.45,v:0.95},{f:F.E5,d:0.45,v:0.95},{f:F.C5,d:0.45,v:0.9},{f:F.E5,d:0.45,v:0.95},
-    {f:F.G5,d:0.6,v:1.0},{f:F.E5,d:0.45,v:0.95},{f:F.D5,d:0.45,v:0.95},
-    {f:F.D5,d:0.45,v:0.95},{f:F.D5,d:0.45,v:0.95},{f:F.B4,d:0.45,v:0.9},{f:F.D5,d:0.45,v:0.95},
-    {f:F.E5,d:0.6,v:1.0},{f:F.D5,d:0.45,v:0.95},{f:F.C5,d:0.45,v:0.95},
-    {f:null,d:0.3,v:0},
-    {f:F.G5,d:0.45,v:1.0},{f:F.G5,d:0.45,v:1.0},{f:F.E5,d:0.45,v:0.95},{f:F.G5,d:0.45,v:1.0},
-    {f:F.A5,d:0.6,v:1.0},{f:F.G5,d:0.45,v:0.95},{f:F.E5,d:0.45,v:0.95},
-    {f:F.D5,d:0.45,v:0.95},{f:F.E5,d:0.45,v:0.95},{f:F.D5,d:0.45,v:0.95},{f:F.C5,d:0.9,v:0.95},
-    {f:null,d:0.7,v:0}
-  ],
-  /* Canon in D (Pachelbel) — famous descending sequence, transposed to C for clarity:
-     F#5-E5-D5-C#5-B4-A4-B4-C#5 ... We use the D-major phrase in F values. */
-  valentine: [
-    {f:F.Fsh5,d:0.6,v:0.95},{f:F.E5,d:0.6,v:0.9},{f:F.D5,d:0.6,v:0.9},{f:F.Csh5,d:0.6,v:0.9},
-    {f:F.B4,d:0.6,v:0.9},{f:F.A4,d:0.6,v:0.9},{f:F.B4,d:0.6,v:0.9},{f:F.Csh5,d:0.6,v:0.9},
-    {f:F.D5,d:0.6,v:0.95},{f:F.Fsh5,d:0.6,v:0.95},{f:F.A5,d:0.6,v:1.0},{f:F.G5,d:0.6,v:0.95},
-    {f:F.Fsh5,d:0.6,v:0.95},{f:F.D5,d:0.6,v:0.9},{f:F.Fsh5,d:0.6,v:0.95},{f:F.E5,d:0.6,v:0.9},
-    {f:F.D5,d:0.6,v:0.9},{f:F.B4,d:0.6,v:0.9},{f:F.D5,d:0.6,v:0.9},{f:F.A5,d:1.0,v:1.0},
-    {f:null,d:0.9,v:0}
-  ],
-  /* Vivaldi "Spring" — bright opening motif.
-     Simplified: E-E-E | G-E-C | G-F#-E ... transposed to C major for ease. */
-  easter: [
-    {f:F.E5,d:0.4,v:0.95},{f:F.E5,d:0.4,v:0.9},{f:F.E5,d:0.4,v:0.95},
-    {f:F.G5,d:0.6,v:1.0},{f:F.E5,d:0.4,v:0.9},{f:F.C5,d:0.6,v:0.95},
-    {f:F.G5,d:0.4,v:0.95},{f:F.Fsh5,d:0.4,v:0.9},{f:F.E5,d:0.6,v:0.95},{f:F.D5,d:0.4,v:0.9},
-    {f:F.C5,d:0.8,v:0.95},
-    {f:null,d:0.3,v:0},
-    {f:F.C5,d:0.4,v:0.9},{f:F.E5,d:0.4,v:0.95},{f:F.G5,d:0.4,v:1.0},{f:F.C6,d:0.6,v:1.0},
-    {f:F.B5,d:0.4,v:0.95},{f:F.G5,d:0.4,v:0.95},{f:F.E5,d:0.8,v:0.95},
-    {f:null,d:0.7,v:0}
-  ],
-  /* Halloween — mysterious minor, playful spooky contour.
-     A minor arpeggio with augmented/diminished colours: A-E-C-E | B-E-C-E ... */
-  halloween: [
-    {f:F.A4,d:0.5,v:0.9},{f:F.E5,d:0.5,v:0.95},{f:F.C5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
-    {f:F.B4,d:0.5,v:0.9},{f:F.E5,d:0.5,v:0.95},{f:F.C5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
-    {f:F.Gsh5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.C5,d:0.5,v:0.9},{f:F.A4,d:0.5,v:0.9},
-    {f:F.B4,d:0.7,v:0.95},{f:F.E5,d:0.7,v:0.95},
-    {f:null,d:0.4,v:0},
-    {f:F.A4,d:0.5,v:0.9},{f:F.C5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.A5,d:0.8,v:1.0},
-    {f:null,d:0.7,v:0}
-  ],
-  /* Normal day: healing forest pentatonic wind-chime arpeggio.
-     C5, D5, E5, G5, A5, C6, slow and airy. */
-  normal: [
-    {f:F.C5,d:0.8,v:0.8},{f:F.D5,d:0.8,v:0.8},{f:F.E5,d:0.8,v:0.85},
-    {f:F.G5,d:0.9,v:0.85},{f:F.A5,d:0.9,v:0.85},{f:F.C6,d:1.2,v:0.9},
-    {f:null,d:0.6,v:0},
-    {f:F.A5,d:0.8,v:0.8},{f:F.G5,d:0.8,v:0.8},{f:F.E5,d:0.8,v:0.85},
-    {f:F.D5,d:0.9,v:0.85},{f:F.C5,d:1.2,v:0.85},
-    {f:null,d:0.9,v:0},
-    {f:F.E5,d:0.8,v:0.8},{f:F.G5,d:0.8,v:0.8},{f:F.A5,d:0.8,v:0.85},{f:F.C6,d:1.4,v:0.9},
-    {f:null,d:1.2,v:0}
-  ]
-};
-
-/* Map festival key -> melody key
-   Supported URL values:
-   ?fest=christmas | newyear | new_year | lunar | lunar_new_year |
-         valentine | easter | halloween | default | normal */
-var MELODY_KEY = {
-  christmas:"christmas",
-  newyear:"newyear", new_year:"newyear",
-  lunar:"lunar_new_year", lunar_new_year:"lunar_new_year",
-  valentine:"valentine",
-  easter:"easter",
-  halloween:"halloween",
-  default:"normal", normal:"normal"
-};
-
-function getMelody(){
-  var key = MELODY_KEY[activeFestival] || "normal";
-  return MELODIES[key] || MELODIES.normal;
+// Particle
+const canvas=document.getElementById("particleCanvas");
+const ctx=canvas.getContext("2d");
+let w,h,particles=[],pScene="normal";
+function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
+window.onresize=resize;resize();
+class Particle{
+  constructor(type){
+    this.x=Math.random()*w;this.y=Math.random()*h;
+    this.r=Math.random()*3+1;this.a=Math.random();
+    this.vx=(Math.random()-0.5)*0.8;this.vy=Math.random()*0.6+0.2;
+    this.type=type;
+    this.rot=Math.random()*Math.PI*2;
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;this.rot+=0.01;
+    if(this.y>h+10){this.y=-10;this.x=Math.random()*w;}
+    if(this.x<-10){this.x=w+10;}
+    this.a=0.4+Math.sin(Date.now()/800+this.x)*0.3;
+  }
+  draw(){
+    ctx.save();ctx.globalAlpha=this.a;
+    if(this.type==="snow"){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();}
+    else if(this.type==="sparkle"){ctx.fillStyle="#ffdd66";ctx.beginPath();ctx.arc(this.x,this.y,this.r*1.2,0,Math.PI*2);ctx.fill();}
+    else if(this.type==="redpetal"){ctx.fillStyle="#ff4444";ctx.translate(this.x,this.y);ctx.rotate(this.rot);ctx.fillRect(-this.r,-this.r/2,this.r*2,this.r);}
+    else if(this.type==="heart"){ctx.fillStyle="#ff77aa";drawHeart(this.x,this.y,this.r);}
+    else if(this.type==="bloom"){ctx.fillStyle="#bbee99";ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();}
+    else if(this.type==="pumpkin"){ctx.fillStyle="#ff9922";ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();}
+    else if(this.type==="firefly"){ctx.fillStyle="#aaffaa";ctx.beginPath();ctx.arc(this.x,this.y,this.r*0.8,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
 }
-
-function setupBgAudio(){
-  if(bgMasterGain) return;
-  var ctx = getAudioCtx(); if(!ctx) return;
-  bgMasterGain = ctx.createGain();
-  bgMasterGain.gain.value = 0;
-  bgMasterGain.connect(ctx.destination);
+function drawHeart(x,y,s){
+  ctx.beginPath();
+  ctx.moveTo(x,y+s*0.3);
+  ctx.bezierCurveTo(x,y-s*0.5,x-s,y-s*0.5,x-s,y+s*0.1);
+  ctx.bezierCurveTo(x-s,y+s*0.8,x,y+s,x,y+s);
+  ctx.bezierCurveTo(x,y+s,x+s,y+s*0.8,x+s,y+s*0.1);
+  ctx.bezierCurveTo(x+s,y-s*0.5,x,y-s*0.5,x,y+s*0.3);
+  ctx.fill();
 }
-
-function playMusicBoxNote(freq, startTime, duration, velocity){
-  var ctx = getAudioCtx(); if(!ctx || !bgMasterGain || freq == null) return;
-  var osc = ctx.createOscillator();
-  var osc2 = ctx.createOscillator();
-  var g = ctx.createGain();
-  var g2 = ctx.createGain();
-  osc.type = "sine"; osc2.type = "triangle";
-  osc.frequency.value = freq;
-  osc2.frequency.value = freq * 2.005;
-  var attack = 0.01;
-  var decay = Math.max(0.35, duration * 1.4);
-  g.gain.setValueAtTime(0.0001, startTime);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.0001, velocity * 0.6), startTime + attack);
-  g.gain.exponentialRampToValueAtTime(0.0001, startTime + attack + decay);
-  g2.gain.setValueAtTime(0.0001, startTime);
-  g2.gain.exponentialRampToValueAtTime(Math.max(0.0001, velocity * 0.18), startTime + attack);
-  g2.gain.exponentialRampToValueAtTime(0.0001, startTime + attack + decay * 0.9);
-  osc.connect(g); g.connect(bgMasterGain);
-  osc2.connect(g2); g2.connect(bgMasterGain);
-  osc.start(startTime); osc2.start(startTime);
-  osc.stop(startTime + attack + decay + 0.1);
-  osc2.stop(startTime + attack + decay + 0.1);
+function setParticleScene(scene){
+  pScene=scene;particles=[];
+  let t="firefly",count=80;
+  if(scene==="christmas"){t="snow";count=120;}
+  else if(scene==="new_year"){t="sparkle";count=100;}
+  else if(scene==="lunar_new_year"){t="redpetal";count=110;}
+  else if(scene==="valentine"){t="heart";count=90;}
+  else if(scene==="easter"){t="bloom";count=90;}
+  else if(scene==="halloween"){t="pumpkin";count=90;}
+  for(let i=0;i<count;i++) particles.push(new Particle(t));
 }
+function animateParticles(){
+  ctx.clearRect(0,0,w,h);
+  particles.forEach(p=>{p.update();p.draw();});
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
 
-function scheduleMusicLoop(){
-  var ctx = getAudioCtx(); if(!ctx) return;
-  var lookahead = 0.25;
-  var melody = getMelody();
-  while(bgNextNoteTime < ctx.currentTime + lookahead){
-    var note = melody[bgStep % melody.length];
-    var dur = note.d;
-    if(note.f != null){
-      playMusicBoxNote(note.f, bgNextNoteTime, dur, note.v);
-      // Gentle harmonic shimmer every 4th beat
-      if(bgStep % 4 === 2){
-        playMusicBoxNote(note.f * 1.5, bgNextNoteTime + 0.06, dur * 0.9, note.v * 0.3);
+// Web Audio
+let audioCtx=null,masterGain=null,delayNode=null,delayGain=null;
+let audioOn=true,musicPlaying=false,nextNoteTime=0;
+const bpm=78,secPerBeat=60/bpm;
+const melodies={
+  normal:{notes:[["C5",0.5],["D5",0.5],["E5",0.5],["G5",0.5],["A5",0.5],["C6",1]],loop:true},
+  christmas:{notes:[["E5",0.5],["E5",0.5],["E5",1],["E5",0.5],["E5",0.5],["E5",1],["E5",0.5],["G5",0.3],["C5",0.5],["D5",0.5],["E5",2]],loop:true},
+  new_year:{notes:[["G4",0.5],["C5",0.5],["C5",0.5],["E5",0.5],["D5",1],["C5",1]],loop:true},
+  lunar_new_year:{notes:[["G5",0.5],["E5",0.5],["G5",1],["A5",0.5],["C6",0.5],["A5",1]],loop:true},
+  valentine:{notes:[["D5",0.5],["A4",0.5],["B4",0.5],["F#4",0.5],["G4",0.5],["D4",0.5],["G4",0.5],["A4",0.5]],loop:true},
+  easter:{notes:[["E5",0.5],["C5",0.5],["D5",0.5],["B4",0.5],["C5",0.5],["A4",0.5],["B4",0.5],["G4",0.5]],loop:true},
+  halloween:{notes:[["A4",0.7],["F4",0.7],["A4",0.7],["C5",0.7],["A4",0.7],["F4",0.7]],loop:true}
+};
+const noteFreq={
+  "C4":261.63,"D4":293.66,"E4":329.63,"F4":349.23,"G4":392.00,"A4":440.00,"B4":493.88,
+  "C5":523.25,"D5":587.33,"E5":659.25,"F5":698.46,"G5":783.99,"A5":880.00,"B5":987.77,"C6":1046.50
+};
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  masterGain=audioCtx.createGain();
+  masterGain.gain.value=0.25;
+  delayNode=audioCtx.createDelay(0.3);
+  delayGain=audioCtx.createGain();delayGain.gain.value=0.18;
+  masterGain.connect(audioCtx.destination);
+  masterGain.connect(delayNode);delayNode.connect(delayGain);delayGain.connect(audioCtx.destination);
+}
+function playNote(note,time,dur){
+  if(!audioCtx || !audioOn) return;
+  const osc1=audioCtx.createOscillator();osc1.type="sine";osc1.frequency.value=noteFreq[note];
+  const osc2=audioCtx.createOscillator();osc2.type="triangle";osc2.frequency.value=noteFreq[note];
+  const g=audioCtx.createGain();g.gain.setValueAtTime(0,time);
+  g.gain.linearRampToValueAtTime(0.35,time+0.02);
+  g.gain.linearRampToValueAtTime(0,time+dur*0.85);
+  osc1.connect(g);osc2.connect(g);g.connect(masterGain);
+  osc1.start(time);osc1.stop(time+dur);
+  osc2.start(time);osc2.stop(time+dur);
+}
+let currentMelody=null;
+function scheduleMusic(scene){
+  if(!audioCtx) return;
+  currentMelody=melodies[scene]||melodies.normal;
+  nextNoteTime=audioCtx.currentTime+0.2;
+}
+function musicLoop(){
+  if(!audioCtx || !audioOn || !currentMelody){requestAnimationFrame(musicLoop);return;}
+  while(nextNoteTime < audioCtx.currentTime+0.3){
+    const [note,beat]=currentMelody.notes.shift();
+    playNote(note,nextNoteTime,beat*secPerBeat*0.85);
+    nextNoteTime+=beat*secPerBeat;
+    if(currentMelody.notes.length===0 && currentMelody.loop){
+      currentMelody.notes=[...melodies[Object.keys(melodies).find(k=>melodies[k]===currentMelody)].notes];
+    }
+  }
+  requestAnimationFrame(musicLoop);
+}
+document.getElementById("audioBtn").onclick=()=>{
+  initAudio();
+  audioOn=!audioOn;
+  document.getElementById("audioBtn").textContent=audioOn?"🔊":"🔇";
+  if(!audioOn && audioCtx) masterGain.gain.setValueAtTime(0,audioCtx.currentTime+0.15);
+  else if(audioOn && audioCtx) masterGain.gain.setValueAtTime(0.25,audioCtx.currentTime+0.05);
+};
+document.body.addEventListener("click",()=>{
+  initAudio();
+  if(!musicPlaying && audioOn){
+    musicPlaying=true;
+    scheduleMusic(pScene);
+    musicLoop();
+  }
+},{once:true});
+// YT pause music
+window.onYouTubeIframeAPIReady=()=>{
+  const player=new YT.Player("ytFrame",{
+    events:{
+      onStateChange:(e)=>{
+        if(e.data===YT.PlayerState.PLAYING){audioOn=false;document.getElementById("audioBtn").textContent="🔇";if(audioCtx) masterGain.gain.setValueAtTime(0,audioCtx.currentTime);}
+        else if(e.data===YT.PlayerState.PAUSED || e.data===YT.PlayerState.ENDED){audioOn=true;document.getElementById("audioBtn").textContent="🔊";if(audioCtx) masterGain.gain.setValueAtTime(0,0.25);}
       }
     }
-    bgNextNoteTime += dur;
-    bgStep++;
-  }
-}
+  });
+};
+const tag=document.createElement("script");tag.src="https://www.youtube.com/iframe_api";document.head.appendChild(tag);
 
-function startBgScheduler(){
-  if(bgScheduler) return;
-  var ctx = getAudioCtx(); if(!ctx) return;
-  bgNextNoteTime = ctx.currentTime + 0.1;
-  bgScheduler = setInterval(scheduleMusicLoop, 120);
-}
-function stopBgScheduler(){
-  if(bgScheduler){ clearInterval(bgScheduler); bgScheduler = null; }
-}
-function fadeTo(target, duration){
-  var ctx = getAudioCtx(); if(!ctx || !bgMasterGain) return;
-  var now = ctx.currentTime;
-  bgMasterGain.gain.cancelScheduledValues(now);
-  bgMasterGain.gain.setValueAtTime(bgMasterGain.gain.value, now);
-  bgMasterGain.gain.linearRampToValueAtTime(target, now + duration);
-}
-
-function startMusicIfAllowed(){
-  if(!bgUserWantsMusic) return;
-  if(bgMuteByYt) return;
-  setupBgAudio();
-  var ctx = getAudioCtx(); if(!ctx) return;
-  if(ctx.state === "suspended") return;
-  if(!bgMusicOn){
-    bgMusicOn = true;
-    bgStep = 0;
-    startBgScheduler();
-    fadeTo(BG_VOLUME, 1.5);
-  } else {
-    fadeTo(BG_VOLUME, 0.6);
-  }
-  updateMusicBtnIcon();
-  updateMusicBtnTitle();
-}
-
-function pauseMusicFade(){
-  if(!bgMusicOn) return;
-  fadeTo(0, 0.4);
-  setTimeout(function(){
-    if(bgMusicOn && bgMasterGain && bgMasterGain.gain.value < 0.01){
-      stopBgScheduler();
-      bgMusicOn = false;
-      updateMusicBtnIcon();
-      updateMusicBtnTitle();
-    }
-  }, 450);
-}
-
-function toggleMusic(){
-  if(bgUserWantsMusic){
-    bgUserWantsMusic = false;
-    pauseMusicFade();
-    updateMusicBtnIcon();
-    updateMusicBtnTitle();
-  } else {
-    bgUserWantsMusic = true;
-    if(bgMuteByYt){ updateMusicBtnIcon(); updateMusicBtnTitle(); return; }
-    startMusicIfAllowed();
-  }
-}
-
-function updateMusicBtnIcon(){
-  if(!musicBtn) return;
-  var playing = bgUserWantsMusic && !bgMuteByYt;
-  musicBtn.textContent = playing ? "🔊" : "🔇";
-  musicBtn.classList.toggle("muted", !playing);
-}
-function updateMusicBtnTitle(){
-  if(!musicBtn) return;
-  var key = (bgUserWantsMusic && !bgMuteByYt) ? "music.on" : "music.off";
-  var txt = (I18N[currentLang] && I18N[currentLang][key]) || (key==="music.on"?"Music: On":"Music: Off");
-  musicBtn.title = txt;
-  musicBtn.setAttribute("aria-label", txt);
-}
-if(musicBtn){
-  musicBtn.addEventListener("click", function(e){ e.stopPropagation(); toggleMusic(); });
-}
-
-function firstGestureUnlock(){
-  var ctx = getAudioCtx();
-  if(ctx && ctx.state === "suspended"){ try{ ctx.resume(); }catch(e){} }
-  if(bgUserWantsMusic && !bgMusicOn && !bgMuteByYt){
-    startMusicIfAllowed();
-  }
-}
-window.addEventListener("pointerdown", firstGestureUnlock, true);
-window.addEventListener("touchstart", firstGestureUnlock, true);
-window.addEventListener("keydown", firstGestureUnlock, true);
-
-/* ============ YouTube IFrame API ============ */
-var ytPlayer = null;
-var ytApiReady = false;
-function loadYouTubeAPI(){
-  if(window.YT && window.YT.Player){ ytApiReady = true; initYTPlayer(); return; }
-  var tag = document.createElement("script");
-  tag.src = "https://www.youtube.com/iframe_api";
-  document.head.appendChild(tag);
-  window.onYouTubeIframeAPIReady = function(){
-    ytApiReady = true;
-    initYTPlayer();
-  };
-}
-function initYTPlayer(){
-  var frame = document.getElementById("ytFrame");
-  if(!frame || !ytApiReady) return;
-  try{
-    ytPlayer = new window.YT.Player("ytFrame", {
-      events: {
-        "onStateChange": function(ev){
-          if(ev.data === 1){
-            if(bgMusicOn || (bgUserWantsMusic && !bgMuteByYt)){
-              bgMuteByYt = true;
-              pauseMusicFade();
-              updateMusicBtnIcon();
-              updateMusicBtnTitle();
-            }
-          } else if(ev.data === 0 || ev.data === 2 || ev.data === 5){
-            if(bgMuteByYt){
-              bgMuteByYt = false;
-              if(bgUserWantsMusic){ startMusicIfAllowed(); }
-              updateMusicBtnIcon();
-              updateMusicBtnTitle();
-            }
-          }
-        }
-      }
-    });
-  }catch(e){}
-}
-
-/* ============ Merge burst particles ============ */
-function spawnParticles(x, y, count){
-  count = count || 10;
-  var emojis = ["⭐","✨","🌟","💫"];
-  for(var i=0;i<count;i++){
-    var p = document.createElement("div");
-    p.className = "particle";
-    p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-    p.style.left = x + "px";
-    p.style.top = y + "px";
-    var angle = Math.random() * Math.PI * 2;
-    var dist = 40 + Math.random() * 90;
-    p.style.setProperty("--dx", Math.cos(angle)*dist + "px");
-    p.style.setProperty("--dy", Math.sin(angle)*dist - 20 + "px");
-    document.body.appendChild(p);
-    (function(el){ setTimeout(function(){ el.remove(); }, 950); })(p);
-  }
-}
-
-/* ============ Mini Merge Demo ============ */
-var TIERS = [
-  { emoji:"🌱", name:{zh:"小樹苗", en:"Tiny Sprout", ja:"小さな芽"} },
-  { emoji:"🌿", name:{zh:"魔法草", en:"Magic Herb", ja:"魔法の草"} },
-  { emoji:"🌸", name:{zh:"精靈花", en:"Fairy Flower", ja:"精霊の花"} },
-  { emoji:"🍄", name:{zh:"奇幻菇", en:"Mystic Mushroom", ja:"不思議キノコ"} },
-  { emoji:"🎄", name:{zh:"聖誕奇蹟樹", en:"Miracle Tree", ja:"奇跡の木"} },
-  { emoji:"👑", name:{zh:"森林皇冠", en:"Forest Crown", ja:"森の王冠"} }
-];
-var BOARD_SIZE = 4;
-var MAX_TIER = TIERS.length - 1;
-
-var board = [];
-var selectedIndex = -1;
-var mergeCount = 0;
-
-var boardEl = document.getElementById("mergeBoard");
-var scoreEl = document.getElementById("scoreVal");
-var bubbleEl = document.getElementById("maidBubble");
-var summonBtn = document.getElementById("btnSummon");
-
-var bubbleTimer = null;
-function showMaid(text){
-  bubbleEl.textContent = text;
-  bubbleEl.classList.add("show");
-  if(bubbleTimer) clearTimeout(bubbleTimer);
-  bubbleTimer = setTimeout(function(){ bubbleEl.classList.remove("show"); }, 3200);
-}
-function maidLine(key){ return I18N[currentLang][key] || key; }
-
-function newSeedTier(){
-  // 0=🌱, 1=🌿
-  return Math.random() < 0.5 ? 0 : 1;
-}
-
-function initBoard(){
-  // ✅ 滿棋盤開局：16 格全部填滿，保證有可合併配對
-  board = [];
-  // 先平均分配 8 x 🌱 + 8 x 🌿（shuffle 後填入）
-  var pool = [];
-  for(var k=0;k<8;k++) pool.push(0);
-  for(var k2=0;k2<8;k2++) pool.push(1);
-  // Fisher–Yates shuffle
-  for(var i=pool.length-1;i>0;i--){
-    var j = Math.floor(Math.random()*(i+1));
-    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
-  }
-  board = pool; // length 16
-  renderBoard(true);
-  mergeCount = 0;
-  scoreEl.textContent = "0";
-}
-
-function renderBoard(animate){
-  boardEl.innerHTML = "";
-  for(var idx=0; idx<board.length; idx++){
-    var tier = board[idx];
-    var cell = document.createElement("div");
-    cell.className = "cell";
-    cell.setAttribute("role","gridcell");
-    cell.dataset.index = idx;
-    if(tier === null || tier === undefined){
-      cell.textContent = "";
-      cell.setAttribute("aria-label","");
-    } else {
-      cell.textContent = TIERS[tier].emoji;
-      cell.setAttribute("aria-label", TIERS[tier].name[currentLang]);
-    }
-    if(idx === selectedIndex) cell.classList.add("selected");
-    if(animate && tier !== null && tier !== undefined) cell.classList.add("pop");
-    (function(i, c){ c.addEventListener("click", function(){ onCellClick(i, c); }); })(idx, cell);
+// Merge Demo
+const items=["🌱","🌿","🌸","🍄","🎄","👑"];
+const bubbleEl=document.getElementById("bubble");
+let board=[];let selected=null;
+const boardEl=document.getElementById("board");
+function renderBoard(){
+  boardEl.innerHTML="";
+  for(let i=0;i<16;i++){
+    const cell=document.createElement("div");
+    cell.className="cell";
+    cell.textContent=board[i];
+    cell.dataset.idx=i;
+    if(selected===i) cell.classList.add("selected");
+    cell.onclick=()=>cellClick(i);
     boardEl.appendChild(cell);
   }
 }
-
-function onCellClick(idx, cellEl){
-  if(board[idx] === null || board[idx] === undefined) return;
-  if(selectedIndex === -1){
-    selectedIndex = idx;
-    renderBoard(false);
-    return;
-  }
-  if(selectedIndex === idx){
-    selectedIndex = -1;
-    renderBoard(false);
-    return;
-  }
-  var a = selectedIndex;
-  var b = idx;
-  if(board[a] === board[b] && board[a] < MAX_TIER){
-    var newTier = board[a] + 1;
-    board[a] = newTier;
-    board[b] = null;
-    selectedIndex = -1;
-    mergeCount++;
-    scoreEl.textContent = mergeCount;
-
-    playMergeSound(newTier);
-    var rect = cellEl.getBoundingClientRect();
-    spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, newTier >= 4 ? 18 : 10);
-
-    if(newTier === MAX_TIER){
-      showMaid(maidLine("demo.maid.max"));
-      showToast(TIERS[newTier].name[currentLang]);
-    } else if(newTier === 4){
-      showMaid(maidLine("demo.maid.final"));
-      showToast(TIERS[newTier].name[currentLang]);
-    } else {
-      showMaid(maidLine("demo.maid.merge"));
+function initBoard(){
+  board=[];
+  for(let i=0;i<16;i++) board.push(Math.random()>0.5?0:1);
+  renderBoard();
+}
+function cellClick(idx){
+  if(selected===null){
+    selected=idx;renderBoard();
+  }else if(selected===idx){
+    selected=null;renderBoard();
+  }else{
+    const a=board[selected],b=board[idx];
+    if(a===b && a<items.length-1){
+      board[selected]=null;
+      board[idx]=a+1;
+      const lv=a+1;
+      let msgKey="mergeGood";
+      if(lv>=3) msgKey="mergeGreat";
+      if(lv>=4) msgKey="mergeWow";
+      showBubble(i18n[lang][msgKey]);
+      playNote("E6",audioCtx.currentTime,0.15);
+      if(lv>=4){
+        document.getElementById("downloadCard").classList.add("show");
+      }
     }
-    // 合成後喺 b 位生一粒新種子，保持盤面有嘢玩
-    board[b] = newSeedTier();
-    renderBoard(true);
-  } else {
-    selectedIndex = idx;
-    renderBoard(false);
+    selected=null;renderBoard();
   }
 }
-
-var toastEl = null;
-var toastTimer = null;
-function showToast(name){
-  if(!toastEl){
-    toastEl = document.createElement("div");
-    toastEl.className = "toast";
-    document.body.appendChild(toastEl);
-  }
-  toastEl.innerHTML = I18N[currentLang]["demo.toast"].replace("{name}", name);
-  toastEl.innerHTML += '<br><a href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank" rel="noopener">' + I18N[currentLang]["hero.cta"] + '</a>';
-  requestAnimationFrame(function(){ toastEl.classList.add("show"); });
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 6000);
+function showBubble(text){
+  bubbleEl.textContent=text;
+  bubbleEl.classList.add("show");
+  setTimeout(()=>bubbleEl.classList.remove("show"),1600);
 }
-
-summonBtn.addEventListener("click", function(){
-  playSummonSound();
-  var emptyIdx = -1;
-  for(var i=0;i<board.length;i++){ if(board[i] === null){ emptyIdx = i; break; } }
-  if(emptyIdx !== -1){
-    board[emptyIdx] = 0;
-  } else {
-    var idx = Math.floor(Math.random()*board.length);
-    board[idx] = 0;
+document.getElementById("spawnBtn").onclick=()=>{
+  const empty=[];
+  for(let i=0;i<16;i++) if(board[i]===null) empty.push(i);
+  if(empty.length>0){
+    const r=empty[Math.floor(Math.random()*empty.length)];
+    board[r]=Math.random()>0.5?0:1;
+    renderBoard();
   }
-  selectedIndex = -1;
-  renderBoard(true);
-  showMaid(maidLine("demo.maid.idle"));
-});
-
-/* ============ Share button ============ */
-var SHARE_URL = "https://mysteryforeststudio.github.io/";
-var shareBtn = document.getElementById("btnShare");
-var copyToastEl = null;
-var copyToastTimer = null;
-function showCopyToast(msg){
-  if(!copyToastEl){
-    copyToastEl = document.createElement("div");
-    copyToastEl.className = "copy-toast";
-    document.body.appendChild(copyToastEl);
-  }
-  copyToastEl.textContent = msg;
-  requestAnimationFrame(function(){ copyToastEl.classList.add("show"); });
-  if(copyToastTimer) clearTimeout(copyToastTimer);
-  copyToastTimer = setTimeout(function(){ copyToastEl.classList.remove("show"); }, 3000);
-}
-shareBtn.addEventListener("click", function(){
-  var title = "Mystery Forest: Merge Legend";
-  var text = I18N[currentLang]["hero.desc"];
+};
+document.getElementById("shareBtn").onclick=async()=>{
+  const url="https://mysteryforeststudio.github.io/";
   if(navigator.share){
-    navigator.share({ title: title, text: text, url: SHARE_URL }).then(function(){}).catch(function(){
-      copyFallback();
-    });
-  } else {
-    copyFallback();
-  }
-});
-function copyFallback(){
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(SHARE_URL).then(function(){
-      showCopyToast(I18N[currentLang]["demo.share.done"]);
-    }).catch(function(){ legacyCopy(); });
-  } else {
-    legacyCopy();
-  }
-}
-function legacyCopy(){
-  try{
-    var ta = document.createElement("textarea");
-    ta.value = SHARE_URL;
-    ta.style.position = "fixed"; ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    ta.remove();
-    showCopyToast(I18N[currentLang]["demo.share.done"]);
-  }catch(err){
-    showCopyToast(I18N[currentLang]["demo.share.fail"]);
-  }
-}
-
-/* ============ Festival Calendar 2026–2048 ============ */
-var LUNAR_NEW_YEAR = {
-  2026:[2,17],2027:[2,6],2028:[1,26],2029:[2,13],2030:[2,3],
-  2031:[1,23],2032:[2,11],2033:[1,31],2034:[2,19],2035:[2,8],
-  2036:[1,28],2037:[2,15],2038:[2,4],2039:[1,24],2040:[2,12],
-  2041:[2,1],2042:[1,22],2043:[2,10],2044:[1,30],2045:[2,17],
-  2046:[2,6],2047:[1,26],2048:[2,14]
-};
-var EASTER = {
-  2026:[4,5],2027:[3,28],2028:[4,16],2029:[4,1],2030:[4,21],
-  2031:[4,13],2032:[3,28],2033:[4,17],2034:[4,9],2035:[3,25],
-  2036:[4,13],2037:[4,5],2038:[4,25],2039:[4,10],2040:[4,1],
-  2041:[4,21],2042:[4,6],2043:[3,29],2044:[4,17],2045:[4,9],
-  2046:[3,25],2047:[4,14],2048:[4,5]
-};
-function mdToDate(y,m,d){ return new Date(y, m-1, d, 12, 0, 0, 0); }
-function isWithinWindow(today, centerMD, before, after, year){
-  var c = mdToDate(year, centerMD[0], centerMD[1]);
-  var start = new Date(c.getTime() - before*86400000);
-  var end = new Date(c.getTime() + after*86400000);
-  return today >= start && today <= end;
-}
-
-/* Supported URL festival values */
-var FEST_ALIASES = {
-  "christmas":"christmas",
-  "newyear":"newyear", "new_year":"newyear",
-  "lunar":"lunar", "lunar_new_year":"lunar",
-  "valentine":"valentine",
-  "easter":"easter",
-  "halloween":"halloween",
-  "default":"default", "normal":"default"
-};
-
-function detectFestival(forced){
-  if(forced){
-    var k = String(forced).toLowerCase();
-    if(FEST_ALIASES[k]) return FEST_ALIASES[k];
-  }
-  var now = new Date();
-  var y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate();
-  var today = mdToDate(y,m,d);
-  if(m===12 && d>=15 && d<=28) return "christmas";
-  if((m===12 && d>=29) || (m===1 && d<=5)) return "newyear";
-  if(LUNAR_NEW_YEAR[y] && isWithinWindow(today, LUNAR_NEW_YEAR[y], 7, 7, y)) return "lunar";
-  if(m===2 && d>=10 && d<=16) return "valentine";
-  if(EASTER[y] && isWithinWindow(today, EASTER[y], 7, 7, y)) return "easter";
-  if((m===10 && d>=24) || (m===11 && d<=2)) return "halloween";
-  return "default";
-}
-
-var FESTIVAL_THEME = {
-  christmas:{
-    bannerKey:"festival.christmas",
-    bannerBg:"linear-gradient(90deg,#0e3b22,#e63946,#0e3b22)",
-    frame:"rgba(230,57,70,0.55)", frameGlow:"rgba(230,57,70,0.75)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(230,57,70,0.22),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.18),transparent 55%),linear-gradient(180deg,#0b1f16 0%,#0f2a1d 50%,#0a1a12 100%)",
-    particles:{ emoji:["❄️","❄","✦"], color:"#ffffff", count:60, type:"snow" }
-  },
-  newyear:{
-    bannerKey:"festival.newyear",
-    bannerBg:"linear-gradient(90deg,#8a5a00,#ffd166,#8a5a00)",
-    frame:"rgba(255,209,102,0.65)", frameGlow:"rgba(255,209,102,0.85)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(255,209,102,0.22),transparent 60%),linear-gradient(180deg,#1a1205 0%,#2b1a05 50%,#0a0a05 100%)",
-    particles:{ emoji:["✨","🎊","✦"], color:"#ffd166", count:55, type:"sparkle" }
-  },
-  lunar:{
-    bannerKey:"festival.lunar",
-    bannerBg:"linear-gradient(90deg,#8b0000,#ff3b3b,#ffd166,#8b0000)",
-    frame:"rgba(255,60,60,0.65)", frameGlow:"rgba(255,209,102,0.8)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(255,60,60,0.2),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.18),transparent 55%),linear-gradient(180deg,#2b0505 0%,#1a0505 50%,#0a0202 100%)",
-    particles:{ emoji:["🧧","✨","🪙"], color:"#ffd166", count:50, type:"petal" }
-  },
-  valentine:{
-    bannerKey:"festival.valentine",
-    bannerBg:"linear-gradient(90deg,#7a2e4a,#ff8fb1,#c77dff,#7a2e4a)",
-    frame:"rgba(255,143,177,0.7)", frameGlow:"rgba(199,125,255,0.8)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(255,143,177,0.2),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(199,125,255,0.18),transparent 55%),linear-gradient(180deg,#2a0f1a 0%,#1a0a12 50%,#0a0508 100%)",
-    particles:{ emoji:["💖","🌸","💕"], color:"#ffb3c8", count:45, type:"petal" }
-  },
-  easter:{
-    bannerKey:"festival.easter",
-    bannerBg:"linear-gradient(90deg,#2e7d32,#aeea8c,#ffd166,#2e7d32)",
-    frame:"rgba(174,234,140,0.7)", frameGlow:"rgba(255,209,102,0.75)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(174,234,140,0.18),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.15),transparent 55%),linear-gradient(180deg,#0b1f16 0%,#102a1a 50%,#0a1a12 100%)",
-    particles:{ emoji:["🌼","🌿","✨"], color:"#aeea8c", count:45, type:"petal" }
-  },
-  halloween:{
-    bannerKey:"festival.halloween",
-    bannerBg:"linear-gradient(90deg,#3a1c5c,#ff8c00,#8a2be2,#3a1c5c)",
-    frame:"rgba(138,43,226,0.65)", frameGlow:"rgba(255,140,0,0.8)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(138,43,226,0.2),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,140,0,0.15),transparent 55%),linear-gradient(180deg,#150826 0%,#0d0518 50%,#05020a 100%)",
-    particles:{ emoji:["🎃","✨","🦇"], color:"#c77dff", count:45, type:"float" }
-  },
-  default:{
-    bannerKey:"festival.default",
-    bannerBg:"linear-gradient(90deg,#0e3b22,#3fa76e,#0e3b22)",
-    frame:"rgba(63,167,110,0.55)", frameGlow:"rgba(63,167,110,0.75)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(63,167,110,0.25),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.12),transparent 55%),radial-gradient(900px 900px at 50% 120%,rgba(31,107,69,0.35),transparent 60%),linear-gradient(180deg,#0b1f16 0%,#0f2a1d 50%,#0a1a12 100%)",
-    particles:{ emoji:["✦","·"], color:"#aeea8c", count:40, type:"firefly" }
+    try{await navigator.share({title:"Mystery Forest Studio",url:url});}catch(e){}
+  }else{
+    await navigator.clipboard.writeText(url);
+    showBubble(i18n[lang].shareOk);
   }
 };
-
-var activeFestival = "default";
-
-function applyFestivalTheme(id){
-  activeFestival = id;
-  var t = FESTIVAL_THEME[id] || FESTIVAL_THEME.default;
-
-  var bannerEl = document.getElementById("festivalBanner");
-  bannerEl.style.background = t.bannerBg;
-
-  document.documentElement.style.setProperty("--frame-color", t.frame);
-  document.documentElement.style.setProperty("--frame-glow", t.frameGlow);
-  document.body.style.background = t.bodyBg;
-
-  refreshFestivalBanner();
-  startParticles(t.particles);
-
-  if(bgMusicOn){ bgStep = 0; }
-}
-
-var bannerVisible = false;
-function refreshFestivalBanner(){
-  var t = FESTIVAL_THEME[activeFestival] || FESTIVAL_THEME.default;
-  var bannerEl = document.getElementById("festivalBanner");
-  var text = (I18N[currentLang] && I18N[currentLang][t.bannerKey]) || "";
-  bannerEl.textContent = text;
-  bannerEl.classList.add("show");
-  if(!bannerVisible){
-    bannerVisible = true;
-    document.body.classList.add("has-banner");
-  }
-}
-
-/* ============ Canvas Particles ============ */
-var canvas = document.getElementById("fxCanvas");
-var ctx2d = canvas.getContext("2d", { alpha: true });
-var particles = [];
-var rafId = null;
-var currentParticleCfg = null;
-var dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-function resizeCanvas(){
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.floor(window.innerWidth * dpr);
-  canvas.height = Math.floor(window.innerHeight * dpr);
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = window.innerHeight + "px";
-  ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-function rand(min, max){ return min + Math.random() * (max - min); }
-
-function makeParticle(cfg){
-  var w = window.innerWidth, h = window.innerHeight;
-  var type = cfg.type;
-  var glyphs = cfg.emoji;
-  var glyph = glyphs[Math.floor(Math.random()*glyphs.length)];
-  var p = {
-    glyph:glyph, x:rand(0,w), y:-30, size:rand(14,26),
-    vy:rand(0.6,1.8), vx:rand(-0.6,0.6),
-    rot:rand(-0.5,0.5), vrot:rand(-0.02,0.02),
-    alpha:1, life:0, maxLife:rand(600,1200),
-    twinkle:rand(0.02,0.08), color:cfg.color, isDot:false
-  };
-  if(type === "snow"){
-    p.size = rand(10,22); p.vy = rand(0.5,1.6); p.vx = rand(-0.8,0.8);
-    p.twinkle = rand(0.01,0.05);
-    if(Math.random() < 0.5){ p.isDot = true; }
-  } else if(type === "firefly"){
-    p.glyph = "·"; p.isDot = true; p.size = rand(2,5);
-    p.vy = rand(-0.4,0.4); p.vx = rand(-0.5,0.5); p.y = rand(0,h);
-    p.twinkle = rand(0.03,0.1); p.alpha = rand(0.2,0.9);
-  } else if(type === "sparkle"){
-    p.vy = rand(0.8,2.2); p.vx = rand(-1.2,1.2); p.twinkle = rand(0.04,0.12);
-  } else if(type === "petal"){
-    p.vy = rand(0.6,1.6); p.vx = rand(-1.2,1.2); p.vrot = rand(-0.03,0.03);
-  } else if(type === "float"){
-    p.y = h + 20; p.vy = rand(-1.4,-0.5); p.vx = rand(-0.8,0.8);
-    p.twinkle = rand(0.02,0.08);
-  }
-  return p;
-}
-
-function startParticles(cfg){
-  currentParticleCfg = cfg;
-  particles = [];
-  var count = cfg.count || 45;
-  for(var i=0;i<count;i++){
-    var p = makeParticle(cfg);
-    p.y = rand(-50, window.innerHeight);
-    p.life = rand(0, p.maxLife * 0.5);
-    particles.push(p);
-  }
-  if(rafId) cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(tickParticles);
-}
-
-function tickParticles(){
-  var w = window.innerWidth, h = window.innerHeight;
-  ctx2d.clearRect(0,0,w,h);
-  var cfg = currentParticleCfg;
-  if(!cfg){ rafId = requestAnimationFrame(tickParticles); return; }
-  var type = cfg.type;
-
-  for(var i=0;i<particles.length;i++){
-    var p = particles[i];
-    p.life += 1;
-    p.x += p.vx; p.y += p.vy; p.rot += p.vrot;
-    if(type === "firefly"){
-      p.alpha = 0.2 + 0.7 * Math.abs(Math.sin(p.life * p.twinkle));
-    } else if(type === "sparkle" || type === "snow"){
-      p.alpha = 0.6 + 0.4 * Math.abs(Math.sin(p.life * p.twinkle));
-    } else {
-      p.alpha = 0.85;
-    }
-    var off = (p.y > h+40) || (p.y < -60) || (p.x < -60) || (p.x > w+60) || (p.life > p.maxLife);
-    if(off){ particles[i] = makeParticle(cfg); continue; }
-
-    ctx2d.save();
-    ctx2d.globalAlpha = p.alpha;
-    ctx2d.translate(p.x, p.y);
-    ctx2d.rotate(p.rot);
-    if(p.isDot){
-      var grad = ctx2d.createRadialGradient(0,0,0,0,0,p.size*2);
-      grad.addColorStop(0, p.color);
-      grad.addColorStop(1, "rgba(0,0,0,0)");
-      ctx2d.fillStyle = grad;
-      ctx2d.beginPath(); ctx2d.arc(0,0,p.size*2,0,Math.PI*2); ctx2d.fill();
-      ctx2d.globalAlpha = p.alpha * 0.9;
-      ctx2d.fillStyle = p.color;
-      ctx2d.beginPath(); ctx2d.arc(0,0,p.size*0.6,0,Math.PI*2); ctx2d.fill();
-    } else {
-      ctx2d.font = p.size + "px 'Noto Sans TC','Noto Sans JP',system-ui,sans-serif";
-      ctx2d.textAlign = "center"; ctx2d.textBaseline = "middle";
-      ctx2d.shadowColor = "rgba(0,0,0,0.25)"; ctx2d.shadowBlur = 4;
-      ctx2d.fillText(p.glyph, 0, 0);
-    }
-    ctx2d.restore();
-  }
-  rafId = requestAnimationFrame(tickParticles);
-}
-
-window.addEventListener("resize", function(){
-  resizeCanvas();
-  if(currentParticleCfg){
-    for(var i=0;i<particles.length;i++){
-      particles[i].x = Math.min(particles[i].x, window.innerWidth);
-    }
-  }
-});
-
-/* ============ Query param helper ============ */
-function getQueryParam(name){
-  try{
-    var params = new URLSearchParams(window.location.search);
-    return params.get(name);
-  }catch(e){ return null; }
-}
-
-/* ============ Init on DOM ready ============ */
-function boot(){
-  resizeCanvas();
-
-  // Language
-  var saved = null;
-  try{ saved = localStorage.getItem(LANG_KEY); }catch(e){}
-  if(!saved){
-    var nav = (navigator.language || "zh").toLowerCase();
-    if(nav.indexOf("ja") === 0) saved = "ja";
-    else if(nav.indexOf("en") === 0) saved = "en";
-    else saved = "zh";
-  }
-  applyLang(saved);
-
-  // Festival
-  var forced = getQueryParam("fest");
-  var festivalId = detectFestival(forced);
-  applyFestivalTheme(festivalId);
-
-  // Board — 滿 16 格開局
-  initBoard();
-
-  // Music
-  setupBgAudio();
-  setTimeout(function(){
-    var c = getAudioCtx();
-    if(c && c.state === "running"){ startMusicIfAllowed(); }
-    updateMusicBtnIcon();
-    updateMusicBtnTitle();
-  }, 200);
-
-  // YouTube API
-  loadYouTubeAPI();
-}
-
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", boot);
-} else {
-  boot();
-}
+initBoard();
+updateCalendar();
 </script>
 </body>
 </html>
