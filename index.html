@@ -1,854 +1,1444 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mystery Forest Café</title>
+<title>Mystery Forest Studio</title>
+<meta name="description" content="Mystery Forest Studio — Mystery Forest: Merge Legend · Cozy Forest Café">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans TC,Noto Sans JP,sans-serif}
-:root{
-  --bg1:#0f291e;--bg2:#1a3c2d;--bg3:#12261e;
-  --dark-bg1:#081610;--dark-bg2:#0f221a;--dark-bg3:#0b1814;
-  --warm-glow:#ffd166;--warm-soft:#ffecd2;
-  --card-border:rgba(255,224,150,0.25);
-  --card-bg:rgba(255,252,245,0.07);
-  --shadow:0 10px 40px rgba(0,0,0,0.35);
-  --radius:24px;
-  --accent-green:#287d58;--accent-gold:#ffd166;
-  --text:#f8f6ef;--text-muted:rgba(248,246,239,0.75);
-}
-body{
-  min-height:100vh;
-  background:linear-gradient(160deg,var(--bg1),var(--bg2),var(--bg3));
-  color:var(--text);
-  padding:18px;
-  overflow-x:hidden;
-  transition:background 0.7s ease;
-}
-body.dark-lamp{
-  background:linear-gradient(160deg,var(--dark-bg1),var(--dark-bg2),var(--dark-bg3));
-}
-.light-orb{
-  position:fixed;
-  border-radius:50%;
-  filter:blur(90px);
-  pointer-events:none;
-  z-index:1;
-  transition:opacity 0.7s ease;
-}
-.orb1{width:320px;height:320px;top:10%;left:8%;background:var(--warm-glow);opacity:0.22;}
-.orb2{width:260px;height:260px;bottom:12%;right:10%;background:var(--warm-soft);opacity:0.18;}
-.dark-lamp .orb1,.dark-lamp .orb2{opacity:0.06;}
-#particleCanvas{
-  position:fixed;inset:0;pointer-events:none;z-index:50;
-}
-.fest-border{
-  position:fixed;inset:0;pointer-events:none;z-index:49;
-  border:0px solid transparent;
-  transition:border-color 1s,box-shadow 1s;
-}
-.glass{
-  background:var(--card-bg);
-  backdrop-filter:blur(14px);
-  border:1px solid var(--card-border);
-  border-radius:var(--radius);
-  padding:24px;
-  box-shadow:var(--shadow);
-  transition:transform 0.25s ease,box-shadow 0.25s ease;
-}
-.glass:hover{transform:translateY(-4px);box-shadow:0 14px 48px rgba(0,0,0,0.4);}
-.container{
-  max-width:820px;margin:0 auto;position:relative;z-index:10;
-}
-.header{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;
-}
-.logo-wrap{
-  display:flex;align-items:center;gap:14px;
-}
-.logo-ring{
-  width:60px;height:60px;border-radius:16px;
-  box-shadow:0 0 20px 6px rgba(255,209,102,0.35);
-  display:grid;place-items:center;
-  transition:box-shadow 0.7s ease;
-}
-.dark-lamp .logo-ring{box-shadow:0 0 12px 3px rgba(255,209,102,0.12);}
-.logo-img{width:54px;height:54px;border-radius:14px;object-fit:cover;}
-.logo-fallback{font-size:2rem;display:none;}
-.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.lang-btn,.audio-toggle,.lamp-toggle{
-  padding:9px 13px;border-radius:12px;border:none;
-  background:rgba(255,255,255,0.14);color:#fff;
-  cursor:pointer;transition:0.22s;
-  font-size:0.92rem;
-}
-.lang-btn:hover,.audio-toggle:hover,.lamp-toggle:hover{background:rgba(255,255,255,0.24)}
-.hero-welcome{
-  text-align:center;margin-bottom:24px;
-}
-.hero-welcome h2{font-size:1.7rem;margin-bottom:6px;color:var(--accent-gold);}
-.hero-welcome p{color:var(--text-muted);}
-.calendar-card{margin-bottom:26px;}
-.cal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
-.cal-title{font-size:1.2rem;font-weight:500;color:var(--accent-gold);}
-.cal-nav{display:flex;gap:8px;flex-wrap:wrap;}
-.cal-nav button{
-  padding:8px 12px;border-radius:10px;border:none;
-  background:rgba(255,224,150,0.18);color:var(--text);
-  cursor:pointer;transition:0.2s;
-}
-.cal-nav button:hover{background:rgba(255,224,150,0.32);}
-.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;}
-.cal-week-name{text-align:center;font-size:0.82rem;color:var(--text-muted);padding:4px;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-.cal-day{
-  min-height:64px;padding:5px 4px;border-radius:12px;
-  background:rgba(255,255,255,0.05);
-  text-align:center;cursor:pointer;transition:0.2s;
-  border:1px solid transparent;
-}
-.cal-day:hover{background:rgba(255,224,150,0.16);border-color:rgba(255,224,150,0.22);}
-.cal-day.today{border:2px solid var(--accent-gold);box-shadow:0 0 12px rgba(255,209,102,0.3);}
-.cal-day.event-fest{background:rgba(255,210,102,0.12);}
-.cal-day.event-release{background:rgba(255,150,180,0.12);}
-.cal-day-num{font-weight:500;font-size:0.95rem;}
-.cal-day-lunar{font-size:0.68rem;color:var(--text-muted);margin-top:2px;line-height:1.1;}
-.cal-day-badge{font-size:0.7rem;}
-.cal-note{margin-top:16px;padding:14px;border-radius:14px;background:rgba(255,255,255,0.05);}
-.cal-note h4{color:var(--accent-gold);margin-bottom:6px;}
-.cal-story{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);}
-.cal-story h5{color:var(--accent-gold);margin-bottom:4px;}
-.cal-story p{font-size:0.92rem;line-height:1.6;color:var(--text-muted);}
-.preview-fest-btn{
-  margin-top:10px;padding:8px 12px;border-radius:10px;border:none;
-  background:rgba(255,210,102,0.22);color:var(--text);
-  cursor:pointer;
-}
-.preview-fest-btn:hover{background:rgba(255,210,102,0.35);}
-.youtube-wrap{max-width:340px;margin:0 auto 26px;}
-.youtube-wrap h3{text-align:center;margin-bottom:10px;color:var(--accent-gold);}
-.youtube-iframe-wrap{
-  width:100%;
-  aspect-ratio:9/16;
-  border-radius:18px;
-  overflow:hidden;
-}
-.youtube-iframe-wrap iframe{
-  width:100%;
-  height:100%;
-  border:none;
-  display:block;
-}
-.merge-demo{margin:30px 0;text-align:center}
-.merge-demo h3{color:var(--accent-gold);margin-bottom:8px;}
-.merge-demo p{color:var(--text-muted);margin-bottom:14px;}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;max-width:380px;margin:0 auto 16px;}
-.cell{
-  aspect-ratio:1/1;border-radius:14px;
-  background:rgba(255,255,255,0.08);
-  display:grid;place-items:center;font-size:2.4rem;
-  cursor:pointer;transition:0.18s;user-select:none;
-}
-.cell:hover{background:rgba(255,224,150,0.18)}
-.cell.selected{box-shadow:0 0 0 3px #9ff}
-.demo-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
-.demo-btn{
-  padding:11px 18px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,#287d58,#34966c);
-  color:#fff;font-weight:500;cursor:pointer;
-  box-shadow:0 4px 14px rgba(40,125,88,0.25);
-  transition:0.2s;
-}
-.demo-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(40,125,88,0.35);}
-.download-card{display:none;margin-top:18px;padding:18px;border-radius:14px;background:rgba(255,255,255,0.06);}
-.download-card.show{display:block}
-.play-btn{
-  display:inline-block;margin-top:10px;padding:11px 20px;border-radius:14px;
-  background:linear-gradient(135deg,#287d58,#3aa878);
-  color:#fff;text-decoration:none;font-weight:500;
-  box-shadow:0 0 16px rgba(255,209,102,0.22);
-  animation:softPulse 3.2s infinite ease-in-out;
-}
-@keyframes softPulse{0%,100%{box-shadow:0 0 16px rgba(255,209,102,0.22);}50%{box-shadow:0 0 26px rgba(255,209,102,0.38);}}
-.bubble{
-  position:fixed;z-index:100;
-  background:#fff;color:#111;padding:11px 16px;border-radius:16px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.3);
-  pointer-events:none;opacity:0;transform:translateY(12px);
-  transition:opacity 0.3s,transform 0.3s;
-}
-.bubble.show{opacity:1;transform:translateY(0)}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin:28px 0;}
-.card-grid h4{color:var(--accent-gold);margin-bottom:6px;}
-.card-grid p{color:var(--text-muted);line-height:1.55;}
-footer{margin-top:46px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.15);font-size:0.9em;color:var(--text-muted);}
-footer p{margin:7px 0;}
-footer a{color:var(--accent-gold);text-decoration:none;}
-footer a:hover{text-decoration:underline;}
-@media(max-width:480px){
-  .hero-welcome h2{font-size:1.4rem;}
-  .card-grid{grid-template-columns:1fr;}
-  .cal-day{min-height:56px;font-size:0.85rem;}
-}
+  :root{
+    --bg1:#0f291e;
+    --bg2:#1a3c2d;
+    --bg3:#12261e;
+    --warm:#ffd166;
+    --cream:#ffecd2;
+    --card:rgba(255,244,224,.08);
+    --card-border:rgba(255,224,150,.25);
+    --text:#f7f1e3;
+    --muted:#d8cbb0;
+    --accent:#8fd694;
+    --gold:#ffd166;
+    --shadow:0 14px 34px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei","Hiragino Sans","Noto Sans JP",sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(600px 400px at 15% 8%, rgba(255,209,102,.10), transparent 60%),
+      radial-gradient(700px 500px at 88% 30%, rgba(255,236,210,.08), transparent 60%),
+      linear-gradient(165deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg3) 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  #particles{position:fixed;inset:0;pointer-events:none;z-index:50}
+  .frame{
+    position:fixed;inset:0;pointer-events:none;z-index:49;
+    border:10px solid var(--frame,#2f6b3a);
+    box-shadow:inset 0 0 70px var(--frame-glow,rgba(72,160,96,.35));
+    animation:breathe 4.5s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{box-shadow:inset 0 0 45px var(--frame-glow,rgba(72,160,96,.35))}
+    50%{box-shadow:inset 0 0 100px var(--frame-glow,rgba(72,160,96,.35))}
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:22px 18px 60px;position:relative;z-index:10}
+
+  /* top bar */
+  .topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .capsule{
+    background:var(--card);border:1px solid var(--card-border);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-radius:999px;padding:11px 18px;font-size:.92rem;
+    box-shadow:var(--shadow);
+  }
+  .capsule .fest{display:block;margin-top:2px;color:var(--gold)}
+  .controls{display:flex;gap:8px;align-items:center}
+  .btn-icon{
+    background:var(--card);border:1px solid var(--card-border);color:var(--text);
+    border-radius:999px;width:42px;height:42px;font-size:1.1rem;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  }
+  .lang-switch{display:flex;gap:4px;background:var(--card);border:1px solid var(--card-border);border-radius:999px;padding:4px}
+  .lang-switch button{
+    background:transparent;border:0;color:var(--muted);cursor:pointer;
+    padding:6px 12px;border-radius:999px;font-size:.85rem;
+  }
+  .lang-switch button.active{background:var(--gold);color:#3a2a08;font-weight:700}
+
+  /* hero */
+  header.hero{text-align:center;margin:14px 0 34px}
+  .welcome{color:var(--cream);font-size:clamp(1.05rem,3vw,1.3rem);margin-bottom:16px;letter-spacing:.5px}
+  .hero-icon{
+    width:120px;height:120px;border-radius:34px;margin:0 auto 18px;
+    background:var(--card);border:1px solid var(--card-border);
+    display:flex;align-items:center;justify-content:center;font-size:68px;
+    box-shadow:0 0 0 6px rgba(255,209,102,.12),0 0 44px rgba(255,209,102,.28),var(--shadow);
+    position:relative;
+  }
+  .hero-icon img{width:88%;height:88%;object-fit:contain;border-radius:22px}
+  .studio{color:var(--muted);font-size:1.05rem;margin-bottom:6px}
+  h1{font-size:clamp(1.5rem,4.5vw,2.25rem);margin-bottom:10px;letter-spacing:.5px}
+  .tagline{color:var(--muted);max-width:600px;margin:0 auto 20px}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:22px}
+  .badge{
+    background:var(--card);border:1px solid var(--card-border);border-radius:14px;
+    padding:10px 16px;font-size:.9rem;backdrop-filter:blur(10px);
+  }
+  .gp-hero{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(180deg,#3a9a6e 0%,#1f6b49 100%);
+    border:1px solid rgba(255,224,150,.4);
+    color:#fff;text-decoration:none;font-weight:700;font-size:1rem;
+    padding:14px 26px;border-radius:999px;
+    box-shadow:0 10px 24px rgba(31,107,73,.45),inset 0 1px 0 rgba(255,255,255,.25);
+    animation:glowBreath 3.2s ease-in-out infinite;
+  }
+  @keyframes glowBreath{
+    0%,100%{box-shadow:0 10px 24px rgba(31,107,73,.45),inset 0 1px 0 rgba(255,255,255,.25),0 0 0 0 rgba(255,209,102,.0)}
+    50%{box-shadow:0 10px 28px rgba(31,107,73,.5),inset 0 1px 0 rgba(255,255,255,.25),0 0 26px rgba(255,209,102,.35)}
+  }
+
+  /* video card */
+  .video-card{
+    max-width:320px;margin:28px auto;border-radius:24px;overflow:hidden;
+    background:var(--card);border:1px solid var(--card-border);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:var(--shadow);
+  }
+  .video-card h3{padding:14px 14px 0;font-size:.95rem}
+  .video-card .frame-916{position:relative;width:100%;aspect-ratio:9/16;margin:8px 0}
+  .video-card iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+  /* sections */
+  section{margin:36px 0}
+  h2{font-size:1.35rem;margin-bottom:18px;text-align:center}
+  .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+  .feature{
+    background:var(--card);border:1px solid var(--card-border);border-radius:22px;
+    padding:20px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    transition:transform .18s,background .18s;
+  }
+  .feature:hover{transform:translateY(-4px);background:rgba(255,244,224,.14)}
+  .feature .ico{font-size:1.8rem;margin-bottom:10px}
+  .feature h3{margin-bottom:6px;font-size:1.02rem}
+  .feature p{color:var(--muted);font-size:.9rem}
+
+  /* cozy wall calendar */
+  .cal-section{max-width:560px;margin:0 auto}
+  .cal-card{
+    background:linear-gradient(180deg,rgba(92,64,38,.35),rgba(60,42,26,.35));
+    border:1px solid var(--card-border);border-radius:26px;padding:22px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    box-shadow:var(--shadow);position:relative;
+  }
+  .cal-card::before{
+    content:"🪵";position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    font-size:1.4rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));
+  }
+  .cal-greet{text-align:center;color:var(--cream);font-size:.94rem;margin-bottom:6px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0}
+  .cal-title{font-size:1.12rem;font-weight:700;text-align:center;flex:1}
+  .cal-nav{display:flex;gap:8px;align-items:center}
+  .cal-nav button{
+    background:var(--card);border:1px solid var(--card-border);color:var(--text);
+    border-radius:12px;cursor:pointer;font-size:.88rem;padding:9px 12px;
+  }
+  .cal-nav button.today-btn{color:#3a2a08;background:var(--gold);border-color:transparent;font-weight:700}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-wd{text-align:center;font-size:.76rem;color:var(--muted);padding:6px 0;font-weight:600}
+  .cal-day{
+    aspect-ratio:1;border-radius:14px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;font-size:.9rem;position:relative;
+    background:rgba(255,244,224,.07);min-height:44px;cursor:default;
+  }
+  .cal-day.clickable{cursor:pointer}
+  .cal-day.other{opacity:.25}
+  .cal-day.today{outline:2px solid var(--gold);background:rgba(255,209,102,.16)}
+  .cal-day .day-emoji{font-size:.85rem;line-height:1;margin-bottom:2px}
+  .cal-day .lunar{font-size:.6rem;color:var(--muted);line-height:1;margin-top:2px}
+  .cal-day .dot{width:6px;height:6px;border-radius:50%;margin-top:3px}
+  .dot.fest{background:#ffd34d;box-shadow:0 0 6px #ffd34d}
+  .dot.release{background:#ff7ec4;box-shadow:0 0 6px #ff7ec4}
+  .cal-day.has-fest{background:rgba(255,211,77,.12)}
+  .cal-day.has-release{background:rgba(255,126,196,.12)}
+  .legend{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:14px;font-size:.82rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+  .cal-diary{
+    margin-top:16px;background:rgba(255,244,224,.09);border:1px dashed var(--card-border);
+    border-radius:18px;padding:16px;min-height:64px;
+  }
+  .cal-diary .diary-date{font-size:.82rem;color:var(--gold);margin-bottom:4px}
+  .cal-diary .diary-text{font-size:.92rem}
+  .diary-actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+  .diary-btn{
+    border:1px solid var(--card-border);border-radius:999px;padding:9px 16px;cursor:pointer;
+    background:var(--gold);color:#3a2a08;font-weight:700;font-size:.88rem;
+  }
+
+  /* merge demo */
+  .demo{
+    background:var(--card);border:1px solid var(--card-border);border-radius:28px;
+    padding:24px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    max-width:520px;margin:0 auto;box-shadow:var(--shadow);
+  }
+  .demo h2{margin-bottom:6px}
+  .demo .sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:16px}
+  .bubble{
+    background:rgba(255,244,224,.14);border:1px dashed var(--card-border);
+    border-radius:16px;padding:10px 14px;text-align:center;margin-bottom:14px;font-size:.92rem;min-height:42px;
+  }
+  .board{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+    background:rgba(0,0,0,.18);padding:12px;border-radius:22px;
+  }
+  .cell{
+    aspect-ratio:1;border-radius:18px;background:rgba(255,244,224,.08);
+    border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;
+    font-size:clamp(1.6rem,6vw,2.3rem);cursor:pointer;transition:transform .12s,background .12s;user-select:none;
+  }
+  .cell:hover{background:rgba(255,244,224,.16)}
+  .cell.sel{background:rgba(255,209,102,.28);outline:2px solid var(--gold)}
+  .cell.empty{cursor:default}
+  .demo-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+  .action-btn{
+    border:1px solid var(--card-border);border-radius:999px;padding:11px 18px;cursor:pointer;
+    background:var(--card);color:var(--text);font-size:.92rem;backdrop-filter:blur(10px);
+  }
+  .action-btn.primary{background:var(--gold);color:#3a2a08;font-weight:700;border-color:transparent}
+  .download-prompt{
+    display:none;margin-top:16px;background:rgba(255,215,120,.14);
+    border:1px solid rgba(255,215,120,.4);border-radius:18px;padding:16px;text-align:center;
+  }
+  .download-prompt.show{display:block}
+  .download-prompt h3{margin-bottom:8px}
+  .gp-link{
+    display:inline-block;margin-top:8px;background:#1f8a5f;color:#fff;text-decoration:none;
+    padding:11px 20px;border-radius:999px;font-weight:700;
+  }
+
+  /* night lights off mode */
+  body.lights-off{
+    background:linear-gradient(165deg,#08170f 0%,#0d2018 50%,#07120d 100%);
+  }
+  body.lights-off .frame{ --frame-glow:rgba(40,90,60,.22); }
+  body.lights-off .hero-icon{
+    box-shadow:0 0 0 6px rgba(255,209,102,.05),0 0 22px rgba(255,209,102,.12),var(--shadow);
+  }
+  body.lights-off .gp-hero{ animation:none; }
+  .diary-story{margin-top:10px;border-top:1px dashed var(--card-border);padding-top:10px}
+  .diary-story .story-label{font-size:.82rem;color:var(--gold);margin-bottom:4px}
+  .diary-story .story-text{font-size:.9rem;color:var(--cream)}
+
+  footer{
+    margin-top:50px;padding-top:26px;border-top:1px solid var(--card-border);
+    text-align:center;color:var(--muted);font-size:.88rem;
+  }
+  footer .flinks{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:14px 0}
+  footer a{color:var(--gold);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .toast{
+    position:fixed;left:50%;bottom:30px;transform:translateX(-50%);
+    background:rgba(0,0,0,.8);padding:10px 18px;border-radius:12px;z-index:60;
+    opacity:0;transition:opacity .25s;pointer-events:none;
+  }
+  .toast.show{opacity:1}
+  @media (max-width:520px){
+    .frame{border-width:6px}
+    .demo{padding:16px}
+    .cal-card{padding:16px}
+    .cal-day{min-height:36px;border-radius:10px;font-size:.82rem}
+    .cal-nav button{padding:8px 10px}
+    .cal-grid{gap:4px}
+    .cal-wd{font-size:.7rem;padding:4px 0}
+    .topbar{gap:8px}
+    .capsule{flex:1 1 100%;font-size:.84rem;padding:9px 14px}
+    h1{font-size:1.32rem;line-height:1.3}
+    .wrap{padding:14px 12px 50px}
+  }
 </style>
 </head>
 <body>
-<div class="light-orb orb1"></div>
-<div class="light-orb orb2"></div>
-<canvas id="particleCanvas"></canvas>
-<div class="fest-border" id="festBorder"></div>
-<div class="container">
-  <div class="header">
-    <div class="logo-wrap">
-      <div class="logo-ring">
-        <img class="logo-img" src="icon.png" onerror="this.style.display='none';this.nextSibling.style.display='block'" alt="Icon">
-        <span class="logo-fallback">🌲</span>
-      </div>
-      <div>
-        <h1>Mystery Forest Studio</h1>
-        <div class="game-subtitle" data-i18n="gameTitle">Mystery Forest: 神秘森林合成傳奇</div>
-      </div>
+<canvas id="particles"></canvas>
+<div class="frame" id="frame"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="capsule" id="calendarCapsule">
+      <span id="todayLabel">📅</span>
+      <span class="fest" id="festLabel"></span>
     </div>
-    <div class="header-right">
-      <button class="lang-btn" data-lang="zh">繁</button>
-      <button class="lang-btn" data-lang="en">EN</button>
-      <button class="lang-btn" data-lang="ja">日本語</button>
-      <button class="audio-toggle" id="audioBtn">🔊</button>
-      <button class="lamp-toggle" id="lampBtn">💡</button>
+    <div class="controls">
+      <div class="lang-switch" id="langSwitch">
+        <button data-lang="zh">繁中</button>
+        <button data-lang="en">EN</button>
+        <button data-lang="ja">日本語</button>
+      </div>
+      <button class="btn-icon" id="audioToggle" title="Sound">🔊</button>
+      <button class="btn-icon" id="lightToggle" title="Lights">💡</button>
     </div>
   </div>
 
-  <div class="hero-welcome">
-    <h2 data-i18n="welcomeHome">🏡 歡迎回到神秘森林咖啡屋</h2>
-  </div>
+  <header class="hero">
+    <p class="welcome" id="welcomeHome"></p>
+    <div class="hero-icon">
+      <img src="icon.png" alt="game icon" onerror="this.outerHTML='<span>🌲</span>'">
+    </div>
+    <div class="studio" id="studioName">Mystery Forest Studio</div>
+    <h1 id="gameTitle">Mystery Forest</h1>
+    <p class="tagline" id="tagline"></p>
+    <div class="badges" id="badges"></div>
+    <a class="gp-hero" id="gpHero" href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank" rel="noopener"></a>
 
-  <div class="glass calendar-card">
-    <div class="cal-header">
-      <div class="cal-title" id="calTitle"></div>
-      <div class="cal-nav">
-        <button id="calPrev">◀ <span data-i18n="prevMonth">上個月</span></button>
-        <button id="calToday"><span data-i18n="backToday">回到本月</span></button>
-        <button id="calNext"><span data-i18n="nextMonth">下個月</span> ▶</button>
+    <div class="video-card">
+      <h3 id="videoTitle"></h3>
+      <div class="frame-916">
+        <iframe id="ytFrame" src="https://www.youtube-nocookie.com/embed/91k2erfq9lw?enablejsapi=1"
+          title="YouTube Shorts" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen></iframe>
       </div>
     </div>
-    <div class="cal-week" id="calWeekRow"></div>
-    <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-note" id="calNoteBox">
-      <h4 id="calNoteTitle"></h4>
-      <div id="calNoteText"></div>
-      <button class="preview-fest-btn" id="previewFestBtn" style="display:none" data-i18n="previewFest">✨ 立即預覽此節日氛圍</button>
-      <div class="cal-story">
-        <h5 data-i18n="storyTitle">📖 管家今日小故事</h5>
-        <p id="storyText"></p>
+  </header>
+
+  <section class="cal-section">
+    <div class="cal-card">
+      <p class="cal-greet" id="calGreet"></p>
+      <div class="cal-head">
+        <div class="cal-nav">
+          <button id="calPrev" aria-label="Previous month"></button>
+        </div>
+        <div class="cal-title" id="calTitle"></div>
+        <div class="cal-nav">
+          <button id="calToday" class="today-btn" aria-label="Today"></button>
+          <button id="calNext" aria-label="Next month"></button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="legend">
+        <span><i class="dot fest"></i><span id="legendFest"></span></span>
+        <span><i class="dot release"></i><span id="legendRelease"></span></span>
+      </div>
+      <div class="cal-diary" id="calDiary">
+        <div class="diary-date" id="diaryDate"></div>
+        <div class="diary-text" id="diaryText"></div>
+        <div class="diary-story">
+          <div class="story-label" id="storyLabel"></div>
+          <div class="story-text" id="storyText"></div>
+        </div>
+        <div class="diary-actions" id="diaryActions"></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="youtube-wrap">
-    <h3 data-i18n="videoTitle">🎬 宣傳短片</h3>
-    <div class="youtube-iframe-wrap">
-      <iframe id="ytFrame" src="https://www.youtube-nocookie.com/embed/91k2erfq9lw?autoplay=0"
-        title="YouTube video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen>
-      </iframe>
-    </div>
-  </div>
+  <section>
+    <h2 id="featuresTitle"></h2>
+    <div class="features" id="features"></div>
+  </section>
 
-  <div class="glass merge-demo">
-    <h3 data-i18n="demoTitle">4x4 迷你森林合成搶先體驗版</h3>
-    <p data-i18n="demoHint">點擊兩個相同物品進行合併升級！</p>
+  <section class="demo">
+    <h2 id="demoTitle"></h2>
+    <p class="sub" id="demoSub"></p>
+    <div class="bubble" id="bubble"></div>
     <div class="board" id="board"></div>
-    <div class="demo-buttons">
-      <button class="demo-btn" id="spawnBtn" data-i18n="spawn">🌰 召喚新種子</button>
-      <button class="demo-btn" id="shareBtn" data-i18n="share">📤 分享給朋友試玩</button>
+    <div class="demo-actions">
+      <button class="action-btn primary" id="summonBtn"></button>
+      <button class="action-btn" id="shareBtn"></button>
     </div>
-    <div class="download-card" id="downloadCard">
-      <p data-i18n="congrats">🎉 恭喜合成高階物品！下載完整版遊戲體驗更多內容</p>
-      <br>
-      <a class="play-btn" href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank">Google Play</a>
+    <div class="download-prompt" id="downloadPrompt">
+      <h3 id="promptTitle"></h3>
+      <p id="promptDesc"></p>
+      <a class="gp-link" id="gpLink" href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank" rel="noopener"></a>
     </div>
-  </div>
-
-  <div class="card-grid">
-    <div class="glass">
-      <h4 data-i18n="card1Title">🌍 全年6大節日自動巡航</h4>
-      <p data-i18n="card1Desc">跟隨季節自動切換特效、背景音樂與限定氛圍</p>
-    </div>
-    <div class="glass">
-      <h4 data-i18n="card2Title">🧚 森林管家與三語支援</h4>
-      <p data-i18n="card2Desc">繁體中文、英文、日文即時切換，記住你的偏好</p>
-    </div>
-    <div class="glass">
-      <h4 data-i18n="card3Title">🦋 治癒系寵物與專屬音效</h4>
-      <p data-i18n="card3Desc">八音盒旋律、粒子特效、柔和聲音陪伴冒險</p>
-    </div>
-    <div class="glass">
-      <h4 data-i18n="card4Title">🎮 輕鬆合成玩法</h4>
-      <p data-i18n="card4Desc">合併物品、解鎖進化，探索神秘森林</p>
-    </div>
-  </div>
+  </section>
 
   <footer>
-    <p>© 2026 Mystery Forest Studio. All rights reserved.</p>
-    <p><a href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank">Google Play</a></p>
-    <p><a href="https://mysteryforeststudio.github.io/mystery-forest-privacy/" target="_blank" data-i18n="privacy">私隱權政策</a></p>
-    <p>Email: <a href="mailto:mysteryforest.dev@gmail.com">mysteryforest.dev@gmail.com</a></p>
+    <div class="flinks">
+      <a id="footerPlay" href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank" rel="noopener"></a>
+      <a id="footerPrivacy" href="https://mysteryforeststudio.github.io/mystery-forest-privacy/" target="_blank" rel="noopener"></a>
+      <a id="footerEmail" href="mailto:mysteryforest.dev@gmail.com"></a>
+    </div>
+    <div>© 2026 Mystery Forest Studio. All rights reserved.</div>
   </footer>
 </div>
 
-<div class="bubble" id="bubble"></div>
+<div class="toast" id="toast"></div>
 
 <script>
-const i18n = {
-  zh:{
-    welcomeHome:"🏡 歡迎回到神秘森林咖啡屋",
-    gameTitle:"Mystery Forest: 神秘森林合成傳奇",
-    videoTitle:"🎬 宣傳短片",
-    demoTitle:"4x4 迷你森林合成搶先體驗版",
-    demoHint:"點擊兩個相同物品進行合併升級！",
-    spawn:"🌰 召喚新種子",
-    share:"📤 分享給朋友試玩",
-    congrats:"🎉 恭喜合成高階物品！下載完整版遊戲體驗更多內容",
-    privacy:"私隱權政策",
-    prevMonth:"上個月",nextMonth:"下個月",backToday:"回到本月",
-    storyTitle:"📖 管家今日小故事",
-    previewFest:"✨ 立即預覽此節日氛圍",
-    card1Title:"🌍 全年6大節日自動巡航",
-    card1Desc:"跟隨季節自動切換特效、背景音樂與限定氛圍",
-    card2Title:"🧚 森林管家與三語支援",
-    card2Desc:"繁體中文、英文、日文即時切換，記住你的偏好",
-    card3Title:"🦋 治癒系寵物與專屬音效",
-    card3Desc:"八音盒旋律、粒子特效、柔和聲音陪伴冒險",
-    card4Title:"🎮 輕鬆合成玩法",
-    card4Desc:"合併物品、解鎖進化，探索神秘森林",
-    eventLive:"🎉 特別日子進行中：{name}！",
-    countdown:"⏳ 距離下一個特別日子【{name}】還有 {days} 天",
-    shareOk:"已複製網址，可以分享啦！",
-    mergeGood:"很棒！繼續合成吧～",
-    mergeGreat:"太厲害了！",
-    mergeWow:"哇，稀有物品！",
-    christmas:"🎄 聖誕節限定慶典",
-    new_year:"🎆 元旦慶典",
-    lunar_new_year:"🧧 農曆新年",
-    valentine:"💖 情人節",
-    easter:"🌼 復活節",
-    halloween:"🎃 萬聖節",
-    release_v1012:"🚀 v1.0.12 全年節日＆三語管家版盛大上線！",
-    noNote:"這一日安靜平和，森林管家正在煮熱茶。",
-    weekNames:["日","一","二","三","四","五","六"],
-    stories:[
-      "清晨的霧氣漫過木屋，管家已經煮好一壶熱可可，等住訪客到來。",
-      "一隻松鼠偷偷爬上窗台，偷咗一粒栗子，轉眼就鑽入樹林。",
-      "黃昏時分螢火蟲開始亮燈，沿住小徑照路，溫柔又安靜。",
-      "落雨嘅夜晚，壁爐噼啪響，窗玻璃凝住水珠，適合慢慢聽八音盒。",
-      "森林入面嘅小蘑菇悄悄打開傘，接住天上飄落嘅雨絲。",
-      "風吹過楓葉，沙沙聲好似森林喺度輕輕唱歌。",
-      "清晨露水沾滿蕨類，陽光穿過樹葉，灑出一片片碎金。",
-      "夜鶯停喺橡樹枝，唱住只有森林先會聽到嘅歌。",
-      "管家將曬乾嘅香草包掛喺木屋樑上，空氣充滿淡淡清香。",
-      "小蝴蝶停喺野花上面，唔急住飛，只想多曬一陣太陽。",
-      "冬日薄霜鋪滿草地，踩上去會有輕輕沙沙聲。",
-      "月亮升到樹頂，整片森林浸在柔和銀光裡。",
-      "春天第一朵櫻花綻放，風一吹就飄起粉紅花瓣。",
-      "小溪叮咚流過石頭，帶走落葉同埋小小的煩惱。",
-      "管家整咗蜂蜜餅乾，香氣飄到成個森林都聞到。",
-      "烏雲散開，一道彩虹跨過山谷，色彩軟軟咁。",
-      "一隻貓頭鷹睜大圓眼，靜靜守護夜晚嘅森林。",
-      "蒲公英準備好，等風一來就去遠方旅行。",
-      "秋天嘅栗子熟了，松鼠忙住儲糧準備過冬。",
-      "夕陽染紅雲層，連樹影都變成暖橙色。",
-      "霧入面傳來鈴聲，係森林深處嘅小精靈經過。",
-      "青苔慢慢包住舊木頭，時間喺森林入面走得好慢。",
-      "管家將暖燈點亮，歡迎每一個迷路嘅訪客返屋企。",
-      "星光落喺湖面，好似好多細細嘅銀幣。",
-      "春雨滋潤泥土，種子悄悄喺地底準備發芽。",
-      "風鈴隨風搖擺，奏出簡單舒服嘅旋律。",
-      "小鳥築好巢，等住新生命破殼而出。",
-      "黃金蘑菇圈出現，傳說係精靈們跳舞嘅地方。",
-      "管家寫低今日日記，願你都有平靜快樂嘅一日。",
-      "森林永遠喺度等你，無論幾時返來都有熱茶。"
-    ]
-  },
-  en:{
-    welcomeHome:"🏡 Welcome Home to Mystery Forest Café",
-    gameTitle:"Mystery Forest: Merge Legend",
-    videoTitle:"🎬 Promo Shorts",
-    demoTitle:"4x4 Mini Forest Merge Demo",
-    demoHint:"Tap two identical items to merge!",
-    spawn:"🌰 Spawn Seed",
-    share:"📤 Share with friends",
-    congrats:"🎉 You merged rare item! Download full game for more",
-    privacy:"Privacy Policy",
-    prevMonth:"Prev Month",nextMonth:"Next Month",backToday:"Today",
-    storyTitle:"📖 Butler’s Story",
-    previewFest:"✨ Preview this festival atmosphere",
-    card1Title:"🌍 Auto 6 Festivals All Year",
-    card1Desc:"Auto switch visuals, music and atmosphere by season",
-    card2Title:"🧚 Forest Butler & Multilanguage",
-    card2Desc:"Traditional Chinese, English, Japanese, save preference",
-    card3Title:"🦋 Healing Pets & Custom SFX",
-    card3Desc:"Music box melody, particles and soft ambient sounds",
-    card4Title:"🎮 Relaxing Merge Gameplay",
-    card4Desc:"Merge items, evolve, explore the mystery forest",
-    eventLive:"🎉 Special Event Live: {name}!",
-    countdown:"⏳ Next special event【{name}】in {days} days",
-    shareOk:"Link copied to clipboard!",
-    mergeGood:"Nice merge! Keep going.",
-    mergeGreat:"Awesome!",
-    mergeWow:"Wow, rare find!",
-    christmas:"🎄 Christmas Event",
-    new_year:"🎆 New Year",
-    lunar_new_year:"🧧 Lunar New Year",
-    valentine:"💖 Valentine's Day",
-    easter:"🌼 Easter",
-    halloween:"🎃 Halloween",
-    release_v1012:"🚀 v1.0.12 Full Festival & Trilingual Butler Launch!",
-    noNote:"This day is quiet; the forest butler is brewing warm tea.",
-    weekNames:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-    stories:[
-      "Morning mist wraps the cabin. The butler has prepared hot cocoa for visitors.",
-      "A squirrel sneaks onto the windowsill, grabs a chestnut and vanishes into woods.",
-      "Fireflies light up at dusk, marking the gentle path through the forest.",
-      "Rain taps the window while the fireplace crackles; perfect for the music box.",
-      "Tiny mushrooms open their caps to catch the falling rain.",
-      "Maple leaves rustle softly, like the forest humming a quiet song.",
-      "Dew glistens on ferns, sunlight spills golden streaks through branches.",
-      "A nightingale rests on oak, singing a song only the forest hears.",
-      "Dried herb bundles hang from beams, filling the cabin with soft scent.",
-      "A butterfly rests on wildflower, unwilling to rush away from sunlight.",
-      "Thin frost covers grass; it crinkles gently when you step on it.",
-      "The moon rises above treetops, bathing everything in silver glow.",
-      "The first cherry blossom blooms, petals drift away with spring wind.",
-      "A stream murmurs over stones, carrying leaves and small worries away.",
-      "The butler baked honey cookies, the sweet scent drifts through the woods.",
-      "Clouds part, a soft rainbow arches across the valley.",
-      "An owl watches over the night, its round eyes calm and wise.",
-      "Dandelions wait for wind, ready to travel far away.",
-      "Chestnuts ripen in autumn; squirrels hurry to store food for winter.",
-      "Sunset paints the clouds orange, even tree shadows turn warm.",
-      "A bell rings in mist, forest sprites passing through deep woods.",
-      "Moss slowly wraps old logs; time moves gently here.",
-      "The butler lights warm lamps, welcoming every wanderer home.",
-      "Stars reflect on the lake, like countless tiny silver coins.",
-      "Spring rain feeds the soil; seeds quietly prepare to sprout.",
-      "Wind chimes sway, playing simple comforting notes.",
-      "Little birds finish their nest, waiting for new life.",
-      "A fairy ring appears, where elves are said to dance at night.",
-      "The butler writes his diary, wishing you peace and joy today.",
-      "The forest waits for you always; warm tea is ready whenever you return."
-    ]
-  },
-  ja:{
-    welcomeHome:"🏡 神秘の森のカフェへおかえりなさい",
-    gameTitle:"Mystery Forest：神秘の森のマージ伝説",
-    videoTitle:"🎬 プロモーション動画",
-    demoTitle:"4x4 ミニマージ体験版",
-    demoHint:"同じアイテムを2つタップして合成！",
-    spawn:"🌰 種を召喚",
-    share:"📤 友達にシェア",
-    congrats:"🎉 レアアイテム合成！フル版をダウンロード",
-    privacy:"プライバシーポリシー",
-    prevMonth:"前月",nextMonth:"次月",backToday:"今日",
-    storyTitle:"📖 執事の小さな物語",
-    previewFest:"✨ このイベント雰囲気をプレビュー",
-    card1Title:"🌍 年間6イベント自動切替",
-    card1Desc:"季節に合わせてエフェクトと音楽が変わる",
-    card2Title:"🧚 フォレスト執事と多言語",
-    card2Desc:"繁体中文・英語・日本語、設定保存",
-    card3Title:"🦋 癒しペットと効果音",
-    card3Desc:"オルゴール、パーティクル、柔らかい音",
-    card4Title:"🎮 まったりマージゲーム",
-    card4Desc:"アイテムを合成して進化、森を探索",
-    eventLive:"🎉 イベント開催中：{name}！",
-    countdown:"⏳ 次のイベント【{name}】まで {days} 日",
-    shareOk:"リンクをコピーしました",
-    mergeGood:"いいね、続けよう",
-    mergeGreat:"すごい！",
-    mergeWow:"レアアイテム！",
-    christmas:"🎄 クリスマスイベント",
-    new_year:"🎆 新年",
-    lunar_new_year:"🧧 旧正月",
-    valentine:"💖 バレンタイン",
-    easter:"🌼 イースター",
-    halloween:"🎃 ハロウィン",
-    release_v1012:"🚀 v1.0.12 全年イベント＆三言語執事版リリース！",
-    noNote:"穏やかな一日です。執事はお茶を淹れています。",
-    weekNames:["日","月","火","水","木","金","土"],
-    stories:[
-      "朝霧が小屋を包み、執事は訪問者のためにホットココアを用意しました。",
-      "リスが窓辺に忍び寄り、栗を咥えて森へ消えていきました。",
-      "夕暮れにホタルが灯り、小道を優しく照らします。",
-      "雨の夜、暖炉の音が響き、オルゴールを聴くのにぴったりです。",
-      "小さなキノコが傘を開き、雨粒を受け止めます。",
-      "カエデの葉がさらさらと、森のささやきのように歌います。",
-      "朝露がシダに光り、木漏れ日が黄金の筋を落とします。",
-      "ナイチンゲールがオークの枝で、森だけの歌を歌います。",
-      "乾燥したハーブが梁に吊るされ、優しい香りが漂います。",
-      "蝶が野花に止まり、ゆっくり日向ぼっこをしています。",
-      "薄い霜が草原に広がり、踏むとかさかさ音がします。",
-      "月が梢に昇り、森全体が銀色に包まれます。",
-      "春の最初の桜が咲き、風に乗って花びらが舞います。",
-      "小川が石の上を囁き、葉っぱと小さな悩みを運びます。",
-      "執事が蜂蜜クッキーを焼き、甘い香りが森に広がります。",
-      "雲が割れ、谷を渡る柔らかい虹が現れます。",
-      "フクロウが夜を見守り、丸い瞳は穏やかです。",
-      "タンポポが風を待ち、遠くへ旅立つ準備をします。",
-      "秋に栗が実り、リスは冬の備えに忙しくします。",
-      "夕焼けが雲を染め、木の影さえ暖かいオレンジ色に。",
-      "霧の中で鈴が鳴り、森の精霊が通り過ぎます。",
-      "コケが古い丸太を包み、森の時間はゆっくり流れます。",
-      "執事が灯りをつけ、迷える人を家へ迎えます。",
-      "湖に星が映り、無数の小さな銀貨のようです。",
-      "春雨が土を潤し、種が静かに芽吹く準備をします。",
-      "風鈴が揺れ、心地よい単純な調べを奏でます。",
-      "小鳥が巣を作り、新しい命を待っています。",
-      "妖精の輪が現れ、夜に精霊が踊るといわれます。",
-      "執事が日記を書き、あなたが穏やかな一日になりますように。",
-      "森はいつでも待っています。帰ってくればお茶があります。"
-    ]
-  }
-};
-let lang = localStorage.getItem("mfLang") || "zh";
-let lampOn = localStorage.getItem("mfLamp") !== "off";
-let previewFestOverride = null;
-
-const festDefs = {
-  christmas:{type:"fixed",start:[12,15],end:[12,28],nameKey:"christmas",border:"rgba(255,50,50,0.35),rgba(0,180,80,0.35),rgba(255,210,0,0.35)",particles:"snow"},
-  new_year:{type:"fixed",start:[12,29],end:[1,5],nameKey:"new_year",border:"rgba(255,210,0,0.4)",particles:"sparkle"},
-  lunar_new_year:{type:"lunar",offset:-7,span:14,nameKey:"lunar_new_year",border:"rgba(220,20,20,0.4),rgba(255,200,0,0.35)",particles:"redpetal"},
-  valentine:{type:"fixed",start:[2,10],end:[2,16],nameKey:"valentine",border:"rgba(255,100,160,0.35),rgba(180,100,255,0.3)",particles:"heart"},
-  easter:{type:"easter",offset:-7,span:14,nameKey:"easter",border:"rgba(160,255,180,0.35),rgba(255,230,100,0.3)",particles:"bloom"},
-  halloween:{type:"fixed",start:[10,24],end:[11,2],nameKey:"halloween",border:"rgba(120,40,180,0.35),rgba(255,140,0,0.35)",particles:"pumpkin"}
-};
-const lunarNewYear = {
-  2026:{y:2026,m:2,d:17},2027:{y:2027,m:2,d:6},2028:{y:2028,m:1,d:26},2029:{y:2029,m:2,d:13},2030:{y:2030,m:2,d:3},
-  2031:{y:2031,m:1,d:23},2032:{y:2032,m:2,d:11},2033:{y:2033,m:1,d:31},2034:{y:2034,m:2,d:19},2035:{y:2035,m:2,d:8},
-  2036:{y:2036,m:1,d:28},2037:{y:2037,m:2,d:15},2038:{y:2038,m:2,d:4},2039:{y:2039,m:1,d:24},2040:{y:2040,m:2,d:12},
-  2041:{y:2041,m:2,d:1},2042:{y:2042,m:1,d:22},2043:{y:2043,m:2,d:10},2044:{y:2044,m:1,d:30},2045:{y:2045,m:2,d:17},
-  2046:{y:2046,m:2,d:6},2047:{y:2047,m:1,d:26},2048:{y:2048,m:2,d:14}
-};
-const RELEASES = [
-  {date:"2026-11-26",key:"release_v1012"}
-];
-const lunarData = (function(){
-  const lunarMonths = ["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","冬月","臘月"];
-  const lunarDays = ["初一","初二","初三","初四","初五","初六","初七","初八","初九","初十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十","廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"];
-  function getLunarStr(ly,lm,ld,isleap){
-    if(ld===1) return (isleap?"閏":"")+lunarMonths[lm-1];
-    return lunarDays[ld-1];
-  }
-  const table = {
-    2026:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2027:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2028:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2029:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2030:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2031:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2032:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2033:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2034:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2035:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2036:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2037:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2038:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2039:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2040:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2041:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2042:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2043:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2044:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2045:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2046:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2047:[0,30,29,30,29,30,29,30,29,30,29,30,29],
-    2048:[0,30,29,30,29,30,29,30,29,30,29,30,29]
-  };
-  function solar2Lunar(y,m,d){
-    const base = new Date(2026,1,17);
-    const target = new Date(y,m-1,d);
-    const diff = Math.floor((target-base)/(1000*86400));
-    let ly = 2026, lm = 1, ld = 1, leap = false;
-    while(true){
-      const days = table[ly][lm];
-      if(diff < days) break;
-      diff -= days;
-      lm++;
-      if(lm>12){lm=1;ly++;}
+"use strict";
+/* ============================================================
+   1. 三語 i18n（localStorage 記住選擇）
+   ============================================================ */
+const I18N = {
+  zh: {
+    welcomeHome: "🏡 歡迎回到神秘森林咖啡屋",
+    studio: "Mystery Forest Studio",
+    gameTitle: "Mystery Forest: 神秘森林合成傳奇",
+    tagline: "走進會呼吸的魔法森林，合成、探索、蒐集傳說中的森林精靈。",
+    badges: ["🌲 森林合成冒險", "🎁 全年 6 大節日巡航", "🎧 三語配音與氛圍音樂"],
+    featuresTitle: "為什麼走進我們的森林？",
+    features: [
+      { ico:"🗓️", t:"全年 6 大節日自動巡航", d:"聖誕、元旦、農曆新年、情人節、復活節、萬聖節，場景、音樂與粒子特效隨節日自動切換。" },
+      { ico:"🧚", t:"森林管家與三語配音", d:"繁體中文、英文、日文即時切換，貼心管家陪伴你每一天的合成旅程。" },
+      { ico:"🐾", t:"治癒系寵物與專屬音效", d:"萌寵夥伴隨身同行，搭配柔和八音盒音色與專屬環境音效。" },
+      { ico:"🌐", t:"支援繁中 / 英文 / 日文", d:"一鍵切換語言，偏好自動記住，帶領來自世界各地的旅人踏入森林。" }
+    ],
+    videoTitle: "🎬 官方宣傳短片（Shorts）",
+    demoTitle: "🎮 4×4 迷你森林合成搶先體驗版",
+    demoSub: "點擊兩個相同物品即可合併升級，看看你能否合成森林皇冠！",
+    summon: "🌰 召喚新種子",
+    share: "📤 分享給朋友試玩（Share）",
+    bubbleIdle: "🌿 森林管家：歡迎回到咖啡屋！點擊兩個相同的物品開始合成吧～",
+    bubbleMerge: ["太棒了！又進化了一步！", "森林因為你的魔法閃亮起來了！", "繼續加油，皇冠就在前方！"],
+    bubbleNoMatch: "咦？這兩個物品不一樣哦，再試試看～",
+    promptTitle: "🎉 解鎖完整版傳說！",
+    promptDesc: "你已經合成了稀有的森林奇蹟！前往 Google Play 下載完整版，解鎖更多精靈、寵物與節日活動。",
+    gp: "▶ 前往 Google Play 下載",
+    footerPlay: "Google Play 下載",
+    footerPrivacy: "私隱權政策",
+    footerEmail: "mysteryforest.dev@gmail.com",
+    toastCopied: "網址已複製，快分享給朋友吧！",
+    toastShared: "感謝分享！",
+    audioOn: "🔊", audioOff: "🔇",
+    calToday: "📅 {date}",
+    festLive: "🎉 特別日子進行中：{name}！（Special Event Live!）",
+    countDown: "⏳ 距離下一個特別日子【{name}】還有 {n} 天",
+    calTitle: "🌲 森林手繪掛曆 · 回家看看",
+    calGreet: "推開咖啡屋的木門，看看這個月有哪些節日和新版本等著你～",
+    prevMonth: "◀ 上個月",
+    nextMonth: "下個月 ▶",
+    todayBtn: "回到本月",
+    legendFest: "節日慶典",
+    legendRelease: "版本發布紀念日",
+    weekDays: ["日","一","二","三","四","五","六"],
+    diaryToday: "🌿 管家日記：今天也歡迎你到咖啡屋坐下，喝杯熱茶，慢慢合成屬於你的森林。",
+    diaryRelease: "🚀 版本紀念日：{label} — 感謝你和森林一起成長！",
+    diaryFest: "🌿 管家日記：今日森林正為 {name} 佈置燈光與花飾，要不要先感受一下節日氛圍？",
+    previewBtn: "✨ 立即預覽此節日氛圍",
+    lightOn: "💡 開燈",
+    lightOff: "🌙 熄燈",
+    storyLabel: "📖 今日小故事",
+    stories: [
+      "清晨的第一縷陽光穿過苔蘚，管家先為咖啡屋煮好一壺森林晨茶。",
+      "一隻小松鼠偷嚐了桌上的栗子，被發現後滿臉通紅地躲回樹梢。",
+      "風鈴在門口輕輕搖響，今日的運氣會隨著第一陣秋風送進屋裡。",
+      "老橡木桌記得每一位旅人說過的故事，今晚輪到它輕聲說給你聽。",
+      "螢火蟲在窗下排成小火龍，替晚歸的客人照著石板小徑。",
+      "管家把落下的櫻花花瓣夾進日記本，記住這個溫柔的春天。",
+      "冒險家留下一枚閃亮的葉子，說下次歸來要講一個更長的傳說。",
+      "雨天的咖啡屋最安靜，爐火啪噠作響，適合慢慢合成屬於你的森林。",
+      "一隻迷路的小兔在暖爐邊打了個盹，醒來後帶走了滿滿的勇氣。",
+      "管家修剪了窗邊的藤蔓，讓月光可以剛好灑在咖啡杯上。",
+      "森林深處傳來輕快的鈴聲，那是精靈們在準備下一場慶典。",
+      "夜深了，管家為每盞燈留下一點餘溫，等著明天推門而入的你。",
+      "櫥窗結了一層薄霧，管家用手指在霧上畫了一隻歪歪的小鹿，隔天又畫了一片星星。",
+      "一隻貓頭鷹把羽毛留在門墊上，那是它送給咖啡屋的晚安禮物。",
+      "廚房飄出薑餅的香氣，管家說甜味會先一步替客人暖一暖手心。",
+      "晨露掛在蛛絲上像一串小珍珠，太陽一出來就閃爍成整片森林的碎光。",
+      "老狼在門外躊躇了好久，終於推門進來，點了一杯最溫熱的蜂蜜奶。",
+      "管家把空罐子排成一排，等著秋天的果乾、冬天的糖霜和春天的花窖一一裝滿。",
+      "風把松果吹進屋裡，骨碌碌滾到暖爐邊，像一顆自帶笑意的小問號。",
+      "雨停之後，檐角滴下一連串水珠，在石板上敲出一小段不成調的旋律。",
+      "老客人留下一張畫，畫上是從前還沒長高的小樹，如今已經能遮住半扇窗。",
+      "管家在書架頂層擺了一顆發光的橡實，據說失眠的人看一眼就能做個好夢。",
+      "樹影在牆上慢慢遊走，像一群安靜的小獸，陪著屋裡的人發呆。",
+      "冬天的早晨玻璃上結滿冰花，管家先倒了熱茶，才慢慢欣賞那些冰晶。",
+      "一隻知更鳥銜著綠枝飛過，把春天的消息先放在門口的銅鈴上。",
+      "管家把今日的好心情寫在小木牌上，掛在門邊，給每一位進門的人。",
+      "河邊的石頭被磨得圓圓潤潤，像森林把心事都輕輕攤開來晒太陽。",
+      "深夜最後一位客人離去後，管家會多留一盞小燈，給迷路的星子照路。",
+      "窗台的香草又長了一寸，風一吹，整間屋都帶著淡淡的青草香。",
+      "今天的森林比往常更溫柔，管家說那是因為你終於回來了，好好歇歇吧。"
+    ],
+    festivals: {
+      christmas: "🎄 聖誕節限定慶典",
+      new_year: "🎊 元旦金色慶典",
+      lunar_new_year: "🧧 新春賀歲嘉年華",
+      valentine: "💖 情人節浪漫舞會",
+      easter: "🌼 復活節春日遊園",
+      halloween: "🎃 萬聖節魔法夜行",
+      normal: "🌲 寧靜森林日常"
+    },
+    releases: {
+      v1012: "🚀 v1.0.12 全年節日＆三語管家版盛大上線！"
     }
-    ld += diff;
-    return {ly,lm,ld,str:getLunarStr(ly,lm,ld,leap)};
+  },
+  en: {
+    welcomeHome: "🏡 Welcome Home to Mystery Forest Café",
+    studio: "Mystery Forest Studio",
+    gameTitle: "Mystery Forest: Merge Legend",
+    tagline: "Step into a living magical forest — merge, explore, and gather legendary forest spirits.",
+    badges: ["🌲 Forest Merge Adventure", "🎁 6 Seasonal Events Year-Round", "🎧 Trilingual Voice & Ambient Music"],
+    featuresTitle: "Why step into our forest?",
+    features: [
+      { ico:"🗓️", t:"6 Seasonal Events Auto Cruise", d:"Christmas, New Year, Lunar New Year, Valentine, Easter and Halloween — scenes, music and particles switch automatically." },
+      { ico:"🧚", t:"Forest Butler & Trilingual Voice", d:"Switch between Chinese, English and Japanese instantly; a gentle butler accompanies your merge journey." },
+      { ico:"🐾", t:"Healing Pets & Custom Sounds", d:"Cute companions follow you, paired with soft music-box tones and dedicated ambient effects." },
+      { ico:"🌐", t:"ZH / EN / JP Supported", d:"One tap to switch language; your preference is saved automatically for travelers worldwide." }
+    ],
+    videoTitle: "🎬 Official Trailer (Shorts)",
+    demoTitle: "🎮 4×4 Mini Forest Merge Demo",
+    demoSub: "Tap two identical items to merge and evolve. Can you craft the Forest Crown?",
+    summon: "🌰 Summon New Seeds",
+    share: "📤 Share with Friends",
+    bubbleIdle: "🌿 Forest Butler: Welcome home to the café! Tap two matching items to start merging～",
+    bubbleMerge: ["Wonderful! One more evolution!", "The forest sparkles with your magic!", "Keep going, the crown is near!"],
+    bubbleNoMatch: "Hmm? These two don't match. Try again～",
+    promptTitle: "🎉 Unlock the Full Legend!",
+    promptDesc: "You've merged a rare forest wonder! Get the full version on Google Play to unlock more spirits, pets and events.",
+    gp: "▶ Get it on Google Play",
+    footerPlay: "Google Play",
+    footerPrivacy: "Privacy Policy",
+    footerEmail: "mysteryforest.dev@gmail.com",
+    toastCopied: "Link copied — share it with your friends!",
+    toastShared: "Thanks for sharing!",
+    audioOn: "🔊", audioOff: "🔇",
+    calToday: "📅 {date}",
+    festLive: "🎉 Special Event Live: {name}!",
+    countDown: "⏳ Next event 【{name}】 in {n} days",
+    calTitle: "🌲 Forest Wall Calendar · Coming Home",
+    calGreet: "Open the café door and see which events and updates await you this month～",
+    prevMonth: "◀ Prev",
+    nextMonth: "Next ▶",
+    todayBtn: "Today",
+    legendFest: "Festival Event",
+    legendRelease: "Release Anniversary",
+    weekDays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    diaryToday: "🌿 Butler's Diary: Pull up a chair by the fire, enjoy some tea, and slowly grow your own forest.",
+    diaryRelease: "🚀 Release Day: {label} — thank you for growing with the forest!",
+    diaryFest: "🌿 Butler's Diary: The forest is dressing up for {name}. Shall we peek at the festive vibe?",
+    previewBtn: "✨ Preview this Festival",
+    lightOn: "💡 Lights On",
+    lightOff: "🌙 Lights Off",
+    storyLabel: "📖 Today's Little Story",
+    stories: [
+      "The first morning sunlight slips through the moss; the butler brews a pot of forest tea for the café.",
+      "A squirrel sneaks a chestnut from the table, then hides up the tree, cheeks all blushing.",
+      "The wind chime hums by the door; today's luck drifts in on the first autumn breeze.",
+      "The old oak table remembers every traveler's tale; tonight it whispers one to you.",
+      "Fireflies line up below the window, lighting the stone path for late-night guests.",
+      "The butler tucks a fallen cherry petal into the diary, keeping this gentle spring.",
+      "An adventurer leaves a shining leaf, promising a longer legend next time they return.",
+      "The café is quiet on rainy days; the fire crackles, perfect for slowly growing your forest.",
+      "A lost little rabbit naps by the stove and wakes up carrying a pocketful of courage.",
+      "The butler trims the vines by the window so moonlight falls just right on the cup.",
+      "A light bell rings deep in the woods; the spirits are preparing the next celebration.",
+      "Late at night, the butler leaves warmth in every lamp, waiting for you to push the door open tomorrow.",
+      "A thin fog coats the shop window; the butler draws a wobbly little deer in it, and a patch of stars the next morning.",
+      "An owl leaves a feather on the doormat — its goodnight gift to the café.",
+      "Gingerbread scent drifts from the kitchen; the butler says sweetness warms the hands before the tea does.",
+      "Dew on a spider web beads like little pearls, sparkling into a forest of scattered light when the sun rises.",
+      "An old wolf hesitates outside for a long while, then pushes the door open and orders the warmest honey milk.",
+      "The butler lines up empty jars, waiting to fill them with autumn fruit, winter frost and spring flower preserves.",
+      "The wind rolls a pinecone inside, bouncing to the stove like a smiling little question mark.",
+      "After the rain, the eaves drip a string of drops, tapping a tiny out-of-tune melody on the stones.",
+      "A regular leaves a drawing of the sapling that once stood there; it now shades half the window.",
+      "On the top shelf the butler keeps a glowing acorn — one glance, and restless sleepers dream well.",
+      "Tree shadows wander slowly on the wall, like quiet little beasts keeping company with anyone daydreaming.",
+      "On winter mornings the glass blooms with frost flowers; the butler pours the tea first, then admires the ice.",
+      "A robin flies past carrying a green twig, leaving the news of spring on the brass bell by the door.",
+      "The butler writes today's good mood on a wooden tag and hangs it by the door for everyone entering.",
+      "Riverside stones are worn smooth and round, as if the forest lays its worries out to sunbathe.",
+      "After the last guest leaves late at night, the butler keeps one small lamp on, lighting the way for lost stars.",
+      "The herbs on the windowsill grow another inch; with a breeze, the whole room smells of fresh grass.",
+      "Today the forest is gentler than usual — the butler says it's because you're finally home. Rest a while."
+    ],
+    festivals: {
+      christmas: "🎄 Christmas Celebration",
+      new_year: "🎊 Golden New Year",
+      lunar_new_year: "🧧 Lunar New Year Gala",
+      valentine: "💖 Valentine's Ball",
+      easter: "🌼 Easter Spring Garden",
+      halloween: "🎃 Halloween Magic Night",
+      normal: "🌲 Quiet Forest Day"
+    },
+    releases: {
+      v1012: "🚀 v1.0.12 All-Festival & Trilingual Butler Launch!"
+    }
+  },
+  ja: {
+    welcomeHome: "🏡 神秘の森のカフェへおかえりなさい",
+    studio: "Mystery Forest Studio",
+    gameTitle: "Mystery Forest：神秘の森のマージ伝説",
+    tagline: "息づく魔法の森へ。マージして探検し、伝説の森の精霊を集めよう。",
+    badges: ["🌲 森のマージ冒険", "🎁 年6大イベント巡航", "🎧 三ヶ国語ボイス＆BGM"],
+    featuresTitle: "私たちの森へ来る理由",
+    features: [
+      { ico:"🗓️", t:"年6大イベント自動巡航", d:"クリスマス、正月、旧正月、バレンタイン、イースター、ハロウィン。演出・音楽・粒子が自動で切り替わります。" },
+      { ico:"🧚", t:"森の執事と三ヶ国語", d:"繁體中文・英語・日本語をワンタップ切替。優しい執事がマージの旅を伴走します。" },
+      { ico:"🐾", t:"癒しのペットと専用音效", d:"かわいい仲間が同行。やわらかなオルゴール音色と専用の環境音をお届けします。" },
+      { ico:"🌐", t:"中・英・日対応", d:"言語を切り替えると設定を保存。世界中の旅人を森へお迎えします。" }
+    ],
+    videoTitle: "🎬 公式プロモーション（Shorts）",
+    demoTitle: "🎮 4×4 ミニ森マージ体験版",
+    demoSub: "同じアイテムを2つタップして合成進化。森の王冠を作れるかな？",
+    summon: "🌰 種を召喚",
+    share: "📤 友だちにシェア",
+    bubbleIdle: "🌿 森の執事：カフェへおかえりなさい！同じアイテムを2つタップして合成しよう～",
+    bubbleMerge: ["すごい！もう一段進化したね！", "君の魔法で森が輝いたよ！", "この調子で王冠を目指そう！"],
+    bubbleNoMatch: "ん？この2つは違うみたい。もう一度試してね～",
+    promptTitle: "🎉 完全版の伝説を解放！",
+    promptDesc: "レアな森の奇跡を合成しました！Google Play で完全版を入手し、さらなる精霊・ペット・イベントを解放しよう。",
+    gp: "▶ Google Play で入手",
+    footerPlay: "Google Play ダウンロード",
+    footerPrivacy: "プライバシーポリシー",
+    footerEmail: "mysteryforest.dev@gmail.com",
+    toastCopied: "URLをコピーしました！友だちにシェアしよう。",
+    toastShared: "シェアありがとう！",
+    audioOn: "🔊", audioOff: "🔇",
+    calToday: "📅 {date}",
+    festLive: "🎉 イベント開催中：{name}！",
+    countDown: "⏳ 次のイベント【{name}】まであと {n} 日",
+    calTitle: "🌲 森の壁掛けカレンダー・おかえり",
+    calGreet: "カフェの扉を開けて、今月のイベントやアップデートをチェックしよう～",
+    prevMonth: "◀ 前の月",
+    nextMonth: "次の月 ▶",
+    todayBtn: "今月へ",
+    legendFest: "イベント",
+    legendRelease: "リリース記念日",
+    weekDays: ["日","月","火","水","木","金","土"],
+    diaryToday: "🌿 執事の日記：今日も暖炉のそばでお茶を飲みながら、自分だけの森をゆっくり育てよう。",
+    diaryRelease: "🚀 リリース記念日：{label} — 森と一緒に成長してくれてありがとう！",
+    diaryFest: "🌿 執事の日記：今日は {name} のために森が飾り付けされているよ。雰囲気を先に体験してみる？",
+    previewBtn: "✨ このイベントをプレビュー",
+    lightOn: "💡 点灯",
+    lightOff: "🌙 消灯",
+    storyLabel: "📖 今日の小話",
+    stories: [
+      "朝の最初の日差しが苔を抜け、執事はカフェに森のお茶を淹れておく。",
+      "リスが机の栗をこっそりかじり、顔を赤らめて木の上へ隠れた。",
+      "風鈴が扉でそっと鳴り、今日の運は最初の秋風に乗って届く。",
+      "古い樫のテーブルは旅人の話を覚えていて、今夜はそっと君に聞かせる。",
+      "窓の下で蛍が小さな火の列を作り、遅く帰る客の石板道を照らす。",
+      "執事は散った桜の花びらを日記帳に挟み、この優しい春を留めておく。",
+      "冒険家は輝く葉を一枚残し、次に戻ったらもっと長い伝説を話すと約束した。",
+      "雨の日のカフェは静かで、炎がパチパチ鳴り、自分だけの森をゆっくり育てるのにぴったり。",
+      "迷い込んだウサギがストーブでうたた寝し、目覚めると勇気をいっぱい持って帰った。",
+      "執事は窓辺の蔦を整え、月光がちょうどカップに落ちるようにした。",
+      "森の奥から軽やかな鈴の音。精霊たちが次の祭りを準備している。",
+      "夜更け、執事は明かりごとに余熱を残し、明日扉を開ける君を待っている。",
+      "ショーウィンドウに薄い霧がかかり、執事は指でぐにゃりと小鹿を描き、翌朝は星を描いた。",
+      "フクロウがドアマットに羽を一枚残した。カフェへのおやすみの贈り物だ。",
+      "厨房からジンジャーブレッドの香り。甘さが先に手を温めてくれる、と執事は言う。",
+      "クモの糸に雫が真珠のように並び、日が昇ると森中の細かな光に煌めく。",
+      "年老いたオオカミが長い間ためらい、ついに扉を開け、一番温かいはちみつミルクを頼んだ。",
+      "執事は空の瓶を並べ、秋のドライフルーツ、冬の砂糖菓子、春の花の保存食を待つ。",
+      "風が松ぼっくりを転がして入れ、ストーブのそばで笑ったような小さなはてなになった。",
+      "雨上がり、軒先から滴が連なり、石板に少しはずれた小さなメロディを叩く。",
+      "常連さんが一枚の絵を残した。かつて背の低かった木が、今では窓の半分を覆っている。",
+      "本棚の一番上に光るドングリを置いてある。眠れない人は一目見ると良い夢を見られるそうだ。",
+      "木陰が壁をゆっくり歩き、静かな小獣のようにぼんやりする人に寄り添う。",
+      "冬の朝は窓いっぱいに氷の花。執事は先に熱いお茶を淹れ、それから氷の結晶を眺める。",
+      "ロビンが緑の枝をくわえて飛び、春の知らせを扉の銅鈴に置いていった。",
+      "執事は今日の良い気持ちを木の札に書き、入る人みんなのために扉に吊るした。",
+      "川辺の石は丸く磨かれ、森が悩みをそっと広げて日光浴させているようだ。",
+      "夜遅く最後の客が帰ったあと、執事は小さな灯りを一つ残し、迷った星の道を照らす。",
+      "窓辺のハーブがまた一寸伸び、風が吹くと部屋中が淡い草の香りに包まれる。",
+      "今日の森はいつもより優しい。執事は言う。君がやっと帰ってきたからだよ、ゆっくり休んで。"
+    ],
+    festivals: {
+      christmas: "🎄 クリスマス祭典",
+      new_year: "🎊 黄金の正月",
+      lunar_new_year: "🧧 旧正月祝祭",
+      valentine: "💖 バレンタインパーティー",
+      easter: "🌼 イースター春の庭",
+      halloween: "🎃 ハロウィン魔法の夜",
+      normal: "🌲 静かな森の日常"
+    },
+    releases: {
+      v1012: "🚀 v1.0.12 全年イベント＆三ヶ国語執事版リリース！"
+    }
   }
-  return {solar2Lunar};
-})();
-function computeEaster(y){
-  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
-  const h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
-  const n=h+l-7*m+1;
-  const month=Math.floor(n/31)+3,day=(n%31)+1;
-  return new Date(y,month-1,day);
+};
+
+let lang = localStorage.getItem("mfs_lang");
+if (!lang || !I18N[lang]) lang = "zh";
+
+const $ = id => document.getElementById(id);
+function t(key){
+  const cur = I18N[lang];
+  return (cur[key] !== undefined) ? cur[key] : I18N.zh[key];
 }
-function getFestForDate(now){
-  if(previewFestOverride) return previewFestOverride;
-  const qs=new URLSearchParams(location.search);
-  const force=qs.get("fest");
-  if(force && festDefs[force]) return force;
-  const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
-  for(const [k,f] of Object.entries(festDefs)){
-    if(f.type==="fixed"){
-      const [sm,sd]=f.start,[em,ed]=f.end;
-      if((m===sm && d>=sd) || (m===em && d<=ed) || (sm>em && ((m>=sm)||(m<=em)))) return k;
-    }else if(f.type==="lunar"){
-      const ln=lunarNewYear[y];if(!ln)continue;
-      const s=new Date(ln.y,ln.m-1,ln.d+f.offset),e=new Date(s);e.setDate(e.getDate()+f.span-1);
-      if(now>=s && now<=e) return k;
-    }else if(f.type==="easter"){
-      const eas=computeEaster(y);
-      const s=new Date(eas);s.setDate(s.getDate()+f.offset);
-      const e=new Date(s);e.setDate(e.getDate()+f.span-1);
-      if(now>=s && now<=e) return k;
+
+function applyLang(){
+  document.documentElement.lang = lang;
+  $("welcomeHome").textContent = t("welcomeHome");
+  $("studioName").textContent = t("studio");
+  $("gameTitle").textContent = t("gameTitle");
+  $("tagline").textContent = t("tagline");
+  $("gpHero").textContent = t("gp");
+  $("videoTitle").textContent = t("videoTitle");
+  $("demoTitle").textContent = t("demoTitle");
+  $("demoSub").textContent = t("demoSub");
+  $("summonBtn").textContent = t("summon");
+  $("shareBtn").textContent = t("share");
+  $("promptTitle").textContent = t("promptTitle");
+  $("promptDesc").textContent = t("promptDesc");
+  $("gpLink").textContent = t("gp");
+  $("footerPlay").textContent = t("footerPlay");
+  $("footerPrivacy").textContent = t("footerPrivacy");
+  $("footerEmail").textContent = t("footerEmail");
+
+  const badgeWrap = $("badges"); badgeWrap.innerHTML = "";
+  t("badges").forEach(b => { const s=document.createElement("span"); s.className="badge"; s.textContent=b; badgeWrap.appendChild(s); });
+
+  const featWrap = $("features"); featWrap.innerHTML = "";
+  t("features").forEach(f => {
+    const c=document.createElement("div"); c.className="feature";
+    c.innerHTML = `<div class="ico">${f.ico}</div><h3></h3><p></p>`;
+    c.querySelector("h3").textContent=f.t; c.querySelector("p").textContent=f.d;
+    featWrap.appendChild(c);
+  });
+
+  if (!boardInitialized) initBoard(); else renderBoard();
+  updateBubble(t("bubbleIdle"));
+  document.querySelectorAll("#langSwitch button").forEach(b => b.classList.toggle("active", b.dataset.lang===lang));
+  updateCalendar();
+  renderCalendar();
+  applyLights();
+}
+
+document.querySelectorAll("#langSwitch button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    lang = btn.dataset.lang;
+    localStorage.setItem("mfs_lang", lang);
+    applyLang();
+  });
+});
+
+/* ============================================================
+   2. 節日日曆（2026–2048）：固定節日 / 農曆表 / 復活節算法定時
+   ============================================================ */
+const LUNAR_CNY = {
+  2026:[2,17], 2027:[2,6],  2028:[1,26], 2029:[2,13], 2030:[2,3],
+  2031:[1,23], 2032:[2,11], 2033:[1,31], 2034:[2,19], 2035:[2,8],
+  2036:[1,28], 2037:[2,15], 2038:[2,4],  2039:[1,24], 2040:[2,12],
+  2041:[2,1],  2042:[1,22], 2043:[2,10], 2044:[1,30], 2045:[2,17],
+  2046:[2,6],  2047:[1,26], 2048:[2,14]
+};
+
+function easterSunday(y){
+  const a=y%19, b=Math.floor(y/100), c=y%100;
+  const d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
+  const g=Math.floor((b-f+1)/3);
+  let h=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4), k=c%4;
+  let l=(32+2*e+2*i-h-k)%7;
+  if (h===29 && l===6) h=28;
+  if (h===28 && a>10 && l===6) h=27;
+  l=(32+2*e+2*i-h-k)%7;
+  const m=Math.floor((a+11*h+22*l)/451);
+  const month=Math.floor((h+l-7*m+114)/31);
+  const day=((h+l-7*m+114)%31)+1;
+  return new Date(y, month-1, day);
+}
+
+function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function inRange(d, start, end){ return d >= start && d <= end; }
+
+function fixedWindow(y, sm, sd, em, ed){
+  let s = new Date(y, sm-1, sd), e = new Date(y, em-1, ed);
+  if (em < sm || (em===sm && ed<sd)){ e = new Date(y+1, em-1, ed); }
+  return [s,e];
+}
+
+function festivalWindow(fest, y){
+  switch(fest){
+    case "christmas": return fixedWindow(y,12,15,12,28);
+    case "new_year":  return fixedWindow(y,12,29,1,5);
+    case "valentine": return fixedWindow(y,2,10,2,16);
+    case "halloween": return fixedWindow(y,10,24,11,2);
+    case "lunar_new_year": {
+      const c = LUNAR_CNY[y]; if(!c) return null;
+      const center = new Date(y, c[0]-1, c[1]);
+      return [addDays(center,-7), addDays(center,7)];
+    }
+    case "easter": {
+      const center = easterSunday(y);
+      return [addDays(center,-7), addDays(center,7)];
     }
   }
   return null;
 }
-function nextFestDate(now){
-  const candidates=[];
-  const y=now.getFullYear();
-  for(const [k,f] of Object.entries(festDefs)){
-    let dt;
-    if(f.type==="fixed"){
-      const [sm,sd]=f.start;dt=new Date(y,sm-1,sd);
-      if(dt<now) dt=new Date(y+1,sm-1,sd);
-    }else if(f.type==="lunar"){
-      let ln=lunarNewYear[y];if(!ln)continue;
-      dt=new Date(ln.y,ln.m-1,ln.d+f.offset);
-      if(dt<now){ln=lunarNewYear[y+1];if(!ln)continue;dt=new Date(ln.y,ln.m-1,ln.d+f.offset);}
-    }else if(f.type==="easter"){
-      let eas=computeEaster(y);
-      dt=new Date(eas);dt.setDate(dt.getDate()+f.offset);
-      if(dt<now){eas=computeEaster(y+1);dt=new Date(eas);dt.setDate(dt.getDate()+f.offset);}
-    }
-    candidates.push({key:k,date:dt});
+
+const FEST_ORDER = ["christmas","new_year","lunar_new_year","valentine","easter","halloween"];
+
+function detectFestival(now){
+  const url = new URLSearchParams(location.search);
+  const forced = url.get("fest");
+  if (forced && FEST_ORDER.includes(forced)) return forced;
+  const y = now.getFullYear();
+  for (const fest of FEST_ORDER){
+    const w = festivalWindow(fest, y);
+    if (w && inRange(now, w[0], w[1])) return fest;
   }
-  candidates.sort((a,b)=>a.date-b.date);
-  return candidates[0];
+  return "normal";
 }
-let calView = new Date();
-let selectedDay = null;
+
+function nextFestival(now){
+  let best = null;
+  for (let y = 2026; y <= 2048; y++){
+    for (const fest of FEST_ORDER){
+      const w = festivalWindow(fest, y);
+      if (!w) continue;
+      if (w[1] >= now){
+        if (!best || w[0] < best.date) best = { fest, date: w[0] };
+      }
+    }
+  }
+  return best;
+}
+
+/* ============================================================
+   2b. 互動手繪掛曆：節日 + 版本紀念日，可翻頁、可點擊日記
+   ============================================================ */
+/* 版本發布紀念日：可自行增減，格式 { date:"YYYY-MM-DD", ico, key } */
+const RELEASES = [
+  { date:"2026-11-26", ico:"🚀", key:"v1012" }
+];
+
+let calView = new Date(); calView.setDate(1);
+let previewLock = false;
+
+function dateKey(y,m,d){ return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
+
+function buildMarkers(y, m){
+  const map = {};
+  const add = (date, type, payload) => {
+    const k = dateKey(date.getFullYear(), date.getMonth(), date.getDate());
+    if(!map[k]) map[k] = { fest:[], release:null };
+    if(type==="fest") map[k].fest.push(payload);
+    else map[k].release = payload;
+  };
+  for (const fy of [y-1, y, y+1]){
+    for (const fest of FEST_ORDER){
+      const w = festivalWindow(fest, fy);
+      if(!w) continue;
+      let cur = new Date(w[0]);
+      while(cur <= w[1]){
+        if(cur.getFullYear()===y && cur.getMonth()===m) add(cur, "fest", fest);
+        cur = addDays(cur, 1);
+      }
+    }
+  }
+  RELEASES.forEach(r=>{
+    const [ry,rm,rd] = r.date.split("-").map(Number);
+    if(ry===y && rm-1===m){
+      add(new Date(ry,rm-1,rd), "release", { ico:r.ico, label:t("releases")[r.key] });
+    }
+  });
+  return map;
+}
+
 function renderCalendar(){
   const y = calView.getFullYear(), m = calView.getMonth();
-  document.getElementById("calTitle").textContent = `${y} 年 ${m+1} 月`;
-  const weekRow = document.getElementById("calWeekRow");
-  weekRow.innerHTML = "";
-  const wNames = i18n[lang].weekNames;
-  for(let w of wNames){
-    const d = document.createElement("div");
-    d.className = "cal-week-name";
-    d.textContent = w;
-    weekRow.appendChild(d);
-  }
-  const grid = document.getElementById("calGrid");
-  grid.innerHTML = "";
-  const firstDay = new Date(y,m,1);
-  const lastDay = new Date(y,m+1,0);
-  const startBlank = firstDay.getDay();
-  for(let i=0;i<startBlank;i++){
-    const d = document.createElement("div");
-    d.className = "cal-day";
-    grid.appendChild(d);
-  }
-  const todayRaw = new Date();
-  const todayStr = todayRaw.toISOString().split("T")[0];
-  for(let d=1;d<=lastDay.getDate();d++){
-    const cellDate = new Date(y,m,d);
-    const cellIso = cellDate.toISOString().split("T")[0];
-    const lunar = lunarData.solar2Lunar(y,m,d);
-    const cell = document.createElement("div");
-    cell.className = "cal-day";
-    if(cellIso === todayStr) cell.classList.add("today");
-    const festKey = getFestForDate(cellDate);
-    const release = RELEASES.find(r=>r.date===cellIso);
-    if(festKey) cell.classList.add("event-fest");
-    if(release) cell.classList.add("event-release");
-    cell.innerHTML = `<div class="cal-day-num">${d}</div><div class="cal-day-lunar">${lunar.str}</div>`;
-    cell.dataset.date = cellIso;
-    cell.onclick = ()=>selectDay(cellIso);
-    grid.appendChild(cell);
-  }
-  updateNote();
-}
-function selectDay(iso){
-  selectedDay = iso;
-  const d = new Date(iso);
-  const festKey = getFestForDate(d);
-  const release = RELEASES.find(r=>r.date===iso);
-  const noteBox = document.getElementById("calNoteBox");
-  const noteTitle = document.getElementById("calNoteTitle");
-  const noteText = document.getElementById("calNoteText");
-  const previewBtn = document.getElementById("previewFestBtn");
-  if(festKey){
-    noteTitle.textContent = i18n[lang].eventLive.replace("{name}",i18n[lang][festKey]);
-    previewBtn.style.display = "inline-block";
-    previewBtn.onclick = ()=>{
-      previewFestOverride = festKey;
-      applyFestBorder();
-    };
-  }else if(release){
-    noteTitle.textContent = i18n[lang][release.key];
-    previewBtn.style.display = "none";
-  }else{
-    noteTitle.textContent = "";
-    noteText.textContent = i18n[lang].noNote;
-    previewBtn.style.display = "none";
-  }
-  const storyIdx = (new Date(iso).getTime() / 86400000 | 0) % i18n[lang].stories.length;
-  document.getElementById("storyText").textContent = i18n[lang].stories[storyIdx];
-}
-function updateNote(){
-  if(!selectedDay) selectDay(new Date().toISOString().split("T")[0]);
-}
-function applyFestBorder(){
-  const now = new Date();
-  const festKey = getFestForDate(now);
-  const borderEl = document.getElementById("festBorder");
-  if(festKey && festDefs[festKey]){
-    const f = festDefs[festKey];
-    borderEl.style.border = "12px solid transparent";
-    borderEl.style.borderImage = `linear-gradient(135deg,${f.border}) 1`;
-  }else{
-    borderEl.style.border = "0px";
-    borderEl.style.borderImage = "none";
-  }
-}
-function updateI18n(){
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const k = el.getAttribute("data-i18n");
-    if(i18n[lang][k]) el.textContent = i18n[lang][k];
+  const locale = lang==="en" ? "en-US" : (lang==="ja" ? "ja-JP" : "zh-TW");
+  $("calTitle").textContent = calView.toLocaleDateString(locale, { year:"numeric", month:"long" });
+  $("calGreet").textContent = t("calGreet");
+  $("legendFest").textContent = t("legendFest");
+  $("legendRelease").textContent = t("legendRelease");
+  $("calPrev").textContent = t("prevMonth");
+  $("calNext").textContent = t("nextMonth");
+  $("calToday").textContent = t("todayBtn");
+
+  const markers = buildMarkers(y, m);
+  const grid = $("calGrid"); grid.innerHTML = "";
+  t("weekDays").forEach(w=>{
+    const el=document.createElement("div"); el.className="cal-wd"; el.textContent=w; grid.appendChild(el);
   });
-  renderCalendar();
-}
-document.querySelectorAll(".lang-btn").forEach(btn=>{
-  btn.onclick = ()=>{
-    lang = btn.dataset.lang;
-    localStorage.setItem("mfLang",lang);
-    updateI18n();
+
+  const first = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const prevDays = new Date(y, m, 0).getDate();
+  const now = new Date();
+
+  for(let i=0;i<first;i++){
+    const el=document.createElement("div"); el.className="cal-day other";
+    el.textContent = prevDays - first + 1 + i; grid.appendChild(el);
   }
-});
-document.getElementById("lampBtn").onclick = ()=>{
-  lampOn = !lampOn;
-  document.body.classList.toggle("dark-lamp",!lampOn);
-  localStorage.setItem("mfLamp",lampOn?"on":"off");
-}
-document.body.classList.toggle("dark-lamp",!lampOn);
-document.getElementById("calPrev").onclick = ()=>{calView.setMonth(calView.getMonth()-1);renderCalendar();}
-document.getElementById("calNext").onclick = ()=>{calView.setMonth(calView.getMonth()+1);renderCalendar();}
-document.getElementById("calToday").onclick = ()=>{calView = new Date();renderCalendar();}
-// 粒子
-const canvas = document.getElementById("particleCanvas");
-const ctx = canvas.getContext("2d");
-let w,h,parts=[];
-function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
-resize();
-window.addEventListener("resize",resize);
-class Particle{
-  constructor(){
-    this.reset();
-  }
-  reset(){
-    this.x = Math.random()*w;
-    this.y = Math.random()*h;
-    this.r = Math.random()*2+0.5;
-    this.sx = (Math.random()-0.5)*0.6;
-    this.sy = (Math.random()-0.5)*0.6;
-    this.a = Math.random()*0.4+0.1;
-  }
-  draw(){
-    ctx.beginPath();
-    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-    ctx.fillStyle = `rgba(255,220,160,${this.a})`;
-    ctx.fill();
-  }
-  update(){
-    this.x += this.sx;
-    this.y += this.sy;
-    if(this.x<0||this.x>w||this.y<0||this.y>h) this.reset();
-  }
-}
-function initParticles(){
-  parts = [];
-  for(let i=0;i<80;i++) parts.push(new Particle());
-}
-function loop(){
-  ctx.clearRect(0,0,w,h);
-  for(let p of parts){p.update();p.draw();}
-  requestAnimationFrame(loop);
-}
-initParticles();
-loop();
-// 合成遊戲
-const board = document.getElementById("board");
-const items = ["🌰","🌱","🌿","🌳","🍄","🌸","🦋"];
-let boardState = Array(16).fill(null);
-let selectedCell = null;
-function renderBoard(){
-  board.innerHTML = "";
-  for(let i=0;i<16;i++){
-    const c = document.createElement("div");
-    c.className = "cell";
-    if(boardState[i]) c.textContent = boardState[i];
-    if(selectedCell === i) c.classList.add("selected");
-    c.onclick = ()=>cellClick(i);
-    board.appendChild(c);
-  }
-}
-function cellClick(i){
-  if(!boardState[i]) return;
-  if(selectedCell === null){
-    selectedCell = i;
-    renderBoard();
-  }else{
-    if(selectedCell !== i && boardState[selectedCell] === boardState[i]){
-      const idx = items.indexOf(boardState[i]);
-      if(idx+1 < items.length){
-        boardState[i] = items[idx+1];
-        boardState[selectedCell] = null;
-        if(idx+1 >= 4) showBubble(i18n[lang].mergeWow);
-        else showBubble(i18n[lang].mergeGreat);
-        document.getElementById("downloadCard").classList.add("show");
-      }else{
-        showBubble(i18n[lang].mergeWow);
-        boardState[selectedCell] = null;
-      }
-    }else{
-      showBubble(i18n[lang].mergeGood);
+  for(let d=1; d<=daysInMonth; d++){
+    const el=document.createElement("div"); el.className="cal-day";
+    const k = dateKey(y,m,d);
+    const mk = markers[k];
+    const dateObj = new Date(y,m,d);
+    const isToday = sameDay(now, dateObj);
+    if(isToday) el.classList.add("today");
+    let ico="", dotClass="fest", titleParts=[];
+    let hasFest=false, hasRelease=false;
+    if(mk){
+      if(mk.fest.length){ hasFest=true; el.classList.add("has-fest"); mk.fest.forEach(f=>titleParts.push(t("festivals")[f])); }
+      if(mk.release){ hasRelease=true; el.classList.add("has-release"); titleParts.push(mk.release.label); ico=mk.release.ico; dotClass="release"; }
+      else if(mk.fest.length){ ico=FEST_THEME[mk.fest[0]].particles[0]||"🎁"; }
     }
-    selectedCell = null;
-    renderBoard();
+    if(isToday) el.classList.add("clickable");
+    if(mk) el.classList.add("clickable");
+    const lunar = solar2lunar(y, m+1, d);
+    const lunarLabel = lunar.ld === 1 ? lunar.monthName : lunar.dayName;
+    el.innerHTML = `<span class="day-emoji">${ico}</span><span>${d}</span><span class="lunar">${lunarLabel}</span>` + (mk?`<span class="dot ${dotClass}"></span>`:"");
+    el.title = titleParts.join(" · ");
+    el.addEventListener("click", ()=>showDiary(dateObj, mk, isToday));
+    grid.appendChild(el);
+  }
+  const trailing = (7 - (first + daysInMonth) % 7) % 7;
+  for(let i=0;i<trailing;i++){
+    const el=document.createElement("div"); el.className="cal-day other";
+    el.textContent = i+1; grid.appendChild(el);
+  }
+  /* 初始日記：顯示今日 */
+  showDiary(now, markers[dateKey(now.getFullYear(),now.getMonth(),now.getDate())], true);
+}
+
+function showDiary(date, mk, isToday){
+  const locale = lang==="en" ? "en-US" : (lang==="ja" ? "ja-JP" : "zh-TW");
+  $("diaryDate").textContent = date.toLocaleDateString(locale,{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+  const textEl = $("diaryText");
+  const actions = $("diaryActions"); actions.innerHTML="";
+  $("storyLabel").textContent = t("storyLabel");
+  $("storyText").textContent = dailyStory(date);
+
+  if(mk && mk.release){
+    textEl.textContent = t("diaryRelease").replace("{label}", mk.release.label);
+  } else if(mk && mk.fest.length){
+    const fest = mk.fest[0];
+    textEl.textContent = t("diaryFest").replace("{name}", t("festivals")[fest]);
+    const btn = document.createElement("button");
+    btn.className="diary-btn"; btn.textContent = t("previewBtn");
+    btn.addEventListener("click", ()=>previewFestival(fest));
+    actions.appendChild(btn);
+  } else if(isToday){
+    textEl.textContent = t("diaryToday");
+  } else {
+    textEl.textContent = t("diaryToday");
   }
 }
-document.getElementById("spawnBtn").onclick = ()=>{
-  const empty = [];
-  for(let i=0;i<16;i++) if(!boardState[i]) empty.push(i);
-  if(empty.length===0) return;
-  const r = empty[Math.floor(Math.random()*empty.length)];
-  boardState[r] = items[0];
+
+$("calPrev").addEventListener("click", ()=>{ calView.setMonth(calView.getMonth()-1); renderCalendar(); });
+$("calNext").addEventListener("click", ()=>{ calView.setMonth(calView.getMonth()+1); renderCalendar(); });
+$("calToday").addEventListener("click", ()=>{ calView=new Date(); calView.setDate(1); renderCalendar(); });
+
+function previewFestival(fest){
+  currentFest = fest;
+  previewLock = true;
+  setFestivalMusic(fest);
+  buildParticles();
+  applyThemeFrame();
+  updateCalendar();
+}
+
+/* ============================================================
+   2c. 農曆轉換（1890–2100，編碼年表，解碼自驗證過的 lunar 資料）
+   ============================================================ */
+const LUNAR_MIN_YEAR = 1890;
+const ENCODED_LUNAR = [1750378,339370,6020516,405156,314698,4934293,371351,279894,2804405,346837,8124114,419666,331429,4961866,394827,297627,3880278,370026,281433,1759058,345938,6019877,412453,313931,4936875,377517,288107,1764201,355753,7093650,429714,331045,4954701,395862,303798,3872181,370388,282281,1769106,347794,6016294,402731,313943,4936374,379738,296660,2821833,354121,7075475,420499,329003,5991003,387757,304490,3881813,371620,281417,1759891,346773,7058733,402742,314029,4945322,378290,290213,2825546,363850,8120981,412311,329046,5999285,387797,304850,3878565,372389,280138,2796695,338587,7066970,402794,314217,4945746,387922,289573,3864139,354891,8123563,410285,320877,5999465,396713,306578,3882277,372005,10246733,428630,336566,6006197,403157,315049,4947602,388754,298278,2812502,346711,8123606,418650,321237,4953801,395081,304787,3872043,361771,272987,1758554,337258,7060309,412580,322377,4938387,379541,288045,3861165,346805,9172394,419282,331173,6004042,396618,306325,3880238,361814,273077,1758642,345810,6008485,403237,312907,4934807,371883,288090,2812630,355177,11269970,420690,330533,6003275,387659,296107,4916571,361901,273258,1760082,347538,7068965,404773,313941,4936877,378038,279989,2813354,356041,8142482,421522,331046,5999190,387671,296150,3868373,362325,280393,2797203,337555,7058731,402731,305755,4937050,378218,289637,3864394,355146,8125077,420501,320813,5991085,387765,304554,3869605,363941,281930,2808981,339094,7059790,402774,314037,4937138,378578,290469,3870282,345675,8113303,410795,320859,5991126,387946,304978,3880741,363301,273035,1750171,337067];
+const LUNAR_MONTH = ["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","冬月","臘月"];
+const LUNAR_DAY = ["初一","初二","初三","初四","初五","初六","初七","初八","初九","初十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十","廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"];
+
+function lunarYearInfo(year){
+  const e = ENCODED_LUNAR[year - LUNAR_MIN_YEAR];
+  return {
+    year,
+    hasLeap: Boolean(e & (1 << 19)),
+    leapIdx: (e & (1 << 19)) ? (e >> 20 & 15) : null,
+    startMonth: e >> 18 & 1,
+    startDay: e >> 13 & 31,
+    bits: e & ((1 << 13) - 1)
+  };
+}
+function lunarSegmentDays(info, si){ return info.bits & (1 << si) ? 30 : 29; }
+
+function solar2lunar(y, m, d){
+  let info = lunarYearInfo(y);
+  let start = Date.UTC(y, info.startMonth, info.startDay);
+  const dateUTC = Date.UTC(y, m - 1, d);
+  if (dateUTC < start){
+    info = lunarYearInfo(y - 1);
+    start = Date.UTC(info.year, info.startMonth, info.startDay);
+  }
+  const diff = Math.floor((dateUTC - start) / 86400000);
+  const total = 12 + (info.hasLeap ? 1 : 0);
+  let acc = 0, mi = 0, ml = 0;
+  while(mi < total){
+    ml = lunarSegmentDays(info, mi);
+    acc += ml;
+    if(diff < acc) break;
+    mi++;
+  }
+  const day = ml - (acc - diff) + 1;
+  let disp = mi, isLeap = false;
+  if(info.hasLeap && info.leapIdx !== null){
+    if(mi === info.leapIdx + 1) isLeap = true;
+    if(mi > info.leapIdx) disp -= 1;
+  }
+  const monthName = (isLeap ? "閏" : "") + LUNAR_MONTH[disp];
+  return { ly:info.year, lm:disp+1, ld:day, isLeap, monthName, dayName:LUNAR_DAY[day-1] };
+}
+
+const FEST_THEME = {
+  christmas:  { frame:"#b3261e", glow:"rgba(179,38,30,.45)", particles:["❄️","❄️","✨","⭐"], colors:["#ffffff","#dfefff","#ffe9a8"], mode:"snow" },
+  new_year:   { frame:"#e8b23a", glow:"rgba(232,178,58,.45)", particles:["✨","🎊","✨","⭐"], colors:["#ffd97a","#fff3c4","#ffb347"], mode:"sparkle" },
+  lunar_new_year:{ frame:"#c0392b", glow:"rgba(192,57,43,.45)", particles:["🧧","✨","🌸","💰"], colors:["#ff6b5e","#ffd34d","#ffb3a0"], mode:"petal" },
+  valentine:  { frame:"#d66bb0", glow:"rgba(214,107,176,.45)", particles:["💖","🌸","💗","✨"], colors:["#ff9ecb","#ffc2dd","#f3a8ff"], mode:"heart" },
+  easter:     { frame:"#7cc47f", glow:"rgba(124,196,127,.45)", particles:["🌼","🌿","🌸","🍃"], colors:["#ffe27a","#a8e6a1","#d7f0b0"], mode:"bloom" },
+  halloween:  { frame:"#8e44ad", glow:"rgba(142,68,173,.45)", particles:["🎃","✨","🔮","⭐"], colors:["#ff9a3c","#c77dff","#ffd27a"], mode:"magic" },
+  normal:     { frame:"#2f6b3a", glow:"rgba(72,160,96,.35)", particles:[], colors:["#9dffb0","#d8ffd0","#7fd68a"], mode:"firefly" }
+};
+
+let currentFest = detectFestival(new Date());
+
+function fmtDate(d){
+  if (lang==="en"){
+    return d.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+  } else if (lang==="ja"){
+    return d.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric"});
+  }
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+
+function updateCalendar(){
+  const now = new Date();
+  $("todayLabel").textContent = t("calToday").replace("{date}", fmtDate(now));
+  const festName = t("festivals")[currentFest];
+  if (currentFest !== "normal"){
+    $("festLabel").textContent = t("festLive").replace("{name}", festName);
+  } else {
+    const n = nextFestival(now);
+    if (n){
+      const start = n.date;
+      const diff = Math.ceil((start - now) / 86400000);
+      $("festLabel").textContent = t("countDown").replace("{name}", t("festivals")[n.fest]).replace("{n}", Math.max(0,diff));
+    } else {
+      $("festLabel").textContent = festName;
+    }
+  }
+}
+
+/* ============================================================
+   3. Canvas 粒子層（fixed / inset 0 / pointer-events none / z-index 50）
+   ============================================================ */
+const canvas = $("particles");
+const ctx = canvas.getContext("2d");
+let particles = [];
+let W = 0, H = 0;
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize); resize();
+
+function buildParticles(){
+  particles = [];
+  const theme = FEST_THEME[currentFest];
+  const count = currentFest==="normal" ? 34 : 42;
+  for (let i=0;i<count;i++){
+    particles.push(spawnParticle(theme, true));
+  }
+  applyThemeFrame();
+}
+
+function spawnParticle(theme, anywhere){
+  const emoji = theme.particles.length ? theme.particles[Math.floor(Math.random()*theme.particles.length)] : null;
+  const color = theme.colors[Math.floor(Math.random()*theme.colors.length)];
+  const mode = theme.mode;
+  let vx=0, vy=0, size=(mode==="firefly"? 1.5+Math.random()*2.5 : 10+Math.random()*12);
+  if (mode==="snow"){ vy=0.4+Math.random()*0.9; vx=-0.3+Math.random()*0.6; }
+  else if (mode==="sparkle"){ vy=0.5+Math.random()*1.0; vx=-0.4+Math.random()*0.8; }
+  else if (mode==="petal"){ vy=0.5+Math.random()*0.8; vx=Math.sin(Math.random()*6)*0.7; }
+  else if (mode==="heart"){ vy=0.4+Math.random()*0.7; vx=-0.4+Math.random()*0.8; }
+  else if (mode==="bloom"){ vy=0.3+Math.random()*0.6; vx=-0.5+Math.random()*1.0; }
+  else if (mode==="magic"){ vy=0.3+Math.random()*0.7; vx=-0.5+Math.random()*1.0; }
+  else { vx=-0.3+Math.random()*0.6; vy=-0.2+Math.random()*0.4; }
+  return {
+    x: Math.random()*W,
+    y: anywhere ? Math.random()*H : -20,
+    vx, vy, size, color, emoji, mode,
+    phase: Math.random()*Math.PI*2,
+    alpha: 0.5+Math.random()*0.5
+  };
+}
+
+function applyThemeFrame(){
+  const th = FEST_THEME[currentFest];
+  document.documentElement.style.setProperty("--frame", th.frame);
+  document.documentElement.style.setProperty("--frame-glow", th.glow);
+}
+
+function tickParticles(){
+  ctx.clearRect(0,0,W,H);
+  const th = FEST_THEME[currentFest];
+  for (let i=0;i<particles.length;i++){
+    const p = particles[i];
+    p.phase += 0.03;
+    if (p.mode==="burst"){
+      p.x += p.vx; p.y += p.vy; p.vy += 0.04; p.life -= 0.02;
+      if (p.life<=0){ particles.splice(i,1); i--; continue; }
+      ctx.globalAlpha = Math.max(0,p.life);
+      ctx.font = p.size+"px serif";
+      ctx.fillText(p.emoji, p.x, p.y);
+      continue;
+    }
+    if (p.mode==="firefly"){
+      p.x += p.vx + Math.sin(p.phase)*0.3;
+      p.y += p.vy + Math.cos(p.phase*0.7)*0.2;
+      if (p.y<0) p.y=H; if (p.y>H) p.y=0;
+      if (p.x<0) p.x=W; if (p.x>W) p.x=0;
+      const glow = 0.4 + Math.sin(p.phase)*0.3;
+      ctx.globalAlpha = Math.max(0.1, glow);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha = Math.max(0.05, glow*0.3);
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size*3,0,Math.PI*2); ctx.fill();
+    } else {
+      p.x += p.vx + Math.sin(p.phase)*0.4;
+      p.y += p.vy;
+      if (p.y > H+20){ particles[i]=spawnParticle(th,false); continue; }
+      if (p.emoji){
+        ctx.globalAlpha = p.alpha;
+        ctx.font = p.size+"px serif";
+        ctx.fillText(p.emoji, p.x, p.y);
+      } else {
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size/3,0,Math.PI*2); ctx.fill();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(tickParticles);
+}
+
+/* ============================================================
+   4. Web Audio API：精確 currentTime 排程，八音盒音色，7 套旋律
+   ============================================================ */
+const NOTE_MIDI = {};
+(function(){
+  const names=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  for (let oct=3;oct<=7;oct++){
+    names.forEach((n,i)=>{ NOTE_MIDI[n+oct] = 12*(oct+1)+i; });
+  }
+})();
+function freq(note){ return 440*Math.pow(2,(NOTE_MIDI[note]-69)/12); }
+
+const MELODIES = {
+  christmas: { tempo:120, seq:[
+    ["E5",1],["E5",1],["E5",2],["E5",1],["E5",1],["E5",2],
+    ["E5",1],["G5",1],["C5",1.5],["D5",1.5],["E5",4],
+    ["F5",1],["F5",1],["F5",1.5],["F5",0.5],["F5",1],["E5",1],["E5",1],["E5",0.5],["E5",0.5],
+    ["D5",1],["D5",1],["E5",1],["D5",2],["G5",2]
+  ]},
+  new_year: { tempo:96, seq:[
+    ["G4",1],["C5",1],["D5",1],["E5",1],["E5",1],["D5",1],["C5",1],["B4",1],
+    ["A4",1],["A4",1],["B4",1],["C5",1],["B4",1],["A4",1],["G4",2],
+    ["C5",1],["D5",1],["E5",1],["G5",1],["F5",1],["E5",1],["D5",1],["C5",1],
+    ["B4",1],["C5",1],["D5",1],["B4",1],["A4",1],["G4",2]
+  ]},
+  lunar_new_year: { tempo:126, seq:[
+    ["C5",1],["C5",1],["G5",1],["G5",1],["A5",1],["A5",1],["G5",2],
+    ["F5",1],["F5",1],["E5",1],["E5",1],["D5",1],["D5",1],["C5",2],
+    ["G5",1],["G5",1],["F5",1],["F5",1],["E5",1],["E5",1],["D5",2],
+    ["G5",1],["G5",1],["F5",1],["E5",1],["D5",1],["E5",1],["C5",2]
+  ]},
+  valentine: { tempo:80, seq:[
+    ["D5",1],["F5",1],["E5",1],["D5",1],["C5",1],["D5",1],["B4",1],["C5",1],
+    ["A4",1],["C5",1],["D5",1],["E5",1],["F5",1],["E5",1],["D5",1],["C5",1],
+    ["D5",1],["F5",1],["E5",1],["D5",1],["C5",1],["D5",1],["B4",1],["C5",1],
+    ["D5",2],["A4",2],["D5",2]
+  ]},
+  easter: { tempo:112, seq:[
+    ["E5",1],["E5",1],["E5",1],["B4",1],["A4",1],["B4",1],["C5",2],
+    ["D5",1],["E5",1],["F#5",1],["E5",1],["D5",1],["E5",1],["B4",2],
+    ["C5",1],["D5",1],["E5",1],["G5",1],["F#5",1],["E5",1],["D5",1],["C5",1],
+    ["B4",1],["C5",1],["D5",1],["B4",1],["A4",2]
+  ]},
+  halloween: { tempo:90, seq:[
+    ["A4",1],["C5",1],["E5",1],["F5",1],["E5",1],["C5",1],
+    ["D4",1],["F5",1],["A5",1],["G5",1],["F5",1],["D5",1],
+    ["A4",1],["C5",1],["E5",1],["A5",1],["G#5",1],["E5",1],
+    ["F5",1],["E5",1],["C5",1],["A4",1],["C5",2]
+  ]},
+  normal: { tempo:72, seq:[
+    ["C5",1],["D5",1],["E5",1],["G5",1],["A5",1],["C6",1],
+    ["A5",1],["G5",1],["E5",1],["D5",1],["E5",1],["G5",1],
+    ["C5",1],["D5",1],["E5",1],["G5",1],["A5",1],["C6",2],
+    ["A5",1],["G5",1],["E5",1],["D5",1],["C5",2]
+  ]}
+};
+
+let audioCtx=null, masterGain=null, musicGain=null, delayNode=null;
+let musicOn = true, musicStarted=false, musicPausedByVideo=false;
+let schedulerTimer=null, nextNoteTime=0, noteIndex=0, currentSeq=MELODIES.normal.seq, currentTempo=72;
+
+function ensureAudio(){
+  if (audioCtx) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  audioCtx = new AC();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 1;
+  musicGain = audioCtx.createGain();
+  musicGain.gain.value = 0.25;
+  musicGain.connect(masterGain);
+
+  delayNode = audioCtx.createDelay(1.0);
+  delayNode.delayTime.value = 0.28;
+  const feedback = audioCtx.createGain(); feedback.gain.value = 0.25;
+  const wet = audioCtx.createGain(); wet.gain.value = 0.3;
+  delayNode.connect(feedback); feedback.connect(delayNode);
+  delayNode.connect(wet); wet.connect(musicGain);
+
+  masterGain.connect(audioCtx.destination);
+}
+
+function playNote(note, start, dur){
+  if (!note) return;
+  const f = freq(note);
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc1.type="sine"; osc2.type="triangle";
+  osc1.frequency.value=f; osc2.frequency.value=f;
+  const g2 = audioCtx.createGain(); g2.gain.value=0.35;
+  osc1.connect(g); osc2.connect(g2); g2.connect(g);
+  g.connect(musicGain);
+  g.connect(delayNode);
+
+  const attack = 0.02, release = Math.min(0.6, dur*0.9);
+  g.gain.setValueAtTime(0.0001, start);
+  g.gain.exponentialRampToValueAtTime(0.5, start+attack);
+  g.gain.setValueAtTime(0.5, start+Math.max(attack, dur*0.5));
+  g.gain.exponentialRampToValueAtTime(0.0001, start+dur+release);
+
+  osc1.start(start); osc2.start(start);
+  osc1.stop(start+dur+release+0.1); osc2.stop(start+dur+release+0.1);
+}
+
+function scheduler(){
+  if (!audioCtx || !musicOn || musicPausedByVideo) return;
+  const ahead = 0.15;
+  while (nextNoteTime < audioCtx.currentTime + ahead){
+    const [note, beats] = currentSeq[noteIndex];
+    const beatSec = 60/currentTempo;
+    const dur = beats*beatSec;
+    playNote(note, nextNoteTime, dur);
+    nextNoteTime += dur;
+    noteIndex = (noteIndex+1) % currentSeq.length;
+  }
+}
+
+function startMusic(){
+  ensureAudio();
+  if (!audioCtx) return;
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  if (!musicStarted){
+    musicStarted = true;
+    nextNoteTime = audioCtx.currentTime + 0.1;
+    noteIndex = 0;
+    schedulerTimer = setInterval(scheduler, 40);
+  }
+}
+
+function setFestivalMusic(fest){
+  const m = MELODIES[fest] || MELODIES.normal;
+  currentSeq = m.seq; currentTempo = m.tempo; noteIndex = 0;
+  if (audioCtx) nextNoteTime = Math.max(nextNoteTime, audioCtx.currentTime+0.05);
+}
+
+function unlockAudio(){
+  startMusic();
+  document.removeEventListener("pointerdown", unlockAudio);
+  document.removeEventListener("keydown", unlockAudio);
+}
+document.addEventListener("pointerdown", unlockAudio);
+document.addEventListener("keydown", unlockAudio);
+window.addEventListener("load", ()=>{ try{ startMusic(); }catch(e){} });
+
+$("audioToggle").addEventListener("click", ()=>{
+  musicOn = !musicOn;
+  $("audioToggle").textContent = musicOn ? t("audioOn") : t("audioOff");
+  if (musicOn){ startMusic(); if(audioCtx) musicGain.gain.setTargetAtTime(0.25, audioCtx.currentTime, 0.1); }
+  else if (audioCtx){ musicGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.1); }
+});
+
+/* 咖啡屋夜景燈光開關（localStorage 記住偏好） */
+let lights = localStorage.getItem("mfs_lights") !== "off";
+function applyLights(){
+  document.body.classList.toggle("lights-off", !lights);
+  $("lightToggle").textContent = lights ? t("lightOn") : t("lightOff");
+}
+$("lightToggle").addEventListener("click", ()=>{
+  lights = !lights;
+  localStorage.setItem("mfs_lights", lights ? "on" : "off");
+  applyLights();
+});
+
+/* 每日一則管家小故事：依日期固定輪播，三語切換 */
+function dailyStory(date){
+  const stories = t("stories");
+  const start = new Date(date.getFullYear(), 0, 0);
+  const doy = Math.floor((date - start) / 86400000);
+  return stories[((doy % stories.length) + stories.length) % stories.length];
+}
+
+window.addEventListener("message", (ev)=>{
+  if (!/youtube\.com$/.test(ev.origin) && !/youtube/.test(ev.origin)) return;
+  let data = null;
+  try { data = typeof ev.data==="string" ? JSON.parse(ev.data) : ev.data; } catch(e){ return; }
+  if (!data) return;
+  const state = data.event || (data.infoListData && data.infoListData.state);
+  if (state === 1){ musicPausedByVideo = true; if(audioCtx) musicGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.1); }
+  else if (state === 2 || state === 0){ musicPausedByVideo = false; if(audioCtx && musicOn) musicGain.gain.setTargetAtTime(0.25, audioCtx.currentTime, 0.2); }
+});
+
+function playMergeSound(levelUp){
+  ensureAudio(); if(!audioCtx) return;
+  if (audioCtx.state==="suspended") audioCtx.resume();
+  const base = audioCtx.currentTime;
+  const notes = levelUp>=4 ? ["E6","G6","C7"] : ["C6","E6","G6"];
+  notes.forEach((n,i)=>{
+    const f=freq(n), o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type="sine"; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001, base+i*0.06);
+    g.gain.exponentialRampToValueAtTime(0.35, base+i*0.06+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, base+i*0.06+0.5);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(base+i*0.06); o.stop(base+i*0.06+0.6);
+  });
+}
+
+/* ============================================================
+   5. 4×4 迷你合成搶先體驗版
+   ============================================================ */
+const LEVELS = ["🌱","🌿","🌸","🍄","🎄","👑"];
+const GRID = 16;
+let board = [];
+let selected = -1;
+let boardInitialized = false;
+
+function randomStartLevel(){ return Math.random()<0.5 ? 0 : 1; }
+
+function initBoard(){
+  board = [];
+  for (let i=0;i<GRID;i++) board.push(randomStartLevel());
+  const hasPair = board.some((v,i)=> board.indexOf(v)!==i);
+  if (!hasPair){ board[0]=0; board[1]=0; }
+  selected = -1;
+  boardInitialized = true;
   renderBoard();
 }
-document.getElementById("shareBtn").onclick = async ()=>{
-  const url = location.href;
-  try{await navigator.clipboard.writeText(url);showBubble(i18n[lang].shareOk);}catch(e){showBubble("複製失敗");}
+
+function renderBoard(){
+  const el = $("board"); el.innerHTML="";
+  board.forEach((lv, i)=>{
+    const c = document.createElement("div");
+    c.className = "cell" + (lv===null ? " empty" : "") + (i===selected ? " sel" : "");
+    c.textContent = lv===null ? "" : LEVELS[lv];
+    c.addEventListener("click", ()=>onCellClick(i));
+    el.appendChild(c);
+  });
 }
-function showBubble(txt){
-  const b = document.getElementById("bubble");
-  b.textContent = txt;
-  b.classList.add("show");
-  setTimeout(()=>b.classList.remove("show"),1600);
+
+function onCellClick(i){
+  startMusic();
+  if (board[i]===null) return;
+  if (selected===-1){ selected=i; renderBoard(); return; }
+  if (selected===i){ selected=-1; renderBoard(); return; }
+  const a = board[selected], b = board[i];
+  if (a===b && a<LEVELS.length-1){
+    board[selected] = a+1;
+    board[i] = null;
+    playMergeSound(a+1);
+    burstParticles(cellCenter(i), LEVELS[a+1]);
+    const pool = t("bubbleMerge");
+    updateBubble(pool[Math.floor(Math.random()*pool.length)]);
+    if (a+1>=4){ showDownloadPrompt(); }
+    selected=-1; renderBoard();
+  } else if (a===b){
+    updateBubble(t("bubbleNoMatch"));
+    selected=-1; renderBoard();
+  } else {
+    selected=i; renderBoard();
+    updateBubble(t("bubbleNoMatch"));
+  }
 }
-renderBoard();
-// 初始化
-renderCalendar();
-applyFestBorder();
-updateI18n();
+
+function cellCenter(i){
+  const cells = $("board").children;
+  if (!cells[i]) return {x:W/2,y:H/2};
+  const r = cells[i].getBoundingClientRect();
+  return {x:r.left+r.width/2, y:r.top+r.height/2};
+}
+
+function burstParticles(center, emoji){
+  for (let k=0;k<14;k++){
+    const ang = Math.random()*Math.PI*2;
+    const sp = 1+Math.random()*2.5;
+    particles.push({
+      x:center.x, y:center.y,
+      vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp-1,
+      size:10+Math.random()*10, color:"#ffe97a", emoji:"⭐",
+      mode:"burst", phase:0, alpha:1, life:1
+    });
+  }
+}
+
+function updateBubble(msg){ $("bubble").textContent = msg; }
+
+function showDownloadPrompt(){ $("downloadPrompt").classList.add("show"); }
+
+$("summonBtn").addEventListener("click", ()=>{
+  startMusic();
+  const empties = board.map((v,i)=>v===null?i:-1).filter(i=>i>=0);
+  if (empties.length===0){ updateBubble(t("bubbleNoMatch")); return; }
+  const idx = empties[Math.floor(Math.random()*empties.length)];
+  board[idx] = randomStartLevel();
+  renderBoard();
+});
+
+$("shareBtn").addEventListener("click", async ()=>{
+  const shareData = {
+    title: t("gameTitle"),
+    text: t("tagline"),
+    url: "https://mysteryforeststudio.github.io/"
+  };
+  try {
+    if (navigator.share){ await navigator.share(shareData); showToast(t("toastShared")); }
+    else { await navigator.clipboard.writeText(shareData.url); showToast(t("toastCopied")); }
+  } catch(e){
+    try { await navigator.clipboard.writeText(shareData.url); showToast(t("toastCopied")); }
+    catch(err){ showToast(shareData.url); }
+  }
+});
+
+let toastTimer=null;
+function showToast(msg){
+  const el=$("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+}
+
+/* ============================================================
+   6. 啟動
+   ============================================================ */
+applyLang();
+setFestivalMusic(currentFest);
+buildParticles();
+tickParticles();
+
+/* 跨節日巡航：每分鐘重檢一次系統日期（手動預覽鎖定期間不自動覆蓋） */
+setInterval(()=>{
+  if (previewLock) return;
+  const now = new Date();
+  const fest = detectFestival(now);
+  if (fest !== currentFest){
+    currentFest = fest;
+    setFestivalMusic(fest);
+    buildParticles();
+    updateCalendar();
+  }
+}, 60000);
 </script>
 </body>
 </html>
