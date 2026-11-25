@@ -522,7 +522,7 @@ function playChime(baseFreq, steps){
 function playMergeSound(tier){ playChime(520 + tier*60, tier >= 4 ? 3 : 2); }
 function playSummonSound(){ playChime(380, 3); }
 
-/* ============ Background Music (Web Audio synth) ============ */
+/* ============ Background Music (Web Audio synth music box) ============ */
 var BG_VOLUME = 0.25;
 var musicBtn = document.getElementById("musicBtn");
 var bgMasterGain = null;
@@ -533,69 +533,120 @@ var bgStep = 0;
 var bgNextNoteTime = 0;
 var bgMuteByYt = false;
 
-var NOTE = { C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
-  C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,B5:987.77,
-  C6:1046.50,D6:1174.66,E6:1318.51,G6:1567.98,A6:1760.00 };
+/* Note frequencies */
+var F = {
+  A4:440.00, B4:493.88,
+  C5:523.25, Csh5:554.37, D5:587.33, Dsh5:622.25, E5:659.25, F5:698.46, Fsh5:739.99, G5:783.99, Gsh5:830.61, A5:880.00, Ash5:932.33, B5:987.77,
+  C6:1046.50, Csh6:1108.73, D6:1174.66, Dsh6:1244.51, E6:1318.51, F6:1396.91, Fsh6:1479.98, G6:1567.98, Gsh6:1661.22, A6:1760.00, Ash6:1864.66, B6:1975.53
+};
 
+/* Melodies — classic, festival-accurate.
+   Each note: {f: frequency, d: beat (seconds), v: velocity} or {f:null,d:rest,v:0}
+   BPM ~ 100 → one beat ≈ 0.60s, we fine-tune. */
 var MELODIES = {
+  /* Jingle Bells chorus (classic): E-E-E | E-E-E | E-G-C-D-E ...
+     Simplified, warm music-box rendering. */
   christmas: [
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:1.0},{f:NOTE.C5,d:0.9,v:0.9},
-    {f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.E5,d:1.6,v:1.0},{f:null,d:0.8,v:0},
-    {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.F5,d:1.2,v:1.0},
-    {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.D5,d:0.6,v:0.9},
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:1.6,v:0.9},{f:null,d:1.2,v:0}
+    {f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:1.0,v:1.0},
+    {f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:1.0,v:1.0},
+    {f:F.E5,d:0.5,v:0.95},{f:F.G5,d:0.5,v:1.0},{f:F.C5,d:0.75,v:0.95},{f:F.D5,d:0.5,v:0.95},
+    {f:F.E5,d:1.4,v:1.0},
+    {f:null,d:0.6,v:0},
+    {f:F.F5,d:0.5,v:0.95},{f:F.F5,d:0.5,v:0.95},{f:F.F5,d:0.75,v:1.0},{f:F.F5,d:0.5,v:0.95},
+    {f:F.F5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
+    {f:F.E5,d:0.5,v:0.95},{f:F.D5,d:0.5,v:0.95},{f:F.D5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
+    {f:F.D5,d:1.0,v:1.0},{f:F.G5,d:1.0,v:1.0},
+    {f:null,d:0.8,v:0}
   ],
+  /* Auld Lang Syne (opening): C | F-F-F-A | G-F-G-A | F-F-A-C | D ...
+     Traditional, warm. */
   newyear: [
-    {f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:0.9,v:1.0},
-    {f:NOTE.B5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:0.9},{f:NOTE.E5,d:0.9,v:0.9},
-    {f:NOTE.D5,d:0.5,v:0.9},{f:NOTE.F5,d:0.5,v:0.9},{f:NOTE.A5,d:0.5,v:1.0},{f:NOTE.D6,d:0.9,v:1.0},
-    {f:NOTE.C6,d:0.5,v:0.9},{f:NOTE.A5,d:0.5,v:0.9},{f:NOTE.F5,d:0.9,v:0.9},
-    {f:null,d:0.8,v:0},{f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:1.4,v:1.0},{f:null,d:0.8,v:0}
+    {f:F.C5,d:0.75,v:0.9},
+    {f:F.F5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.A5,d:1.0,v:1.0},
+    {f:F.G5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.G5,d:0.75,v:0.95},{f:F.A5,d:1.0,v:1.0},
+    {f:F.F5,d:0.75,v:0.95},{f:F.F5,d:0.75,v:0.95},{f:F.A5,d:0.75,v:1.0},{f:F.C6,d:1.0,v:1.0},
+    {f:F.D6,d:0.75,v:1.0},{f:F.D6,d:0.75,v:1.0},{f:F.C6,d:0.75,v:1.0},{f:F.A5,d:1.0,v:1.0},
+    {f:F.F5,d:0.75,v:0.95},{f:F.G5,d:0.75,v:0.95},{f:F.A5,d:0.75,v:1.0},{f:F.G5,d:0.75,v:0.95},
+    {f:F.F5,d:0.75,v:0.95},{f:F.G5,d:0.75,v:0.95},{f:F.A5,d:0.75,v:1.0},{f:F.F5,d:1.4,v:0.95},
+    {f:null,d:0.9,v:0}
   ],
-  lunar: [
-    {f:NOTE.G4,d:0.45,v:0.95},{f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:0.45,v:0.9},{f:NOTE.G4,d:0.9,v:1.0},
-    {f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.C5,d:0.45,v:0.95},{f:NOTE.A4,d:0.9,v:1.0},
-    {f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.E5,d:0.45,v:1.0},{f:NOTE.G5,d:1.2,v:1.0},
-    {f:NOTE.E5,d:0.45,v:0.95},{f:NOTE.D5,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:1.2,v:1.0},{f:null,d:0.8,v:0}
+  /* 恭喜恭喜 (Chinese New Year classic). Simplified pentatonic contour that
+     evokes the festive tune, music-box style. */
+  lunar_new_year: [
+    {f:F.E5,d:0.45,v:0.95},{f:F.E5,d:0.45,v:0.95},{f:F.C5,d:0.45,v:0.9},{f:F.E5,d:0.45,v:0.95},
+    {f:F.G5,d:0.6,v:1.0},{f:F.E5,d:0.45,v:0.95},{f:F.D5,d:0.45,v:0.95},
+    {f:F.D5,d:0.45,v:0.95},{f:F.D5,d:0.45,v:0.95},{f:F.B4,d:0.45,v:0.9},{f:F.D5,d:0.45,v:0.95},
+    {f:F.E5,d:0.6,v:1.0},{f:F.D5,d:0.45,v:0.95},{f:F.C5,d:0.45,v:0.95},
+    {f:null,d:0.3,v:0},
+    {f:F.G5,d:0.45,v:1.0},{f:F.G5,d:0.45,v:1.0},{f:F.E5,d:0.45,v:0.95},{f:F.G5,d:0.45,v:1.0},
+    {f:F.A5,d:0.6,v:1.0},{f:F.G5,d:0.45,v:0.95},{f:F.E5,d:0.45,v:0.95},
+    {f:F.D5,d:0.45,v:0.95},{f:F.E5,d:0.45,v:0.95},{f:F.D5,d:0.45,v:0.95},{f:F.C5,d:0.9,v:0.95},
+    {f:null,d:0.7,v:0}
   ],
+  /* Canon in D (Pachelbel) — famous descending sequence, transposed to C for clarity:
+     F#5-E5-D5-C#5-B4-A4-B4-C#5 ... We use the D-major phrase in F values. */
   valentine: [
-    {f:NOTE.C5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.95},{f:NOTE.G5,d:1.0,v:1.0},
-    {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.95},{f:NOTE.D5,d:1.0,v:0.95},
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},
-    {f:NOTE.B5,d:0.6,v:0.9},{f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:1.2,v:0.95},
-    {f:null,d:0.8,v:0},{f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:0.95},{f:null,d:0.8,v:0}
+    {f:F.Fsh5,d:0.6,v:0.95},{f:F.E5,d:0.6,v:0.9},{f:F.D5,d:0.6,v:0.9},{f:F.Csh5,d:0.6,v:0.9},
+    {f:F.B4,d:0.6,v:0.9},{f:F.A4,d:0.6,v:0.9},{f:F.B4,d:0.6,v:0.9},{f:F.Csh5,d:0.6,v:0.9},
+    {f:F.D5,d:0.6,v:0.95},{f:F.Fsh5,d:0.6,v:0.95},{f:F.A5,d:0.6,v:1.0},{f:F.G5,d:0.6,v:0.95},
+    {f:F.Fsh5,d:0.6,v:0.95},{f:F.D5,d:0.6,v:0.9},{f:F.Fsh5,d:0.6,v:0.95},{f:F.E5,d:0.6,v:0.9},
+    {f:F.D5,d:0.6,v:0.9},{f:F.B4,d:0.6,v:0.9},{f:F.D5,d:0.6,v:0.9},{f:F.A5,d:1.0,v:1.0},
+    {f:null,d:0.9,v:0}
   ],
+  /* Vivaldi "Spring" — bright opening motif.
+     Simplified: E-E-E | G-E-C | G-F#-E ... transposed to C major for ease. */
   easter: [
-    {f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:0.8,v:1.0},
-    {f:NOTE.B5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.9},{f:NOTE.E5,d:0.8,v:0.95},
-    {f:NOTE.A5,d:0.4,v:0.95},{f:NOTE.F5,d:0.4,v:0.9},{f:NOTE.A5,d:0.4,v:0.95},{f:NOTE.D6,d:0.8,v:1.0},
-    {f:NOTE.C6,d:0.4,v:0.9},{f:NOTE.A5,d:0.4,v:0.9},{f:NOTE.F5,d:0.8,v:0.95},
-    {f:null,d:0.6,v:0},{f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},{f:null,d:0.6,v:0}
+    {f:F.E5,d:0.4,v:0.95},{f:F.E5,d:0.4,v:0.9},{f:F.E5,d:0.4,v:0.95},
+    {f:F.G5,d:0.6,v:1.0},{f:F.E5,d:0.4,v:0.9},{f:F.C5,d:0.6,v:0.95},
+    {f:F.G5,d:0.4,v:0.95},{f:F.Fsh5,d:0.4,v:0.9},{f:F.E5,d:0.6,v:0.95},{f:F.D5,d:0.4,v:0.9},
+    {f:F.C5,d:0.8,v:0.95},
+    {f:null,d:0.3,v:0},
+    {f:F.C5,d:0.4,v:0.9},{f:F.E5,d:0.4,v:0.95},{f:F.G5,d:0.4,v:1.0},{f:F.C6,d:0.6,v:1.0},
+    {f:F.B5,d:0.4,v:0.95},{f:F.G5,d:0.4,v:0.95},{f:F.E5,d:0.8,v:0.95},
+    {f:null,d:0.7,v:0}
   ],
+  /* Halloween — mysterious minor, playful spooky contour.
+     A minor arpeggio with augmented/diminished colours: A-E-C-E | B-E-C-E ... */
   halloween: [
-    {f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.C5,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:1.0},{f:NOTE.A5,d:0.9,v:1.0},
-    {f:NOTE.G5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.C5,d:0.9,v:0.95},
-    {f:NOTE.B4,d:0.5,v:0.9},{f:NOTE.D5,d:0.5,v:0.95},{f:NOTE.F5,d:0.5,v:1.0},{f:NOTE.B5,d:0.9,v:1.0},
-    {f:NOTE.A5,d:0.5,v:0.9},{f:NOTE.F5,d:0.5,v:0.9},{f:NOTE.D5,d:0.9,v:0.95},
-    {f:null,d:0.8,v:0},{f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:0.95},{f:NOTE.A5,d:1.2,v:1.0},{f:null,d:0.8,v:0}
+    {f:F.A4,d:0.5,v:0.9},{f:F.E5,d:0.5,v:0.95},{f:F.C5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
+    {f:F.B4,d:0.5,v:0.9},{f:F.E5,d:0.5,v:0.95},{f:F.C5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},
+    {f:F.Gsh5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.C5,d:0.5,v:0.9},{f:F.A4,d:0.5,v:0.9},
+    {f:F.B4,d:0.7,v:0.95},{f:F.E5,d:0.7,v:0.95},
+    {f:null,d:0.4,v:0},
+    {f:F.A4,d:0.5,v:0.9},{f:F.C5,d:0.5,v:0.95},{f:F.E5,d:0.5,v:0.95},{f:F.A5,d:0.8,v:1.0},
+    {f:null,d:0.7,v:0}
   ],
-  default: [
-    {f:NOTE.C5,d:0.7,v:0.85},{f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.G5,d:0.9,v:0.9},
-    {f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:0.7,v:0.8},{f:NOTE.E5,d:1.2,v:0.85},
-    {f:null,d:0.9,v:0},{f:NOTE.D5,d:0.7,v:0.8},{f:NOTE.G5,d:0.7,v:0.85},{f:NOTE.A5,d:0.9,v:0.9},
-    {f:NOTE.C6,d:0.7,v:0.85},{f:NOTE.A5,d:0.7,v:0.8},{f:NOTE.G5,d:1.4,v:0.85},
-    {f:null,d:1.2,v:0},{f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:1.2,v:0.85},{f:null,d:1.4,v:0}
+  /* Normal day: healing forest pentatonic wind-chime arpeggio.
+     C5, D5, E5, G5, A5, C6, slow and airy. */
+  normal: [
+    {f:F.C5,d:0.8,v:0.8},{f:F.D5,d:0.8,v:0.8},{f:F.E5,d:0.8,v:0.85},
+    {f:F.G5,d:0.9,v:0.85},{f:F.A5,d:0.9,v:0.85},{f:F.C6,d:1.2,v:0.9},
+    {f:null,d:0.6,v:0},
+    {f:F.A5,d:0.8,v:0.8},{f:F.G5,d:0.8,v:0.8},{f:F.E5,d:0.8,v:0.85},
+    {f:F.D5,d:0.9,v:0.85},{f:F.C5,d:1.2,v:0.85},
+    {f:null,d:0.9,v:0},
+    {f:F.E5,d:0.8,v:0.8},{f:F.G5,d:0.8,v:0.8},{f:F.A5,d:0.8,v:0.85},{f:F.C6,d:1.4,v:0.9},
+    {f:null,d:1.2,v:0}
   ]
 };
 
-var MELODY_KEY = { christmas:"christmas",newyear:"newyear",lunar:"lunar",valentine:"valentine",easter:"easter",halloween:"halloween",default:"default" };
+/* Map festival key -> melody key
+   Supported URL values:
+   ?fest=christmas | newyear | new_year | lunar | lunar_new_year |
+         valentine | easter | halloween | default | normal */
+var MELODY_KEY = {
+  christmas:"christmas",
+  newyear:"newyear", new_year:"newyear",
+  lunar:"lunar_new_year", lunar_new_year:"lunar_new_year",
+  valentine:"valentine",
+  easter:"easter",
+  halloween:"halloween",
+  default:"normal", normal:"normal"
+};
 
 function getMelody(){
-  var key = MELODY_KEY[activeFestival] || "default";
-  return MELODIES[key] || MELODIES.default;
+  var key = MELODY_KEY[activeFestival] || "normal";
+  return MELODIES[key] || MELODIES.normal;
 }
 
 function setupBgAudio(){
@@ -639,8 +690,9 @@ function scheduleMusicLoop(){
     var dur = note.d;
     if(note.f != null){
       playMusicBoxNote(note.f, bgNextNoteTime, dur, note.v);
+      // Gentle harmonic shimmer every 4th beat
       if(bgStep % 4 === 2){
-        playMusicBoxNote(note.f * 1.5, bgNextNoteTime + 0.06, dur * 0.9, note.v * 0.35);
+        playMusicBoxNote(note.f * 1.5, bgNextNoteTime + 0.06, dur * 0.9, note.v * 0.3);
       }
     }
     bgNextNoteTime += dur;
@@ -828,24 +880,23 @@ function showMaid(text){
 function maidLine(key){ return I18N[currentLang][key] || key; }
 
 function newSeedTier(){
-  return Math.random() < 0.6 ? 0 : 1;
+  // 0=🌱, 1=🌿
+  return Math.random() < 0.5 ? 0 : 1;
 }
 
 function initBoard(){
+  // ✅ 滿棋盤開局：16 格全部填滿，保證有可合併配對
   board = [];
-  // 先填 6-8 個初始物品，其餘留空 (null)
-  var initialCount = 6 + Math.floor(Math.random() * 3); // 6,7,8
-  var indices = [];
-  for(var k=0;k<BOARD_SIZE*BOARD_SIZE;k++) indices.push(k);
-  // shuffle
-  for(var s=indices.length-1;s>0;s--){
-    var r = Math.floor(Math.random()*(s+1));
-    var tmp = indices[s]; indices[s]=indices[r]; indices[r]=tmp;
+  // 先平均分配 8 x 🌱 + 8 x 🌿（shuffle 後填入）
+  var pool = [];
+  for(var k=0;k<8;k++) pool.push(0);
+  for(var k2=0;k2<8;k2++) pool.push(1);
+  // Fisher–Yates shuffle
+  for(var i=pool.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
   }
-  for(var i=0;i<BOARD_SIZE*BOARD_SIZE;i++) board.push(null);
-  for(var j=0;j<initialCount;j++){
-    board[indices[j]] = newSeedTier();
-  }
+  board = pool; // length 16
   renderBoard(true);
   mergeCount = 0;
   scoreEl.textContent = "0";
@@ -867,7 +918,7 @@ function renderBoard(animate){
       cell.setAttribute("aria-label", TIERS[tier].name[currentLang]);
     }
     if(idx === selectedIndex) cell.classList.add("selected");
-    if(animate && tier !== null) cell.classList.add("pop");
+    if(animate && tier !== null && tier !== undefined) cell.classList.add("pop");
     (function(i, c){ c.addEventListener("click", function(){ onCellClick(i, c); }); })(idx, cell);
     boardEl.appendChild(cell);
   }
@@ -1020,9 +1071,23 @@ function isWithinWindow(today, centerMD, before, after, year){
   var end = new Date(c.getTime() + after*86400000);
   return today >= start && today <= end;
 }
+
+/* Supported URL festival values */
+var FEST_ALIASES = {
+  "christmas":"christmas",
+  "newyear":"newyear", "new_year":"newyear",
+  "lunar":"lunar", "lunar_new_year":"lunar",
+  "valentine":"valentine",
+  "easter":"easter",
+  "halloween":"halloween",
+  "default":"default", "normal":"default"
+};
+
 function detectFestival(forced){
-  var allowed = ["christmas","newyear","lunar","valentine","easter","halloween","default"];
-  if(forced && allowed.indexOf(forced) !== -1) return forced;
+  if(forced){
+    var k = String(forced).toLowerCase();
+    if(FEST_ALIASES[k]) return FEST_ALIASES[k];
+  }
   var now = new Date();
   var y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate();
   var today = mdToDate(y,m,d);
@@ -1264,7 +1329,7 @@ function boot(){
   var festivalId = detectFestival(forced);
   applyFestivalTheme(festivalId);
 
-  // Board — 必須初始化
+  // Board — 滿 16 格開局
   initBoard();
 
   // Music
