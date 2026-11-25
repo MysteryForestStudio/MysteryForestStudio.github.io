@@ -3,279 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mystery Forest: Merge Legend — 森林咖啡屋的奇幻冒險</title>
+<title>Mystery Forest: 神秘森林合成傳奇</title>
 <meta name="description" content="Mystery Forest: Merge Legend — 全年 6 大節日自動巡航、森林管家三語配音、治癒系寵物，單手合成重建夢幻森林咖啡屋。立即下載！">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
 <style>
   :root{
-    --deep:#0b1f16;
-    --deep2:#0f2a1d;
-    --green:#1f6b45;
-    --green-light:#3fa76e;
-    --gold:#ffd166;
-    --gold-soft:#ffe9b0;
-    --text:#eaf5ee;
-    --text-dim:#a9c4b5;
-    --glass:rgba(255,255,255,0.07);
-    --glass-border:rgba(255,255,255,0.14);
+    --deep:#0b1f16; --deep2:#0f2a1d; --green:#1f6b45; --green-light:#3fa76e;
+    --gold:#ffd166; --gold-soft:#ffe9b0; --text:#eaf5ee; --text-dim:#a9c4b5;
+    --glass:rgba(255,255,255,0.07); --glass-border:rgba(255,255,255,0.14);
     --shadow:0 8px 32px rgba(0,0,0,0.35);
-    --festive:#ffd166;
-    --festive-2:#e63946;
-    --frame-color:rgba(63,167,110,0.45);
-    --frame-glow:rgba(63,167,110,0.65);
+    --frame-color:rgba(63,167,110,0.45); --frame-glow:rgba(63,167,110,0.65);
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
     font-family:"Noto Sans TC","Noto Sans JP","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
-    background:
-      radial-gradient(1200px 800px at 10% -10%, rgba(63,167,110,0.25), transparent 60%),
-      radial-gradient(1000px 700px at 110% 10%, rgba(255,209,102,0.12), transparent 55%),
-      radial-gradient(900px 900px at 50% 120%, rgba(31,107,69,0.35), transparent 60%),
-      linear-gradient(180deg, var(--deep) 0%, var(--deep2) 50%, #0a1a12 100%);
-    color:var(--text);
-    min-height:100vh;
-    line-height:1.7;
-    overflow-x:hidden;
-    transition:background 1.2s ease;
+    background:radial-gradient(1200px 800px at 10% -10%,rgba(63,167,110,0.25),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.12),transparent 55%),radial-gradient(900px 900px at 50% 120%,rgba(31,107,69,0.35),transparent 60%),linear-gradient(180deg,var(--deep) 0%,var(--deep2) 50%,#0a1a12 100%);
+    color:var(--text);min-height:100vh;line-height:1.7;overflow-x:hidden;transition:background 1.2s ease;
   }
   .container{max-width:1140px;margin:0 auto;padding:0 20px}
+  #fxCanvas{position:fixed;inset:0;pointer-events:none;z-index:50;width:100%;height:100%}
 
-  /* ===== Particle Canvas Layer ===== */
-  #fxCanvas{
-    position:fixed;inset:0;pointer-events:none;z-index:50;
-    width:100%;height:100%;
-  }
-
-  /* ===== Festival Banner ===== */
   .festival-banner{
-    position:fixed;top:0;left:0;right:0;z-index:120;
-    padding:12px 60px 12px 20px;text-align:center;
-    font-weight:700;font-size:14.5px;
-    color:#1a1205;
-    background:linear-gradient(90deg, var(--festive-2), var(--festive), var(--festive-2));
-    background-size:200% 100%;
-    animation:bannerShine 6s linear infinite;
-    box-shadow:0 4px 20px rgba(0,0,0,0.4);
-    letter-spacing:.3px;
-    display:none;
-    transition:background .6s;
+    position:fixed;top:0;left:0;right:0;z-index:120;padding:12px 60px 12px 20px;text-align:center;
+    font-weight:700;font-size:14.5px;color:#1a1205;
+    background:linear-gradient(90deg,#e63946,#ffd166,#e63946);background-size:200% 100%;
+    animation:bannerShine 6s linear infinite;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    letter-spacing:.3px;display:none;transition:background .6s;
   }
   .festival-banner.show{display:block}
   @keyframes bannerShine{0%{background-position:0% 0}100%{background-position:200% 0}}
 
-  /* ===== Language Switcher + Music Button ===== */
   .top-controls{
-    position:fixed;top:14px;right:14px;z-index:130;
-    display:flex;gap:8px;align-items:center;
-    transition:top .3s;
+    position:fixed;top:14px;right:14px;z-index:130;display:flex;gap:8px;align-items:center;transition:top .3s;
   }
   body.has-banner .top-controls{top:58px}
   .lang-bar{
-    display:flex;gap:6px;
-    background:rgba(11,31,22,0.75);
+    display:flex;gap:6px;background:rgba(11,31,22,0.75);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--glass-border);
-    border-radius:999px;padding:5px;
-    box-shadow:var(--shadow);
+    border:1px solid var(--glass-border);border-radius:999px;padding:5px;box-shadow:var(--shadow);
   }
   .lang-btn{
-    background:transparent;border:none;color:var(--text-dim);
-    font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;
-    cursor:pointer;transition:all .25s;font-family:inherit;
+    background:transparent;border:none;color:var(--text-dim);font-size:13px;font-weight:600;
+    padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .25s;font-family:inherit;
   }
   .lang-btn:hover{color:var(--text)}
-  .lang-btn.active{
-    background:linear-gradient(135deg,var(--green-light),var(--green));
-    color:#fff;box-shadow:0 2px 10px rgba(63,167,110,0.4);
-  }
+  .lang-btn.active{background:linear-gradient(135deg,var(--green-light),var(--green));color:#fff;box-shadow:0 2px 10px rgba(63,167,110,0.4)}
   .music-btn{
-    width:42px;height:42px;border-radius:50%;
-    background:rgba(11,31,22,0.75);
+    width:42px;height:42px;border-radius:50%;background:rgba(11,31,22,0.75);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--glass-border);
-    color:var(--gold);font-size:18px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:var(--shadow);transition:transform .2s, background .2s;
+    border:1px solid var(--glass-border);color:var(--gold);font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);
+    transition:transform .2s,background .2s;
   }
   .music-btn:hover{transform:scale(1.08);background:rgba(31,107,69,0.6)}
   .music-btn.muted{color:var(--text-dim);opacity:.7}
 
-  /* ===== Hero ===== */
-  .hero{
-    min-height:100vh;display:flex;align-items:center;
-    padding:100px 0 60px;position:relative;
-    transition:padding-top .3s;
-  }
+  .hero{min-height:100vh;display:flex;align-items:center;padding:100px 0 60px;position:relative;transition:padding-top .3s}
   body.has-banner .hero{padding-top:140px}
-  .hero::before{
-    content:"";position:absolute;inset:0;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(63,167,110,0.15), transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(255,209,102,0.08), transparent 40%);
-    pointer-events:none;
-  }
-  .hero-inner{
-    display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
-    position:relative;z-index:1;
-  }
-  .hero-icon-wrap{
-    display:flex;justify-content:center;align-items:center;position:relative;
-  }
-  .hero-icon-glow{
-    position:absolute;width:320px;height:320px;border-radius:50%;
-    background:radial-gradient(circle, var(--frame-glow), transparent 70%);
-    filter:blur(30px);animation:pulse 4s ease-in-out infinite;
-    transition:background 1.2s;
-  }
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(63,167,110,0.15),transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,209,102,0.08),transparent 40%);pointer-events:none}
+  .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
+  .hero-icon-wrap{display:flex;justify-content:center;align-items:center;position:relative}
+  .hero-icon-glow{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,var(--frame-glow),transparent 70%);filter:blur(30px);animation:pulse 4s ease-in-out infinite;transition:background 1.2s}
   @keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
-  .hero-icon{
-    width:240px;height:240px;border-radius:52px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
-    position:relative;z-index:1;
-    animation:floaty 6s ease-in-out infinite;
-    object-fit:cover;
-  }
+  .hero-icon{width:240px;height:240px;border-radius:52px;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);position:relative;z-index:1;animation:floaty 6s ease-in-out infinite;object-fit:cover}
   @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-  .hero-icon-fallback{
-    width:240px;height:240px;border-radius:52px;
-    background:linear-gradient(135deg,#1f6b45,#0f2a1d);
-    display:flex;align-items:center;justify-content:center;font-size:120px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);
-    position:relative;z-index:1;
-  }
-  .hero-text h1{
-    font-size:clamp(28px,4.2vw,48px);font-weight:800;line-height:1.2;
-    margin-bottom:16px;letter-spacing:-0.5px;
-    background:linear-gradient(135deg,#fff 30%,var(--gold) 100%);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  }
-  .hero-text .subtitle{
-    font-size:clamp(15px,1.8vw,18px);color:var(--text-dim);margin-bottom:8px;font-weight:500;
-  }
-  .hero-text .desc{
-    font-size:16px;color:var(--text-dim);margin-bottom:32px;max-width:520px;
-  }
+  .hero-icon-fallback{width:240px;height:240px;border-radius:52px;background:linear-gradient(135deg,#1f6b45,#0f2a1d);display:flex;align-items:center;justify-content:center;font-size:120px;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;z-index:1}
+  .hero-text h1{font-size:clamp(26px,3.8vw,44px);font-weight:800;line-height:1.2;margin-bottom:16px;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff 30%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero-text .subtitle{font-size:clamp(15px,1.8vw,18px);color:var(--text-dim);margin-bottom:8px;font-weight:500}
+  .hero-text .desc{font-size:16px;color:var(--text-dim);margin-bottom:32px;max-width:520px}
   .btn-download{
-    display:inline-flex;align-items:center;gap:12px;
-    background:linear-gradient(135deg,#3fa76e,#1f6b45);
-    color:#fff;text-decoration:none;font-weight:700;font-size:17px;
-    padding:16px 32px;border-radius:16px;
-    box-shadow:0 8px 30px rgba(63,167,110,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
-    transition:transform .2s, box-shadow .2s;border:1px solid rgba(255,255,255,0.15);
+    display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#3fa76e,#1f6b45);
+    color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:16px 32px;border-radius:16px;
+    box-shadow:0 8px 30px rgba(63,167,110,0.45),inset 0 1px 0 rgba(255,255,255,0.25);
+    transition:transform .2s,box-shadow .2s;border:1px solid rgba(255,255,255,0.15);
   }
   .btn-download:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(63,167,110,0.6)}
   .btn-download svg{width:26px;height:26px;flex-shrink:0}
-  .btn-secondary{
-    display:inline-flex;align-items:center;gap:8px;
-    color:var(--gold);text-decoration:none;font-weight:600;font-size:15px;
-    padding:16px 8px;margin-left:8px;transition:color .2s;
-  }
+  .btn-secondary{display:inline-flex;align-items:center;gap:8px;color:var(--gold);text-decoration:none;font-weight:600;font-size:15px;padding:16px 8px;margin-left:8px;transition:color .2s}
   .btn-secondary:hover{color:var(--gold-soft)}
 
-  /* ===== Section ===== */
   section{padding:80px 0;position:relative}
-  .section-title{
-    text-align:center;font-size:clamp(24px,3vw,34px);font-weight:800;
-    margin-bottom:12px;letter-spacing:-0.3px;
-  }
-  .section-sub{
-    text-align:center;color:var(--text-dim);font-size:15px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto;
-  }
+  .section-title{text-align:center;font-size:clamp(24px,3vw,34px);font-weight:800;margin-bottom:12px;letter-spacing:-0.3px}
+  .section-sub{text-align:center;color:var(--text-dim);font-size:15px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto}
 
-  /* ===== Feature Cards ===== */
-  .features-grid{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;
-  }
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
   .feature-card{
     background:var(--glass);border:1px solid var(--glass-border);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    border-radius:22px;padding:30px 26px;
-    transition:transform .3s, border-color .3s, box-shadow .3s;
+    border-radius:22px;padding:30px 26px;transition:transform .3s,border-color .3s,box-shadow .3s;
   }
   .feature-card:hover{transform:translateY(-6px);border-color:var(--frame-color);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
   .feature-icon{font-size:40px;margin-bottom:16px;display:block}
   .feature-card h3{font-size:19px;font-weight:700;margin-bottom:10px;color:#fff}
   .feature-card p{font-size:14.5px;color:var(--text-dim);line-height:1.65}
 
-  /* ===== Video ===== */
-  .video-wrap{
-    display:flex;flex-direction:column;align-items:center;gap:18px;margin-bottom:48px;
-  }
-  .video-title{
-    font-size:clamp(18px,2.4vw,24px);font-weight:800;text-align:center;
-  }
-  .video-card{
-    width:100%;max-width:320px;aspect-ratio:9/16;
-    border-radius:20px;overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px var(--glass-border);
-    background:#000;
-  }
-  .video-card iframe{
-    width:100%;height:100%;border:0;display:block;
-  }
+  .video-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-bottom:48px}
+  .video-title{font-size:clamp(18px,2.4vw,24px);font-weight:800;text-align:center}
+  .video-card{width:100%;max-width:320px;aspect-ratio:9/16;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px var(--glass-border);background:#000}
+  .video-card iframe{width:100%;height:100%;border:0;display:block}
 
-  /* ===== Mini Merge Demo ===== */
   .demo-wrap{
     display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;
     background:var(--glass);border:1px solid var(--glass-border);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    border-radius:28px;padding:40px;
-    transition:box-shadow .6s, border-color .6s;
+    border-radius:28px;padding:40px;transition:box-shadow .6s,border-color .6s;
   }
   .demo-left h2{font-size:clamp(22px,2.6vw,30px);font-weight:800;margin-bottom:14px}
   .demo-left p{color:var(--text-dim);font-size:15px;margin-bottom:20px}
-  .demo-hint{
-    display:flex;align-items:flex-start;gap:10px;
-    background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);
-    border-radius:14px;padding:14px 16px;font-size:14px;color:var(--gold-soft);
-  }
+  .demo-hint{display:flex;align-items:flex-start;gap:10px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:14px;padding:14px 16px;font-size:14px;color:var(--gold-soft)}
   .demo-hint span{font-size:18px;flex-shrink:0}
 
   .board-area{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative}
   .merge-board{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-    background:rgba(0,0,0,0.3);padding:12px;border-radius:20px;
-    width:100%;max-width:340px;aspect-ratio:1;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:rgba(0,0,0,0.3);
+    padding:12px;border-radius:20px;width:100%;max-width:340px;aspect-ratio:1;
     border:2px solid var(--frame-color);
-    box-shadow:inset 0 2px 20px rgba(0,0,0,0.4), 0 0 18px var(--frame-glow);
-    transition:border-color .6s, box-shadow .6s;
-    animation:frameBreath 3s ease-in-out infinite;
+    box-shadow:inset 0 2px 20px rgba(0,0,0,0.4),0 0 18px var(--frame-glow);
+    transition:border-color .6s,box-shadow .6s;animation:frameBreath 3s ease-in-out infinite;
   }
   @keyframes frameBreath{
-    0%,100%{box-shadow:inset 0 2px 20px rgba(0,0,0,0.4), 0 0 12px var(--frame-glow)}
-    50%{box-shadow:inset 0 2px 20px rgba(0,0,0,0.4), 0 0 28px var(--frame-glow)}
+    0%,100%{box-shadow:inset 0 2px 20px rgba(0,0,0,0.4),0 0 12px var(--frame-glow)}
+    50%{box-shadow:inset 0 2px 20px rgba(0,0,0,0.4),0 0 28px var(--frame-glow)}
   }
   .cell{
-    background:rgba(255,255,255,0.05);border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:clamp(22px,4vw,32px);cursor:pointer;
-    transition:transform .15s, background .2s;
-    user-select:none;-webkit-user-select:none;
-    border:1px solid rgba(255,255,255,0.06);
-    position:relative;
+    background:rgba(255,255,255,0.05);border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(22px,4vw,32px);cursor:pointer;transition:transform .15s,background .2s;
+    user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.06);position:relative;
   }
   .cell:hover{background:rgba(255,255,255,0.1)}
-  .cell.selected{
-    background:rgba(63,167,110,0.35);
-    border-color:var(--green-light);
-    box-shadow:0 0 0 2px var(--green-light), 0 0 20px rgba(63,167,110,0.5);
-    transform:scale(1.06);
-  }
+  .cell.selected{background:rgba(63,167,110,0.35);border-color:var(--green-light);box-shadow:0 0 0 2px var(--green-light),0 0 20px rgba(63,167,110,0.5);transform:scale(1.06)}
   .cell.pop{animation:popIn .3s ease}
   @keyframes popIn{0%{transform:scale(0.4)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
   .btn-summon{
-    background:linear-gradient(135deg,#ffd166,#f0a500);color:#1a1205;
-    border:none;font-weight:800;font-size:15px;padding:12px 28px;border-radius:14px;
-    cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(255,209,102,0.35);
-    transition:transform .2s, box-shadow .2s;
+    background:linear-gradient(135deg,#ffd166,#f0a500);color:#1a1205;border:none;font-weight:800;
+    font-size:15px;padding:12px 28px;border-radius:14px;cursor:pointer;font-family:inherit;
+    box-shadow:0 6px 20px rgba(255,209,102,0.35);transition:transform .2s,box-shadow .2s;
   }
   .btn-summon:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,209,102,0.5)}
-  .btn-summon:active{transform:translateY(0)}
   .score-line{font-size:14px;color:var(--text-dim);font-weight:600}
   .score-line b{color:var(--gold);font-size:18px}
-
-  /* Share button */
   .btn-share{
     display:inline-flex;align-items:center;gap:10px;
     background:linear-gradient(135deg,rgba(63,167,110,0.25),rgba(31,107,69,0.25));
@@ -285,71 +152,48 @@
   }
   .btn-share:hover{background:linear-gradient(135deg,rgba(63,167,110,0.4),rgba(31,107,69,0.4));transform:translateY(-2px)}
 
-  /* Maid bubble */
   .maid-bubble{
     position:absolute;top:-10px;left:50%;transform:translate(-50%,-100%);
-    background:rgba(255,255,255,0.95);color:#1a2e24;
-    padding:10px 16px;border-radius:16px;font-size:13.5px;font-weight:600;
-    white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s, transform .3s;
-    box-shadow:0 6px 24px rgba(0,0,0,0.25);z-index:20;
+    background:rgba(255,255,255,0.95);color:#1a2e24;padding:10px 16px;border-radius:16px;
+    font-size:13.5px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;
+    transition:opacity .3s,transform .3s;box-shadow:0 6px 24px rgba(0,0,0,0.25);z-index:20;
   }
-  .maid-bubble::after{
-    content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
-    width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
-    border-top:7px solid rgba(255,255,255,0.95);
-  }
+  .maid-bubble::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:7px solid rgba(255,255,255,0.95)}
   .maid-bubble.show{opacity:1;transform:translate(-50%,-100%) translateY(-4px)}
 
-  /* Particles (JS-generated DOM, for merge burst only) */
-  .particle{
-    position:fixed;pointer-events:none;z-index:200;font-size:20px;
-    animation:particleFly .9s ease-out forwards;
-  }
-  @keyframes particleFly{
-    0%{opacity:1;transform:translate(0,0) scale(1)}
-    100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.3)}
-  }
+  .particle{position:fixed;pointer-events:none;z-index:200;font-size:20px;animation:particleFly .9s ease-out forwards}
+  @keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.3)}}
 
-  /* Toast */
   .toast{
     position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);
-    background:linear-gradient(135deg,#3fa76e,#1f6b45);color:#fff;
-    padding:16px 28px;border-radius:16px;font-weight:700;font-size:15px;
-    box-shadow:0 12px 40px rgba(63,167,110,0.5);z-index:300;
+    background:linear-gradient(135deg,#3fa76e,#1f6b45);color:#fff;padding:16px 28px;border-radius:16px;
+    font-weight:700;font-size:15px;box-shadow:0 12px 40px rgba(63,167,110,0.5);z-index:300;
     transition:transform .4s cubic-bezier(.34,1.56,.64,1);text-align:center;
     border:1px solid rgba(255,255,255,0.2);max-width:90vw;
   }
   .toast.show{transform:translateX(-50%) translateY(0)}
   .toast a{color:var(--gold);text-decoration:underline}
 
-  /* Copy toast (share) */
   .copy-toast{
     position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);
-    background:rgba(26,46,36,0.95);color:var(--gold);
-    padding:12px 24px;border-radius:12px;font-weight:700;font-size:14px;
-    box-shadow:0 8px 30px rgba(0,0,0,0.4);z-index:310;
-    transition:transform .4s cubic-bezier(.34,1.56,.64,1);
-    border:1px solid rgba(255,209,102,0.3);
+    background:rgba(26,46,36,0.95);color:var(--gold);padding:12px 24px;border-radius:12px;
+    font-weight:700;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,0.4);z-index:310;
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1);border:1px solid rgba(255,209,102,0.3);
   }
   .copy-toast.show{transform:translateX(-50%) translateY(0)}
 
-  /* ===== Footer ===== */
-  footer{
-    padding:50px 0 40px;border-top:1px solid var(--glass-border);
-    text-align:center;color:var(--text-dim);font-size:14px;
-  }
+  footer{padding:50px 0 40px;border-top:1px solid var(--glass-border);text-align:center;color:var(--text-dim);font-size:14px}
   footer .footer-brand{font-weight:700;color:var(--text);font-size:16px;margin-bottom:8px}
   footer .footer-links{margin:14px 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
   footer .footer-links a{color:var(--green-light);text-decoration:none;transition:color .2s}
   footer .footer-links a:hover{color:var(--gold)}
   footer .copyright{margin-top:18px;font-size:13px;opacity:.7}
 
-  /* ===== Responsive ===== */
   @media (max-width:860px){
     .hero-inner{grid-template-columns:1fr;gap:40px;text-align:center}
     .hero-text .desc{margin-left:auto;margin-right:auto}
     .hero-text .btn-row{justify-content:center}
-    .hero-icon, .hero-icon-fallback{width:180px;height:180px;border-radius:40px}
+    .hero-icon,.hero-icon-fallback{width:180px;height:180px;border-radius:40px}
     .hero-icon-fallback{font-size:90px}
     .hero-icon-glow{width:240px;height:240px}
     .demo-wrap{grid-template-columns:1fr;gap:32px;padding:28px 20px}
@@ -368,13 +212,10 @@
 </head>
 <body>
 
-<!-- Full-screen particle canvas layer -->
 <canvas id="fxCanvas" aria-hidden="true"></canvas>
 
-<!-- Festival Banner -->
 <div class="festival-banner" id="festivalBanner" role="status" aria-live="polite"></div>
 
-<!-- Language Switcher + Music Toggle -->
 <div class="top-controls">
   <div class="lang-bar" role="group" aria-label="Language">
     <button class="lang-btn active" data-lang="zh" aria-pressed="true">繁中</button>
@@ -384,7 +225,6 @@
   <button class="music-btn" id="musicBtn" aria-label="Toggle background music" title="背景音樂開關">🔊</button>
 </div>
 
-<!-- ===== HERO ===== -->
 <header class="hero">
   <div class="container hero-inner">
     <div class="hero-icon-wrap">
@@ -396,7 +236,7 @@
     </div>
     <div class="hero-text">
       <p class="subtitle" data-i18n="hero.studio">Mystery Forest Studio 呈獻</p>
-      <h1 data-i18n="hero.title">Mystery Forest:<br>Merge Legend</h1>
+      <h1 data-i18n="hero.title">Mystery Forest: 神秘森林合成傳奇</h1>
       <p class="desc" data-i18n="hero.desc">繼承婆婆的森林咖啡店，用合併魔法合成物品、重建咖啡屋、解除黑暗咒語！全年 6 大節日自動巡航，森林管家換上限定服飾為你三語打氣。</p>
       <div class="btn-row">
         <a class="btn-download"
@@ -411,7 +251,6 @@
   </div>
 </header>
 
-<!-- ===== FEATURES ===== -->
 <section id="features">
   <div class="container">
     <h2 class="section-title" data-i18n="features.title">遊戲核心亮點</h2>
@@ -441,22 +280,16 @@
   </div>
 </section>
 
-<!-- ===== MINI MERGE DEMO ===== -->
 <section id="demo">
   <div class="container">
-
-    <!-- YouTube Shorts -->
     <div class="video-wrap">
       <h2 class="video-title" data-i18n="video.title">觀看官方宣傳片</h2>
       <div class="video-card">
-        <iframe
-          id="ytFrame"
+        <iframe id="ytFrame"
           src="https://www.youtube.com/embed/91k2erfq9lw?enablejsapi=1"
           title="Mystery Forest: Merge Legend — Official Short"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen
-          loading="lazy"
-          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
       </div>
     </div>
 
@@ -480,7 +313,6 @@
   </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
 <footer>
   <div class="container">
     <div class="footer-brand">Mystery Forest Studio</div>
@@ -495,13 +327,11 @@
 </footer>
 
 <script>
-/* =========================================================
-   i18n
-   ========================================================= */
-const I18N = {
+/* ============ i18n ============ */
+var I18N = {
   zh: {
     "hero.studio": "Mystery Forest Studio 呈獻",
-    "hero.title": "Mystery Forest:<br>Merge Legend",
+    "hero.title": "Mystery Forest: 神秘森林合成傳奇",
     "hero.desc": "繼承婆婆的森林咖啡店，用合併魔法合成物品、重建咖啡屋、解除黑暗咒語！全年 6 大節日自動巡航，森林管家換上限定服飾為你三語打氣。",
     "hero.cta": "立即下載",
     "hero.try": "先玩迷你合成 →",
@@ -546,7 +376,7 @@ const I18N = {
   },
   en: {
     "hero.studio": "Presented by Mystery Forest Studio",
-    "hero.title": "Mystery Forest:<br>Merge Legend",
+    "hero.title": "Mystery Forest: Merge Legend",
     "hero.desc": "You inherited your grandma's forest cafe, but a dark spell has ruined it. Use Merge Magic to combine items, rebuild the cafe, and lift the spell! Six seasonal festivals auto-rotate, and your Forest Steward cheers you on in three languages.",
     "hero.cta": "Download Now",
     "hero.try": "Try the mini merge →",
@@ -591,7 +421,7 @@ const I18N = {
   },
   ja: {
     "hero.studio": "Mystery Forest Studio 提供",
-    "hero.title": "Mystery Forest:<br>Merge Legend",
+    "hero.title": "Mystery Forest：神秘の森のマージ伝説",
     "hero.desc": "おばあちゃんの森のカフェを継いだあなた。しかし闇の呪文がカフェを壊してしまいました。マージ魔法でアイテムを合成し、カフェを再建して呪いを解こう！年間6大フェスティバルが自動巡回、森の執事が三言語であなたを応援します。",
     "hero.cta": "今すぐダウンロード",
     "hero.try": "ミニマージを試す →",
@@ -636,213 +466,157 @@ const I18N = {
   }
 };
 
-let currentLang = "zh";
-const LANG_KEY = "mf_lang";
+var currentLang = "zh";
+var LANG_KEY = "mf_lang";
 
 function applyLang(lang){
   if(!I18N[lang]) lang = "zh";
   currentLang = lang;
-  document.documentElement.lang = lang === "zh" ? "zh-Hant" : lang;
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key = el.getAttribute("data-i18n");
-    const val = I18N[lang][key];
+  document.documentElement.lang = (lang === "zh") ? "zh-Hant" : lang;
+  var nodes = document.querySelectorAll("[data-i18n]");
+  for(var i=0;i<nodes.length;i++){
+    var el = nodes[i];
+    var key = el.getAttribute("data-i18n");
+    var val = I18N[lang][key];
     if(val !== undefined){
-      if(val.includes("<br>")) el.innerHTML = val;
+      if(val.indexOf("<br>") !== -1) el.innerHTML = val;
       else el.textContent = val;
     }
-  });
-  document.querySelectorAll(".lang-btn").forEach(b=>{
-    const on = b.dataset.lang === lang;
-    b.classList.toggle("active", on);
-    b.setAttribute("aria-pressed", on ? "true" : "false");
-  });
+  }
+  var btns = document.querySelectorAll(".lang-btn");
+  for(var j=0;j<btns.length;j++){
+    var on = btns[j].dataset.lang === lang;
+    btns[j].classList.toggle("active", on);
+    btns[j].setAttribute("aria-pressed", on ? "true" : "false");
+  }
   try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
-  if(typeof refreshFestivalBanner === "function") refreshFestivalBanner();
-  if(typeof updateMusicBtnTitle === "function") updateMusicBtnTitle();
+  refreshFestivalBanner();
+  updateMusicBtnTitle();
 }
 
-document.querySelectorAll(".lang-btn").forEach(btn=>{
-  btn.addEventListener("click", ()=> applyLang(btn.dataset.lang));
-});
-
-/* =========================================================
-   Web Audio – merge chime + summon
-   ========================================================= */
-let audioCtx = null;
+/* ============ Audio Context & chimes ============ */
+var audioCtx = null;
 function getAudioCtx(){
   if(!audioCtx){
     try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
     catch(e){ audioCtx = null; }
   }
-  if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  if(audioCtx && audioCtx.state === "suspended"){ try{ audioCtx.resume(); }catch(e){} }
   return audioCtx;
 }
 function playChime(baseFreq, steps){
-  const ctx = getAudioCtx();
-  if(!ctx) return;
-  const now = ctx.currentTime;
-  steps = steps || 2;
-  for(let i=0;i<steps;i++){
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+  var ctx = getAudioCtx(); if(!ctx) return;
+  var now = ctx.currentTime; steps = steps || 2;
+  for(var i=0;i<steps;i++){
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
     osc.type = "sine";
     osc.frequency.setValueAtTime(baseFreq * Math.pow(1.25, i), now + i*0.07);
     gain.gain.setValueAtTime(0.0001, now + i*0.07);
     gain.gain.exponentialRampToValueAtTime(0.18, now + i*0.07 + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + i*0.07 + 0.35);
     osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now + i*0.07);
-    osc.stop(now + i*0.07 + 0.4);
+    osc.start(now + i*0.07); osc.stop(now + i*0.07 + 0.4);
   }
 }
-function playMergeSound(tier){
-  const base = 520 + tier*60;
-  playChime(base, tier >= 4 ? 3 : 2);
-}
-function playSummonSound(){
-  playChime(380, 3);
-}
+function playMergeSound(tier){ playChime(520 + tier*60, tier >= 4 ? 3 : 2); }
+function playSummonSound(){ playChime(380, 3); }
 
-/* =========================================================
-   Background Music (Web Audio synth music box / wind chimes)
-   - Soft, ~25% volume
-   - Auto-start attempt on load; fallback to first user gesture
-   - Mute toggle
-   - Pause when YouTube plays
-   ========================================================= */
-const BG_VOLUME = 0.25;
-const musicBtn = document.getElementById("musicBtn");
+/* ============ Background Music (Web Audio synth) ============ */
+var BG_VOLUME = 0.25;
+var musicBtn = document.getElementById("musicBtn");
+var bgMasterGain = null;
+var bgMusicOn = false;
+var bgUserWantsMusic = true;
+var bgScheduler = null;
+var bgStep = 0;
+var bgNextNoteTime = 0;
+var bgMuteByYt = false;
 
-let bgMasterGain = null;
-let bgMusicOn = false;
-let bgUserWantsMusic = true; // user intent
-let bgScheduler = null;
-let bgStep = 0;
-let bgNextNoteTime = 0;
-let bgMuteByYt = false;
+var NOTE = { C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
+  C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,B5:987.77,
+  C6:1046.50,D6:1174.66,E6:1318.51,G6:1567.98,A6:1760.00 };
 
-// Festival melodies (note sequences). Frequencies in Hz.
-// Each note = { f: freq, d: duration(s), v: velocity(0-1) }. Rest = f:null
-const NOTE = {
-  C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88,
-  C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77,
-  C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00
-};
-
-// Music box + soft triangle wave is used.
-// Melody ideas: gentle pentatonic / diatonic phrases.
-const MELODIES = {
+var MELODIES = {
   christmas: [
-    // Simple, dreamy Jingle-Bells-ish contour (original-ish, not exact)
     {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
     {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
     {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:1.0},{f:NOTE.C5,d:0.9,v:0.9},
-    {f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.E5,d:1.6,v:1.0},
-    {f:null,d:0.8,v:0},
+    {f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.E5,d:1.6,v:1.0},{f:null,d:0.8,v:0},
     {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.F5,d:1.2,v:1.0},
     {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
     {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.D5,d:0.6,v:0.9},
-    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:1.6,v:0.9},
-    {f:null,d:1.2,v:0}
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:1.6,v:0.9},{f:null,d:1.2,v:0}
   ],
   newyear: [
     {f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:0.9,v:1.0},
     {f:NOTE.B5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:0.9},{f:NOTE.E5,d:0.9,v:0.9},
     {f:NOTE.D5,d:0.5,v:0.9},{f:NOTE.F5,d:0.5,v:0.9},{f:NOTE.A5,d:0.5,v:1.0},{f:NOTE.D6,d:0.9,v:1.0},
     {f:NOTE.C6,d:0.5,v:0.9},{f:NOTE.A5,d:0.5,v:0.9},{f:NOTE.F5,d:0.9,v:0.9},
-    {f:null,d:0.8,v:0},
-    {f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:1.4,v:1.0},
-    {f:null,d:0.8,v:0}
+    {f:null,d:0.8,v:0},{f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:1.4,v:1.0},{f:null,d:0.8,v:0}
   ],
   lunar: [
-    // Pentatonic, celebratory
-    {f:NOTE.G4,d:0.45,v:0.95},{f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:0.45,v:0.9},
-    {f:NOTE.G4,d:0.9,v:1.0},
-    {f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.C5,d:0.45,v:0.95},
-    {f:NOTE.A4,d:0.9,v:1.0},
+    {f:NOTE.G4,d:0.45,v:0.95},{f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:0.45,v:0.9},{f:NOTE.G4,d:0.9,v:1.0},
+    {f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.C5,d:0.45,v:0.95},{f:NOTE.A4,d:0.9,v:1.0},
     {f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.E5,d:0.45,v:1.0},{f:NOTE.G5,d:1.2,v:1.0},
-    {f:NOTE.E5,d:0.45,v:0.95},{f:NOTE.D5,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:1.2,v:1.0},
-    {f:null,d:0.8,v:0}
+    {f:NOTE.E5,d:0.45,v:0.95},{f:NOTE.D5,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:1.2,v:1.0},{f:null,d:0.8,v:0}
   ],
   valentine: [
-    // Romantic waltz-ish
     {f:NOTE.C5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.95},{f:NOTE.G5,d:1.0,v:1.0},
     {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.95},{f:NOTE.D5,d:1.0,v:0.95},
     {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},
     {f:NOTE.B5,d:0.6,v:0.9},{f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:1.2,v:0.95},
-    {f:null,d:0.8,v:0},
-    {f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:0.95},
-    {f:null,d:0.8,v:0}
+    {f:null,d:0.8,v:0},{f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:0.95},{f:null,d:0.8,v:0}
   ],
   easter: [
-    // Bright spring waltz
     {f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:0.8,v:1.0},
     {f:NOTE.B5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.9},{f:NOTE.E5,d:0.8,v:0.95},
     {f:NOTE.A5,d:0.4,v:0.95},{f:NOTE.F5,d:0.4,v:0.9},{f:NOTE.A5,d:0.4,v:0.95},{f:NOTE.D6,d:0.8,v:1.0},
     {f:NOTE.C6,d:0.4,v:0.9},{f:NOTE.A5,d:0.4,v:0.9},{f:NOTE.F5,d:0.8,v:0.95},
-    {f:null,d:0.6,v:0},
-    {f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},
-    {f:null,d:0.6,v:0}
+    {f:null,d:0.6,v:0},{f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},{f:null,d:0.6,v:0}
   ],
   halloween: [
-    // Minor, mysterious
     {f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.C5,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:1.0},{f:NOTE.A5,d:0.9,v:1.0},
     {f:NOTE.G5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.C5,d:0.9,v:0.95},
     {f:NOTE.B4,d:0.5,v:0.9},{f:NOTE.D5,d:0.5,v:0.95},{f:NOTE.F5,d:0.5,v:1.0},{f:NOTE.B5,d:0.9,v:1.0},
     {f:NOTE.A5,d:0.5,v:0.9},{f:NOTE.F5,d:0.5,v:0.9},{f:NOTE.D5,d:0.9,v:0.95},
-    {f:null,d:0.8,v:0},
-    {f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:0.95},{f:NOTE.A5,d:1.2,v:1.0},
-    {f:null,d:0.8,v:0}
+    {f:null,d:0.8,v:0},{f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:0.95},{f:NOTE.A5,d:1.2,v:1.0},{f:null,d:0.8,v:0}
   ],
   default: [
-    // Healing forest wind-chime / music box ambience (pentatonic)
     {f:NOTE.C5,d:0.7,v:0.85},{f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.G5,d:0.9,v:0.9},
     {f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:0.7,v:0.8},{f:NOTE.E5,d:1.2,v:0.85},
-    {f:null,d:0.9,v:0},
-    {f:NOTE.D5,d:0.7,v:0.8},{f:NOTE.G5,d:0.7,v:0.85},{f:NOTE.A5,d:0.9,v:0.9},
+    {f:null,d:0.9,v:0},{f:NOTE.D5,d:0.7,v:0.8},{f:NOTE.G5,d:0.7,v:0.85},{f:NOTE.A5,d:0.9,v:0.9},
     {f:NOTE.C6,d:0.7,v:0.85},{f:NOTE.A5,d:0.7,v:0.8},{f:NOTE.G5,d:1.4,v:0.85},
-    {f:null,d:1.2,v:0},
-    {f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:1.2,v:0.85},
-    {f:null,d:1.4,v:0}
+    {f:null,d:1.2,v:0},{f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:1.2,v:0.85},{f:null,d:1.4,v:0}
   ]
 };
 
-// Map festival id -> melody key
-const MELODY_KEY = {
-  christmas:"christmas", newyear:"newyear", lunar:"lunar",
-  valentine:"valentine", easter:"easter", halloween:"halloween",
-  default:"default"
-};
+var MELODY_KEY = { christmas:"christmas",newyear:"newyear",lunar:"lunar",valentine:"valentine",easter:"easter",halloween:"halloween",default:"default" };
 
 function getMelody(){
-  const key = MELODY_KEY[activeFestival] || "default";
+  var key = MELODY_KEY[activeFestival] || "default";
   return MELODIES[key] || MELODIES.default;
 }
 
 function setupBgAudio(){
   if(bgMasterGain) return;
-  const ctx = getAudioCtx();
-  if(!ctx) return;
+  var ctx = getAudioCtx(); if(!ctx) return;
   bgMasterGain = ctx.createGain();
-  bgMasterGain.gain.value = 0; // will fade in
+  bgMasterGain.gain.value = 0;
   bgMasterGain.connect(ctx.destination);
 }
 
 function playMusicBoxNote(freq, startTime, duration, velocity){
-  const ctx = getAudioCtx();
-  if(!ctx || !bgMasterGain || freq == null) return;
-  // Music-box: sine + 2nd harmonic + tiny triangle
-  const osc = ctx.createOscillator();
-  const osc2 = ctx.createOscillator();
-  const g = ctx.createGain();
-  const g2 = ctx.createGain();
-  osc.type = "sine";
-  osc2.type = "triangle";
+  var ctx = getAudioCtx(); if(!ctx || !bgMasterGain || freq == null) return;
+  var osc = ctx.createOscillator();
+  var osc2 = ctx.createOscillator();
+  var g = ctx.createGain();
+  var g2 = ctx.createGain();
+  osc.type = "sine"; osc2.type = "triangle";
   osc.frequency.value = freq;
-  osc2.frequency.value = freq * 2.005; // slight detune for shimmer
-  // Envelope: fast attack, exponential decay
-  const attack = 0.01;
-  const decay = Math.max(0.35, duration * 1.4);
+  osc2.frequency.value = freq * 2.005;
+  var attack = 0.01;
+  var decay = Math.max(0.35, duration * 1.4);
   g.gain.setValueAtTime(0.0001, startTime);
   g.gain.exponentialRampToValueAtTime(Math.max(0.0001, velocity * 0.6), startTime + attack);
   g.gain.exponentialRampToValueAtTime(0.0001, startTime + attack + decay);
@@ -851,23 +625,20 @@ function playMusicBoxNote(freq, startTime, duration, velocity){
   g2.gain.exponentialRampToValueAtTime(0.0001, startTime + attack + decay * 0.9);
   osc.connect(g); g.connect(bgMasterGain);
   osc2.connect(g2); g2.connect(bgMasterGain);
-  osc.start(startTime);
-  osc2.start(startTime);
+  osc.start(startTime); osc2.start(startTime);
   osc.stop(startTime + attack + decay + 0.1);
   osc2.stop(startTime + attack + decay + 0.1);
 }
 
 function scheduleMusicLoop(){
-  const ctx = getAudioCtx();
-  if(!ctx) return;
-  const lookahead = 0.25; // seconds
-  const melody = getMelody();
+  var ctx = getAudioCtx(); if(!ctx) return;
+  var lookahead = 0.25;
+  var melody = getMelody();
   while(bgNextNoteTime < ctx.currentTime + lookahead){
-    const note = melody[bgStep % melody.length];
-    const dur = note.d;
+    var note = melody[bgStep % melody.length];
+    var dur = note.d;
     if(note.f != null){
       playMusicBoxNote(note.f, bgNextNoteTime, dur, note.v);
-      // Soft echo / harmony: optional 5th above at lower velocity for some notes
       if(bgStep % 4 === 2){
         playMusicBoxNote(note.f * 1.5, bgNextNoteTime + 0.06, dur * 0.9, note.v * 0.35);
       }
@@ -879,23 +650,16 @@ function scheduleMusicLoop(){
 
 function startBgScheduler(){
   if(bgScheduler) return;
-  const ctx = getAudioCtx();
-  if(!ctx) return;
+  var ctx = getAudioCtx(); if(!ctx) return;
   bgNextNoteTime = ctx.currentTime + 0.1;
   bgScheduler = setInterval(scheduleMusicLoop, 120);
 }
-
 function stopBgScheduler(){
-  if(bgScheduler){
-    clearInterval(bgScheduler);
-    bgScheduler = null;
-  }
+  if(bgScheduler){ clearInterval(bgScheduler); bgScheduler = null; }
 }
-
 function fadeTo(target, duration){
-  const ctx = getAudioCtx();
-  if(!ctx || !bgMasterGain) return;
-  const now = ctx.currentTime;
+  var ctx = getAudioCtx(); if(!ctx || !bgMasterGain) return;
+  var now = ctx.currentTime;
   bgMasterGain.gain.cancelScheduledValues(now);
   bgMasterGain.gain.setValueAtTime(bgMasterGain.gain.value, now);
   bgMasterGain.gain.linearRampToValueAtTime(target, now + duration);
@@ -905,33 +669,29 @@ function startMusicIfAllowed(){
   if(!bgUserWantsMusic) return;
   if(bgMuteByYt) return;
   setupBgAudio();
-  const ctx = getAudioCtx();
-  if(!ctx) return;
-  if(ctx.state === "suspended"){
-    // will retry on gesture
-    return;
-  }
+  var ctx = getAudioCtx(); if(!ctx) return;
+  if(ctx.state === "suspended") return;
   if(!bgMusicOn){
     bgMusicOn = true;
     bgStep = 0;
     startBgScheduler();
     fadeTo(BG_VOLUME, 1.5);
   } else {
-    // already running; ensure volume
     fadeTo(BG_VOLUME, 0.6);
   }
   updateMusicBtnIcon();
+  updateMusicBtnTitle();
 }
 
 function pauseMusicFade(){
   if(!bgMusicOn) return;
   fadeTo(0, 0.4);
-  // stop scheduler after fade
-  setTimeout(()=>{
+  setTimeout(function(){
     if(bgMusicOn && bgMasterGain && bgMasterGain.gain.value < 0.01){
       stopBgScheduler();
       bgMusicOn = false;
       updateMusicBtnIcon();
+      updateMusicBtnTitle();
     }
   }, 450);
 }
@@ -941,60 +701,48 @@ function toggleMusic(){
     bgUserWantsMusic = false;
     pauseMusicFade();
     updateMusicBtnIcon();
+    updateMusicBtnTitle();
   } else {
     bgUserWantsMusic = true;
-    if(bgMuteByYt){
-      // still muted due to YouTube; just flip intent
-      updateMusicBtnIcon();
-      return;
-    }
+    if(bgMuteByYt){ updateMusicBtnIcon(); updateMusicBtnTitle(); return; }
     startMusicIfAllowed();
   }
 }
 
 function updateMusicBtnIcon(){
   if(!musicBtn) return;
-  const playing = bgUserWantsMusic && !bgMuteByYt;
+  var playing = bgUserWantsMusic && !bgMuteByYt;
   musicBtn.textContent = playing ? "🔊" : "🔇";
   musicBtn.classList.toggle("muted", !playing);
 }
-
 function updateMusicBtnTitle(){
   if(!musicBtn) return;
-  const key = (bgUserWantsMusic && !bgMuteByYt) ? "music.on" : "music.off";
-  const txt = (I18N[currentLang] && I18N[currentLang][key]) || (key==="music.on"?"Music: On":"Music: Off");
+  var key = (bgUserWantsMusic && !bgMuteByYt) ? "music.on" : "music.off";
+  var txt = (I18N[currentLang] && I18N[currentLang][key]) || (key==="music.on"?"Music: On":"Music: Off");
   musicBtn.title = txt;
   musicBtn.setAttribute("aria-label", txt);
 }
-
 if(musicBtn){
-  musicBtn.addEventListener("click", toggleMusic);
+  musicBtn.addEventListener("click", function(e){ e.stopPropagation(); toggleMusic(); });
 }
 
-// "First user gesture" unlock: any click or touch or key
 function firstGestureUnlock(){
-  const ctx = getAudioCtx();
-  if(ctx && ctx.state === "suspended"){ ctx.resume(); }
+  var ctx = getAudioCtx();
+  if(ctx && ctx.state === "suspended"){ try{ ctx.resume(); }catch(e){} }
   if(bgUserWantsMusic && !bgMusicOn && !bgMuteByYt){
     startMusicIfAllowed();
   }
-  // Remove listeners after first gesture fires (they can re-add if needed; keep simple)
-  window.removeEventListener("pointerdown", firstGestureUnlock, true);
-  window.removeEventListener("touchstart", firstGestureUnlock, true);
-  window.removeEventListener("keydown", firstGestureUnlock, true);
 }
 window.addEventListener("pointerdown", firstGestureUnlock, true);
 window.addEventListener("touchstart", firstGestureUnlock, true);
 window.addEventListener("keydown", firstGestureUnlock, true);
 
-/* =========================================================
-   YouTube IFrame API — pause BGM when video plays
-   ========================================================= */
-let ytPlayer = null;
-let ytApiReady = false;
+/* ============ YouTube IFrame API ============ */
+var ytPlayer = null;
+var ytApiReady = false;
 function loadYouTubeAPI(){
   if(window.YT && window.YT.Player){ ytApiReady = true; initYTPlayer(); return; }
-  const tag = document.createElement("script");
+  var tag = document.createElement("script");
   tag.src = "https://www.youtube.com/iframe_api";
   document.head.appendChild(tag);
   window.onYouTubeIframeAPIReady = function(){
@@ -1003,13 +751,12 @@ function loadYouTubeAPI(){
   };
 }
 function initYTPlayer(){
-  const frame = document.getElementById("ytFrame");
+  var frame = document.getElementById("ytFrame");
   if(!frame || !ytApiReady) return;
   try{
     ytPlayer = new window.YT.Player("ytFrame", {
       events: {
         "onStateChange": function(ev){
-          // 1 = playing
           if(ev.data === 1){
             if(bgMusicOn || (bgUserWantsMusic && !bgMuteByYt)){
               bgMuteByYt = true;
@@ -1018,12 +765,9 @@ function initYTPlayer(){
               updateMusicBtnTitle();
             }
           } else if(ev.data === 0 || ev.data === 2 || ev.data === 5){
-            // ended / paused / cued
             if(bgMuteByYt){
               bgMuteByYt = false;
-              if(bgUserWantsMusic){
-                startMusicIfAllowed();
-              }
+              if(bgUserWantsMusic){ startMusicIfAllowed(); }
               updateMusicBtnIcon();
               updateMusicBtnTitle();
             }
@@ -1031,99 +775,106 @@ function initYTPlayer(){
         }
       }
     });
-  }catch(e){ /* ignore */ }
+  }catch(e){}
 }
-loadYouTubeAPI();
 
-/* =========================================================
-   Merge burst particles (DOM, on top of canvas layer)
-   ========================================================= */
+/* ============ Merge burst particles ============ */
 function spawnParticles(x, y, count){
   count = count || 10;
-  const emojis = ["⭐","✨","🌟","💫"];
-  for(let i=0;i<count;i++){
-    const p = document.createElement("div");
+  var emojis = ["⭐","✨","🌟","💫"];
+  for(var i=0;i<count;i++){
+    var p = document.createElement("div");
     p.className = "particle";
     p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
     p.style.left = x + "px";
     p.style.top = y + "px";
-    const angle = Math.random() * Math.PI * 2;
-    const dist = 40 + Math.random() * 90;
+    var angle = Math.random() * Math.PI * 2;
+    var dist = 40 + Math.random() * 90;
     p.style.setProperty("--dx", Math.cos(angle)*dist + "px");
     p.style.setProperty("--dy", Math.sin(angle)*dist - 20 + "px");
     document.body.appendChild(p);
-    setTimeout(()=> p.remove(), 950);
+    (function(el){ setTimeout(function(){ el.remove(); }, 950); })(p);
   }
 }
 
-/* =========================================================
-   Mini Merge Demo
-   ========================================================= */
-const TIERS = [
+/* ============ Mini Merge Demo ============ */
+var TIERS = [
   { emoji:"🌱", name:{zh:"小樹苗", en:"Tiny Sprout", ja:"小さな芽"} },
-  { emoji:"🌿", name:"魔法草", en:"Magic Herb", ja:"魔法の草"} }, // placeholder fixed below
+  { emoji:"🌿", name:{zh:"魔法草", en:"Magic Herb", ja:"魔法の草"} },
   { emoji:"🌸", name:{zh:"精靈花", en:"Fairy Flower", ja:"精霊の花"} },
   { emoji:"🍄", name:{zh:"奇幻菇", en:"Mystic Mushroom", ja:"不思議キノコ"} },
   { emoji:"🎄", name:{zh:"聖誕奇蹟樹", en:"Miracle Tree", ja:"奇跡の木"} },
   { emoji:"👑", name:{zh:"森林皇冠", en:"Forest Crown", ja:"森の王冠"} }
 ];
-// fix tier 1 properly
-TIERS[1] = { emoji:"🌿", name:{zh:"魔法草", en:"Magic Herb", ja:"魔法の草"} };
+var BOARD_SIZE = 4;
+var MAX_TIER = TIERS.length - 1;
 
-const BOARD_SIZE = 4;
-const MAX_TIER = TIERS.length - 1;
+var board = [];
+var selectedIndex = -1;
+var mergeCount = 0;
 
-let board = [];
-let selectedIndex = -1;
-let mergeCount = 0;
+var boardEl = document.getElementById("mergeBoard");
+var scoreEl = document.getElementById("scoreVal");
+var bubbleEl = document.getElementById("maidBubble");
+var summonBtn = document.getElementById("btnSummon");
 
-const boardEl = document.getElementById("mergeBoard");
-const scoreEl = document.getElementById("scoreVal");
-const bubbleEl = document.getElementById("maidBubble");
-const summonBtn = document.getElementById("btnSummon");
-
-let bubbleTimer = null;
+var bubbleTimer = null;
 function showMaid(text){
   bubbleEl.textContent = text;
   bubbleEl.classList.add("show");
   if(bubbleTimer) clearTimeout(bubbleTimer);
-  bubbleTimer = setTimeout(()=> bubbleEl.classList.remove("show"), 3200);
+  bubbleTimer = setTimeout(function(){ bubbleEl.classList.remove("show"); }, 3200);
 }
-function maidLine(key){
-  return I18N[currentLang][key] || key;
-}
+function maidLine(key){ return I18N[currentLang][key] || key; }
 
 function newSeedTier(){
-  return Math.random() < 0.85 ? 0 : 1;
+  return Math.random() < 0.6 ? 0 : 1;
 }
 
 function initBoard(){
   board = [];
-  for(let i=0;i<BOARD_SIZE*BOARD_SIZE;i++){
-    board.push(newSeedTier());
+  // 先填 6-8 個初始物品，其餘留空 (null)
+  var initialCount = 6 + Math.floor(Math.random() * 3); // 6,7,8
+  var indices = [];
+  for(var k=0;k<BOARD_SIZE*BOARD_SIZE;k++) indices.push(k);
+  // shuffle
+  for(var s=indices.length-1;s>0;s--){
+    var r = Math.floor(Math.random()*(s+1));
+    var tmp = indices[s]; indices[s]=indices[r]; indices[r]=tmp;
+  }
+  for(var i=0;i<BOARD_SIZE*BOARD_SIZE;i++) board.push(null);
+  for(var j=0;j<initialCount;j++){
+    board[indices[j]] = newSeedTier();
   }
   renderBoard(true);
   mergeCount = 0;
   scoreEl.textContent = "0";
 }
+
 function renderBoard(animate){
   boardEl.innerHTML = "";
-  board.forEach((tier, idx)=>{
-    const cell = document.createElement("div");
+  for(var idx=0; idx<board.length; idx++){
+    var tier = board[idx];
+    var cell = document.createElement("div");
     cell.className = "cell";
     cell.setAttribute("role","gridcell");
     cell.dataset.index = idx;
-    cell.textContent = TIERS[tier].emoji;
-    cell.setAttribute("aria-label", TIERS[tier].name[currentLang]);
+    if(tier === null || tier === undefined){
+      cell.textContent = "";
+      cell.setAttribute("aria-label","");
+    } else {
+      cell.textContent = TIERS[tier].emoji;
+      cell.setAttribute("aria-label", TIERS[tier].name[currentLang]);
+    }
     if(idx === selectedIndex) cell.classList.add("selected");
-    if(animate) cell.classList.add("pop");
-    cell.addEventListener("click", ()=> onCellClick(idx, cell));
+    if(animate && tier !== null) cell.classList.add("pop");
+    (function(i, c){ c.addEventListener("click", function(){ onCellClick(i, c); }); })(idx, cell);
     boardEl.appendChild(cell);
-  });
+  }
 }
 
 function onCellClick(idx, cellEl){
-  if(board[idx] === null) return;
+  if(board[idx] === null || board[idx] === undefined) return;
   if(selectedIndex === -1){
     selectedIndex = idx;
     renderBoard(false);
@@ -1134,10 +885,10 @@ function onCellClick(idx, cellEl){
     renderBoard(false);
     return;
   }
-  const a = selectedIndex;
-  const b = idx;
+  var a = selectedIndex;
+  var b = idx;
   if(board[a] === board[b] && board[a] < MAX_TIER){
-    const newTier = board[a] + 1;
+    var newTier = board[a] + 1;
     board[a] = newTier;
     board[b] = null;
     selectedIndex = -1;
@@ -1145,7 +896,7 @@ function onCellClick(idx, cellEl){
     scoreEl.textContent = mergeCount;
 
     playMergeSound(newTier);
-    const rect = cellEl.getBoundingClientRect();
+    var rect = cellEl.getBoundingClientRect();
     spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, newTier >= 4 ? 18 : 10);
 
     if(newTier === MAX_TIER){
@@ -1157,7 +908,7 @@ function onCellClick(idx, cellEl){
     } else {
       showMaid(maidLine("demo.maid.merge"));
     }
-
+    // 合成後喺 b 位生一粒新種子，保持盤面有嘢玩
     board[b] = newSeedTier();
     renderBoard(true);
   } else {
@@ -1166,8 +917,8 @@ function onCellClick(idx, cellEl){
   }
 }
 
-let toastEl = null;
-let toastTimer = null;
+var toastEl = null;
+var toastTimer = null;
 function showToast(name){
   if(!toastEl){
     toastEl = document.createElement("div");
@@ -1176,18 +927,19 @@ function showToast(name){
   }
   toastEl.innerHTML = I18N[currentLang]["demo.toast"].replace("{name}", name);
   toastEl.innerHTML += '<br><a href="https://play.google.com/store/apps/details?id=org.mysteryforest.mysteryforest" target="_blank" rel="noopener">' + I18N[currentLang]["hero.cta"] + '</a>';
-  requestAnimationFrame(()=> toastEl.classList.add("show"));
+  requestAnimationFrame(function(){ toastEl.classList.add("show"); });
   if(toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 6000);
+  toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 6000);
 }
 
-summonBtn.addEventListener("click", ()=>{
+summonBtn.addEventListener("click", function(){
   playSummonSound();
-  const emptyIdx = board.findIndex(t=> t === null);
+  var emptyIdx = -1;
+  for(var i=0;i<board.length;i++){ if(board[i] === null){ emptyIdx = i; break; } }
   if(emptyIdx !== -1){
     board[emptyIdx] = 0;
   } else {
-    const idx = Math.floor(Math.random()*board.length);
+    var idx = Math.floor(Math.random()*board.length);
     board[idx] = 0;
   }
   selectedIndex = -1;
@@ -1195,13 +947,11 @@ summonBtn.addEventListener("click", ()=>{
   showMaid(maidLine("demo.maid.idle"));
 });
 
-/* =========================================================
-   Share button
-   ========================================================= */
-const SHARE_URL = "https://mysteryforeststudio.github.io/";
-const shareBtn = document.getElementById("btnShare");
-let copyToastEl = null;
-let copyToastTimer = null;
+/* ============ Share button ============ */
+var SHARE_URL = "https://mysteryforeststudio.github.io/";
+var shareBtn = document.getElementById("btnShare");
+var copyToastEl = null;
+var copyToastTimer = null;
 function showCopyToast(msg){
   if(!copyToastEl){
     copyToastEl = document.createElement("div");
@@ -1209,75 +959,74 @@ function showCopyToast(msg){
     document.body.appendChild(copyToastEl);
   }
   copyToastEl.textContent = msg;
-  requestAnimationFrame(()=> copyToastEl.classList.add("show"));
+  requestAnimationFrame(function(){ copyToastEl.classList.add("show"); });
   if(copyToastTimer) clearTimeout(copyToastTimer);
-  copyToastTimer = setTimeout(()=> copyToastEl.classList.remove("show"), 3000);
+  copyToastTimer = setTimeout(function(){ copyToastEl.classList.remove("show"); }, 3000);
 }
-shareBtn.addEventListener("click", async ()=>{
-  const title = "Mystery Forest: Merge Legend";
-  const text = I18N[currentLang]["hero.desc"];
+shareBtn.addEventListener("click", function(){
+  var title = "Mystery Forest: Merge Legend";
+  var text = I18N[currentLang]["hero.desc"];
   if(navigator.share){
-    try{
-      await navigator.share({ title, text, url: SHARE_URL });
-      return;
-    }catch(e){ /* fallthrough */ }
-  }
-  try{
-    await navigator.clipboard.writeText(SHARE_URL);
-    showCopyToast(I18N[currentLang]["demo.share.done"]);
-  }catch(e){
-    try{
-      const ta = document.createElement("textarea");
-      ta.value = SHARE_URL;
-      ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-      showCopyToast(I18N[currentLang]["demo.share.done"]);
-    }catch(err){
-      showCopyToast(I18N[currentLang]["demo.share.fail"]);
-    }
+    navigator.share({ title: title, text: text, url: SHARE_URL }).then(function(){}).catch(function(){
+      copyFallback();
+    });
+  } else {
+    copyFallback();
   }
 });
-
-/* =========================================================
-   Festival Calendar (2026–2048) + Theme + Particle FX
-   ========================================================= */
-const LUNAR_NEW_YEAR = {
-  2026:[2,17], 2027:[2,6],  2028:[1,26], 2029:[2,13], 2030:[2,3],
-  2031:[1,23], 2032:[2,11], 2033:[1,31], 2034:[2,19], 2035:[2,8],
-  2036:[1,28], 2037:[2,15], 2038:[2,4],  2039:[1,24], 2040:[2,12],
-  2041:[2,1],  2042:[1,22], 2043:[2,10], 2044:[1,30], 2045:[2,17],
-  2046:[2,6],  2047:[1,26], 2048:[2,14]
-};
-const EASTER = {
-  2026:[4,5],  2027:[3,28], 2028:[4,16], 2029:[4,1],  2030:[4,21],
-  2031:[4,13], 2032:[3,28], 2033:[4,17], 2034:[4,9],  2035:[3,25],
-  2036:[4,13], 2037:[4,5],  2038:[4,25], 2039:[4,10], 2040:[4,1],
-  2041:[4,21], 2042:[4,6],  2043:[3,29], 2044:[4,17], 2045:[4,9],
-  2046:[3,25], 2047:[4,14], 2048:[4,5]
-};
-
-function mdToDate(y,m,d){ return new Date(y, m-1, d, 12, 0, 0, 0); }
-function isWithinWindow(today, centerMD, before, after, year){
-  const c = mdToDate(year, centerMD[0], centerMD[1]);
-  const start = new Date(c.getTime() - before*86400000);
-  const end   = new Date(c.getTime() + after*86400000);
-  return today >= start && today <= end;
+function copyFallback(){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(SHARE_URL).then(function(){
+      showCopyToast(I18N[currentLang]["demo.share.done"]);
+    }).catch(function(){ legacyCopy(); });
+  } else {
+    legacyCopy();
+  }
+}
+function legacyCopy(){
+  try{
+    var ta = document.createElement("textarea");
+    ta.value = SHARE_URL;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    showCopyToast(I18N[currentLang]["demo.share.done"]);
+  }catch(err){
+    showCopyToast(I18N[currentLang]["demo.share.fail"]);
+  }
 }
 
+/* ============ Festival Calendar 2026–2048 ============ */
+var LUNAR_NEW_YEAR = {
+  2026:[2,17],2027:[2,6],2028:[1,26],2029:[2,13],2030:[2,3],
+  2031:[1,23],2032:[2,11],2033:[1,31],2034:[2,19],2035:[2,8],
+  2036:[1,28],2037:[2,15],2038:[2,4],2039:[1,24],2040:[2,12],
+  2041:[2,1],2042:[1,22],2043:[2,10],2044:[1,30],2045:[2,17],
+  2046:[2,6],2047:[1,26],2048:[2,14]
+};
+var EASTER = {
+  2026:[4,5],2027:[3,28],2028:[4,16],2029:[4,1],2030:[4,21],
+  2031:[4,13],2032:[3,28],2033:[4,17],2034:[4,9],2035:[3,25],
+  2036:[4,13],2037:[4,5],2038:[4,25],2039:[4,10],2040:[4,1],
+  2041:[4,21],2042:[4,6],2043:[3,29],2044:[4,17],2045:[4,9],
+  2046:[3,25],2047:[4,14],2048:[4,5]
+};
+function mdToDate(y,m,d){ return new Date(y, m-1, d, 12, 0, 0, 0); }
+function isWithinWindow(today, centerMD, before, after, year){
+  var c = mdToDate(year, centerMD[0], centerMD[1]);
+  var start = new Date(c.getTime() - before*86400000);
+  var end = new Date(c.getTime() + after*86400000);
+  return today >= start && today <= end;
+}
 function detectFestival(forced){
-  if(forced && ["christmas","newyear","lunar","valentine","easter","halloween","default"].includes(forced)){
-    return forced;
-  }
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth()+1;
-  const d = now.getDate();
-  const today = mdToDate(y, m, d);
-
-  if((m===12 && d>=15 && d<=28)) return "christmas";
+  var allowed = ["christmas","newyear","lunar","valentine","easter","halloween","default"];
+  if(forced && allowed.indexOf(forced) !== -1) return forced;
+  var now = new Date();
+  var y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate();
+  var today = mdToDate(y,m,d);
+  if(m===12 && d>=15 && d<=28) return "christmas";
   if((m===12 && d>=29) || (m===1 && d<=5)) return "newyear";
   if(LUNAR_NEW_YEAR[y] && isWithinWindow(today, LUNAR_NEW_YEAR[y], 7, 7, y)) return "lunar";
   if(m===2 && d>=10 && d<=16) return "valentine";
@@ -1286,65 +1035,65 @@ function detectFestival(forced){
   return "default";
 }
 
-const FESTIVAL_THEME = {
+var FESTIVAL_THEME = {
   christmas:{
     bannerKey:"festival.christmas",
     bannerBg:"linear-gradient(90deg,#0e3b22,#e63946,#0e3b22)",
     frame:"rgba(230,57,70,0.55)", frameGlow:"rgba(230,57,70,0.75)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(230,57,70,0.22), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(255,209,102,0.18), transparent 55%), linear-gradient(180deg, #0b1f16 0%, #0f2a1d 50%, #0a1a12 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(230,57,70,0.22),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.18),transparent 55%),linear-gradient(180deg,#0b1f16 0%,#0f2a1d 50%,#0a1a12 100%)",
     particles:{ emoji:["❄️","❄","✦"], color:"#ffffff", count:60, type:"snow" }
   },
   newyear:{
     bannerKey:"festival.newyear",
     bannerBg:"linear-gradient(90deg,#8a5a00,#ffd166,#8a5a00)",
     frame:"rgba(255,209,102,0.65)", frameGlow:"rgba(255,209,102,0.85)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(255,209,102,0.22), transparent 60%), linear-gradient(180deg, #1a1205 0%, #2b1a05 50%, #0a0a05 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(255,209,102,0.22),transparent 60%),linear-gradient(180deg,#1a1205 0%,#2b1a05 50%,#0a0a05 100%)",
     particles:{ emoji:["✨","🎊","✦"], color:"#ffd166", count:55, type:"sparkle" }
   },
   lunar:{
     bannerKey:"festival.lunar",
     bannerBg:"linear-gradient(90deg,#8b0000,#ff3b3b,#ffd166,#8b0000)",
     frame:"rgba(255,60,60,0.65)", frameGlow:"rgba(255,209,102,0.8)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(255,60,60,0.2), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(255,209,102,0.18), transparent 55%), linear-gradient(180deg, #2b0505 0%, #1a0505 50%, #0a0202 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(255,60,60,0.2),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.18),transparent 55%),linear-gradient(180deg,#2b0505 0%,#1a0505 50%,#0a0202 100%)",
     particles:{ emoji:["🧧","✨","🪙"], color:"#ffd166", count:50, type:"petal" }
   },
   valentine:{
     bannerKey:"festival.valentine",
     bannerBg:"linear-gradient(90deg,#7a2e4a,#ff8fb1,#c77dff,#7a2e4a)",
     frame:"rgba(255,143,177,0.7)", frameGlow:"rgba(199,125,255,0.8)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(255,143,177,0.2), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(199,125,255,0.18), transparent 55%), linear-gradient(180deg, #2a0f1a 0%, #1a0a12 50%, #0a0508 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(255,143,177,0.2),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(199,125,255,0.18),transparent 55%),linear-gradient(180deg,#2a0f1a 0%,#1a0a12 50%,#0a0508 100%)",
     particles:{ emoji:["💖","🌸","💕"], color:"#ffb3c8", count:45, type:"petal" }
   },
   easter:{
     bannerKey:"festival.easter",
     bannerBg:"linear-gradient(90deg,#2e7d32,#aeea8c,#ffd166,#2e7d32)",
     frame:"rgba(174,234,140,0.7)", frameGlow:"rgba(255,209,102,0.75)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(174,234,140,0.18), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(255,209,102,0.15), transparent 55%), linear-gradient(180deg, #0b1f16 0%, #102a1a 50%, #0a1a12 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(174,234,140,0.18),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.15),transparent 55%),linear-gradient(180deg,#0b1f16 0%,#102a1a 50%,#0a1a12 100%)",
     particles:{ emoji:["🌼","🌿","✨"], color:"#aeea8c", count:45, type:"petal" }
   },
   halloween:{
     bannerKey:"festival.halloween",
     bannerBg:"linear-gradient(90deg,#3a1c5c,#ff8c00,#8a2be2,#3a1c5c)",
     frame:"rgba(138,43,226,0.65)", frameGlow:"rgba(255,140,0,0.8)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(138,43,226,0.2), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(255,140,0,0.15), transparent 55%), linear-gradient(180deg, #150826 0%, #0d0518 50%, #05020a 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(138,43,226,0.2),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,140,0,0.15),transparent 55%),linear-gradient(180deg,#150826 0%,#0d0518 50%,#05020a 100%)",
     particles:{ emoji:["🎃","✨","🦇"], color:"#c77dff", count:45, type:"float" }
   },
   default:{
     bannerKey:"festival.default",
     bannerBg:"linear-gradient(90deg,#0e3b22,#3fa76e,#0e3b22)",
     frame:"rgba(63,167,110,0.55)", frameGlow:"rgba(63,167,110,0.75)",
-    bodyBg:"radial-gradient(1200px 800px at 10% -10%, rgba(63,167,110,0.25), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(255,209,102,0.12), transparent 55%), radial-gradient(900px 900px at 50% 120%, rgba(31,107,69,0.35), transparent 60%), linear-gradient(180deg, #0b1f16 0%, #0f2a1d 50%, #0a1a12 100%)",
+    bodyBg:"radial-gradient(1200px 800px at 10% -10%,rgba(63,167,110,0.25),transparent 60%),radial-gradient(1000px 700px at 110% 10%,rgba(255,209,102,0.12),transparent 55%),radial-gradient(900px 900px at 50% 120%,rgba(31,107,69,0.35),transparent 60%),linear-gradient(180deg,#0b1f16 0%,#0f2a1d 50%,#0a1a12 100%)",
     particles:{ emoji:["✦","·"], color:"#aeea8c", count:40, type:"firefly" }
   }
 };
 
-let activeFestival = "default";
+var activeFestival = "default";
 
 function applyFestivalTheme(id){
   activeFestival = id;
-  const t = FESTIVAL_THEME[id] || FESTIVAL_THEME.default;
+  var t = FESTIVAL_THEME[id] || FESTIVAL_THEME.default;
 
-  const bannerEl = document.getElementById("festivalBanner");
+  var bannerEl = document.getElementById("festivalBanner");
   bannerEl.style.background = t.bannerBg;
 
   document.documentElement.style.setProperty("--frame-color", t.frame);
@@ -1354,17 +1103,14 @@ function applyFestivalTheme(id){
   refreshFestivalBanner();
   startParticles(t.particles);
 
-  // If music already playing, seamlessly switch melody from next note on (bgStep reset)
-  if(bgMusicOn){
-    bgStep = 0;
-  }
+  if(bgMusicOn){ bgStep = 0; }
 }
 
-let bannerVisible = false;
+var bannerVisible = false;
 function refreshFestivalBanner(){
-  const t = FESTIVAL_THEME[activeFestival] || FESTIVAL_THEME.default;
-  const bannerEl = document.getElementById("festivalBanner");
-  const text = I18N[currentLang][t.bannerKey] || "";
+  var t = FESTIVAL_THEME[activeFestival] || FESTIVAL_THEME.default;
+  var bannerEl = document.getElementById("festivalBanner");
+  var text = (I18N[currentLang] && I18N[currentLang][t.bannerKey]) || "";
   bannerEl.textContent = text;
   bannerEl.classList.add("show");
   if(!bannerVisible){
@@ -1373,13 +1119,13 @@ function refreshFestivalBanner(){
   }
 }
 
-/* ---------- Canvas Particle Engine ---------- */
-const canvas = document.getElementById("fxCanvas");
-const ctx = canvas.getContext("2d", { alpha: true });
-let particles = [];
-let rafId = null;
-let currentParticleCfg = null;
-let dpr = Math.min(window.devicePixelRatio || 1, 2);
+/* ============ Canvas Particles ============ */
+var canvas = document.getElementById("fxCanvas");
+var ctx2d = canvas.getContext("2d", { alpha: true });
+var particles = [];
+var rafId = null;
+var currentParticleCfg = null;
+var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
 function resizeCanvas(){
   dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1387,39 +1133,37 @@ function resizeCanvas(){
   canvas.height = Math.floor(window.innerHeight * dpr);
   canvas.style.width = window.innerWidth + "px";
   canvas.style.height = window.innerHeight + "px";
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-
 function rand(min, max){ return min + Math.random() * (max - min); }
 
 function makeParticle(cfg){
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const type = cfg.type;
-  const glyphs = cfg.emoji;
-  const glyph = glyphs[Math.floor(Math.random()*glyphs.length)];
-  const p = {
-    glyph, x: rand(0, w), y: -30, size: rand(14, 26),
-    vy: rand(0.6, 1.8), vx: rand(-0.6, 0.6),
-    rot: rand(-0.5, 0.5), vrot: rand(-0.02, 0.02),
-    alpha: 1, life: 0, maxLife: rand(600, 1200),
-    twinkle: rand(0.02, 0.08), color: cfg.color, isDot: false
+  var w = window.innerWidth, h = window.innerHeight;
+  var type = cfg.type;
+  var glyphs = cfg.emoji;
+  var glyph = glyphs[Math.floor(Math.random()*glyphs.length)];
+  var p = {
+    glyph:glyph, x:rand(0,w), y:-30, size:rand(14,26),
+    vy:rand(0.6,1.8), vx:rand(-0.6,0.6),
+    rot:rand(-0.5,0.5), vrot:rand(-0.02,0.02),
+    alpha:1, life:0, maxLife:rand(600,1200),
+    twinkle:rand(0.02,0.08), color:cfg.color, isDot:false
   };
   if(type === "snow"){
-    p.size = rand(10, 22); p.vy = rand(0.5, 1.6); p.vx = rand(-0.8, 0.8);
-    p.twinkle = rand(0.01, 0.05);
+    p.size = rand(10,22); p.vy = rand(0.5,1.6); p.vx = rand(-0.8,0.8);
+    p.twinkle = rand(0.01,0.05);
     if(Math.random() < 0.5){ p.isDot = true; }
   } else if(type === "firefly"){
-    p.glyph = "·"; p.isDot = true; p.size = rand(2, 5);
-    p.vy = rand(-0.4, 0.4); p.vx = rand(-0.5, 0.5); p.y = rand(0, h);
-    p.twinkle = rand(0.03, 0.1); p.alpha = rand(0.2, 0.9);
+    p.glyph = "·"; p.isDot = true; p.size = rand(2,5);
+    p.vy = rand(-0.4,0.4); p.vx = rand(-0.5,0.5); p.y = rand(0,h);
+    p.twinkle = rand(0.03,0.1); p.alpha = rand(0.2,0.9);
   } else if(type === "sparkle"){
-    p.vy = rand(0.8, 2.2); p.vx = rand(-1.2, 1.2); p.twinkle = rand(0.04, 0.12);
+    p.vy = rand(0.8,2.2); p.vx = rand(-1.2,1.2); p.twinkle = rand(0.04,0.12);
   } else if(type === "petal"){
-    p.vy = rand(0.6, 1.6); p.vx = rand(-1.2, 1.2); p.vrot = rand(-0.03, 0.03);
+    p.vy = rand(0.6,1.6); p.vx = rand(-1.2,1.2); p.vrot = rand(-0.03,0.03);
   } else if(type === "float"){
-    p.y = h + 20; p.vy = rand(-1.4, -0.5); p.vx = rand(-0.8, 0.8);
-    p.twinkle = rand(0.02, 0.08);
+    p.y = h + 20; p.vy = rand(-1.4,-0.5); p.vx = rand(-0.8,0.8);
+    p.twinkle = rand(0.02,0.08);
   }
   return p;
 }
@@ -1427,9 +1171,9 @@ function makeParticle(cfg){
 function startParticles(cfg){
   currentParticleCfg = cfg;
   particles = [];
-  const count = cfg.count || 45;
-  for(let i=0;i<count;i++){
-    const p = makeParticle(cfg);
+  var count = cfg.count || 45;
+  for(var i=0;i<count;i++){
+    var p = makeParticle(cfg);
     p.y = rand(-50, window.innerHeight);
     p.life = rand(0, p.maxLife * 0.5);
     particles.push(p);
@@ -1439,19 +1183,16 @@ function startParticles(cfg){
 }
 
 function tickParticles(){
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  ctx.clearRect(0, 0, w, h);
-  const cfg = currentParticleCfg;
+  var w = window.innerWidth, h = window.innerHeight;
+  ctx2d.clearRect(0,0,w,h);
+  var cfg = currentParticleCfg;
   if(!cfg){ rafId = requestAnimationFrame(tickParticles); return; }
-  const type = cfg.type;
+  var type = cfg.type;
 
-  for(let i=0;i<particles.length;i++){
-    const p = particles[i];
+  for(var i=0;i<particles.length;i++){
+    var p = particles[i];
     p.life += 1;
-    p.x += p.vx;
-    p.y += p.vy;
-    p.rot += p.vrot;
+    p.x += p.vx; p.y += p.vy; p.rot += p.vrot;
     if(type === "firefly"){
       p.alpha = 0.2 + 0.7 * Math.abs(Math.sin(p.life * p.twinkle));
     } else if(type === "sparkle" || type === "snow"){
@@ -1459,94 +1200,91 @@ function tickParticles(){
     } else {
       p.alpha = 0.85;
     }
-    const off = (p.y > h + 40) || (p.y < -60) || (p.x < -60) || (p.x > w + 60) || (p.life > p.maxLife);
-    if(off){
-      particles[i] = makeParticle(cfg);
-      continue;
-    }
-    ctx.save();
-    ctx.globalAlpha = p.alpha;
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
+    var off = (p.y > h+40) || (p.y < -60) || (p.x < -60) || (p.x > w+60) || (p.life > p.maxLife);
+    if(off){ particles[i] = makeParticle(cfg); continue; }
+
+    ctx2d.save();
+    ctx2d.globalAlpha = p.alpha;
+    ctx2d.translate(p.x, p.y);
+    ctx2d.rotate(p.rot);
     if(p.isDot){
-      const grad = ctx.createRadialGradient(0,0,0, 0,0,p.size*2);
+      var grad = ctx2d.createRadialGradient(0,0,0,0,0,p.size*2);
       grad.addColorStop(0, p.color);
       grad.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(0,0,p.size*2,0,Math.PI*2);
-      ctx.fill();
-      ctx.globalAlpha = p.alpha * 0.9;
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(0,0,p.size*0.6,0,Math.PI*2);
-      ctx.fill();
+      ctx2d.fillStyle = grad;
+      ctx2d.beginPath(); ctx2d.arc(0,0,p.size*2,0,Math.PI*2); ctx2d.fill();
+      ctx2d.globalAlpha = p.alpha * 0.9;
+      ctx2d.fillStyle = p.color;
+      ctx2d.beginPath(); ctx2d.arc(0,0,p.size*0.6,0,Math.PI*2); ctx2d.fill();
     } else {
-      ctx.font = p.size + "px 'Noto Sans TC','Noto Sans JP',system-ui,sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.shadowColor = "rgba(0,0,0,0.25)";
-      ctx.shadowBlur = 4;
-      ctx.fillText(p.glyph, 0, 0);
+      ctx2d.font = p.size + "px 'Noto Sans TC','Noto Sans JP',system-ui,sans-serif";
+      ctx2d.textAlign = "center"; ctx2d.textBaseline = "middle";
+      ctx2d.shadowColor = "rgba(0,0,0,0.25)"; ctx2d.shadowBlur = 4;
+      ctx2d.fillText(p.glyph, 0, 0);
     }
-    ctx.restore();
+    ctx2d.restore();
   }
   rafId = requestAnimationFrame(tickParticles);
 }
 
-window.addEventListener("resize", ()=>{
+window.addEventListener("resize", function(){
   resizeCanvas();
   if(currentParticleCfg){
-    for(let i=0;i<particles.length;i++){
+    for(var i=0;i<particles.length;i++){
       particles[i].x = Math.min(particles[i].x, window.innerWidth);
     }
   }
 });
 
-/* =========================================================
-   Init
-   ========================================================= */
+/* ============ Query param helper ============ */
 function getQueryParam(name){
   try{
-    const params = new URLSearchParams(window.location.search);
+    var params = new URLSearchParams(window.location.search);
     return params.get(name);
   }catch(e){ return null; }
 }
 
-(function init(){
+/* ============ Init on DOM ready ============ */
+function boot(){
   resizeCanvas();
 
   // Language
-  let saved = null;
+  var saved = null;
   try{ saved = localStorage.getItem(LANG_KEY); }catch(e){}
   if(!saved){
-    const nav = (navigator.language || "zh").toLowerCase();
-    if(nav.startsWith("ja")) saved = "ja";
-    else if(nav.startsWith("en")) saved = "en";
+    var nav = (navigator.language || "zh").toLowerCase();
+    if(nav.indexOf("ja") === 0) saved = "ja";
+    else if(nav.indexOf("en") === 0) saved = "en";
     else saved = "zh";
   }
   applyLang(saved);
 
   // Festival
-  const forced = getQueryParam("fest");
-  const festivalId = detectFestival(forced);
+  var forced = getQueryParam("fest");
+  var festivalId = detectFestival(forced);
   applyFestivalTheme(festivalId);
 
-  // Board
+  // Board — 必須初始化
   initBoard();
 
-  // Music: try auto-start now (may be blocked); gesture handlers already registered
+  // Music
   setupBgAudio();
-  // Attempt on load (if browser allows)
-  setTimeout(()=>{
-    const ctx2 = getAudioCtx();
-    if(ctx2 && ctx2.state === "running"){
-      startMusicIfAllowed();
-    }
+  setTimeout(function(){
+    var c = getAudioCtx();
+    if(c && c.state === "running"){ startMusicIfAllowed(); }
     updateMusicBtnIcon();
     updateMusicBtnTitle();
   }, 200);
-})();
+
+  // YouTube API
+  loadYouTubeAPI();
+}
+
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
 </script>
 </body>
 </html>
