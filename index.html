@@ -50,7 +50,7 @@
   /* ===== Festival Banner ===== */
   .festival-banner{
     position:fixed;top:0;left:0;right:0;z-index:120;
-    padding:12px 20px;text-align:center;
+    padding:12px 60px 12px 20px;text-align:center;
     font-weight:700;font-size:14.5px;
     color:#1a1205;
     background:linear-gradient(90deg, var(--festive-2), var(--festive), var(--festive-2));
@@ -64,18 +64,21 @@
   .festival-banner.show{display:block}
   @keyframes bannerShine{0%{background-position:0% 0}100%{background-position:200% 0}}
 
-  /* ===== Language Switcher ===== */
+  /* ===== Language Switcher + Music Button ===== */
+  .top-controls{
+    position:fixed;top:14px;right:14px;z-index:130;
+    display:flex;gap:8px;align-items:center;
+    transition:top .3s;
+  }
+  body.has-banner .top-controls{top:58px}
   .lang-bar{
-    position:fixed;top:14px;right:14px;z-index:100;
     display:flex;gap:6px;
     background:rgba(11,31,22,0.75);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--glass-border);
     border-radius:999px;padding:5px;
     box-shadow:var(--shadow);
-    transition:top .3s;
   }
-  body.has-banner .lang-bar{top:58px}
   .lang-btn{
     background:transparent;border:none;color:var(--text-dim);
     font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;
@@ -86,6 +89,17 @@
     background:linear-gradient(135deg,var(--green-light),var(--green));
     color:#fff;box-shadow:0 2px 10px rgba(63,167,110,0.4);
   }
+  .music-btn{
+    width:42px;height:42px;border-radius:50%;
+    background:rgba(11,31,22,0.75);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--glass-border);
+    color:var(--gold);font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);transition:transform .2s, background .2s;
+  }
+  .music-btn:hover{transform:scale(1.08);background:rgba(31,107,69,0.6)}
+  .music-btn.muted{color:var(--text-dim);opacity:.7}
 
   /* ===== Hero ===== */
   .hero{
@@ -341,13 +355,14 @@
     .demo-wrap{grid-template-columns:1fr;gap:32px;padding:28px 20px}
     .btn-secondary{margin-left:0;margin-top:8px}
     section{padding:56px 0}
-    .lang-bar{top:10px;right:10px}
-    body.has-banner .lang-bar{top:54px}
-    .festival-banner{font-size:12.5px;padding:10px 14px}
+    .top-controls{top:10px;right:10px}
+    body.has-banner .top-controls{top:54px}
+    .festival-banner{font-size:12.5px;padding:10px 70px 10px 14px}
   }
   @media (max-width:480px){
     .lang-btn{padding:6px 10px;font-size:12px}
     .feature-card{padding:24px 20px}
+    .music-btn{width:38px;height:38px;font-size:16px}
   }
 </style>
 </head>
@@ -359,11 +374,14 @@
 <!-- Festival Banner -->
 <div class="festival-banner" id="festivalBanner" role="status" aria-live="polite"></div>
 
-<!-- Language Switcher -->
-<div class="lang-bar" role="group" aria-label="Language">
-  <button class="lang-btn active" data-lang="zh" aria-pressed="true">繁中</button>
-  <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
-  <button class="lang-btn" data-lang="ja" aria-pressed="false">日本語</button>
+<!-- Language Switcher + Music Toggle -->
+<div class="top-controls">
+  <div class="lang-bar" role="group" aria-label="Language">
+    <button class="lang-btn active" data-lang="zh" aria-pressed="true">繁中</button>
+    <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    <button class="lang-btn" data-lang="ja" aria-pressed="false">日本語</button>
+  </div>
+  <button class="music-btn" id="musicBtn" aria-label="Toggle background music" title="背景音樂開關">🔊</button>
 </div>
 
 <!-- ===== HERO ===== -->
@@ -432,7 +450,8 @@
       <h2 class="video-title" data-i18n="video.title">觀看官方宣傳片</h2>
       <div class="video-card">
         <iframe
-          src="https://www.youtube.com/embed/91k2erfq9lw"
+          id="ytFrame"
+          src="https://www.youtube.com/embed/91k2erfq9lw?enablejsapi=1"
           title="Mystery Forest: Merge Legend — Official Short"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
@@ -521,7 +540,9 @@ const I18N = {
     "festival.valentine": "💝 浪漫情人節限定！來森林咖啡屋體驗甜蜜合併魔法",
     "festival.easter": "🐣 春日復活節奇蹟！尋找森林彩蛋與限定驚喜",
     "festival.halloween": "🎃 萬聖節魔法之夜！換上神秘南瓜彩燈外框",
-    "festival.default": "🌲 四季奇幻巡航・涵蓋全年 6 大節日自動換裝與三語配音"
+    "festival.default": "🌲 四季奇幻巡航・涵蓋全年 6 大節日自動換裝與三語配音",
+    "music.on": "背景音樂：開",
+    "music.off": "背景音樂：關"
   },
   en: {
     "hero.studio": "Presented by Mystery Forest Studio",
@@ -564,7 +585,9 @@ const I18N = {
     "festival.valentine": "💝 Romantic Valentine's! Experience sweet merge magic at the forest cafe",
     "festival.easter": "🐣 Spring Easter miracle! Hunt for forest eggs and limited surprises",
     "festival.halloween": "🎃 Halloween magic night! Switch to the mystic pumpkin light frame",
-    "festival.default": "🌲 Four-season fantasy cruise · 6 festivals auto-decorate with tri-lingual voice"
+    "festival.default": "🌲 Four-season fantasy cruise · 6 festivals auto-decorate with tri-lingual voice",
+    "music.on": "Music: On",
+    "music.off": "Music: Off"
   },
   ja: {
     "hero.studio": "Mystery Forest Studio 提供",
@@ -607,7 +630,9 @@ const I18N = {
     "festival.valentine": "💝 ロマンチックなバレンタイン限定！森のカフェで甘いマージ魔法を体験",
     "festival.easter": "🐣 春のイースター奇跡！森の卵と限定サプライズを探そう",
     "festival.halloween": "🎃 ハロウィンの魔法の夜！神秘的なカボチャ彩灯フレームに衣替え",
-    "festival.default": "🌲 四季ファンタジークルーズ・年間6大フェスティバルが自動で衣替え＆三言語ボイス"
+    "festival.default": "🌲 四季ファンタジークルーズ・年間6大フェスティバルが自動で衣替え＆三言語ボイス",
+    "music.on": "音楽：オン",
+    "music.off": "音楽：オフ"
   }
 };
 
@@ -632,8 +657,8 @@ function applyLang(lang){
     b.setAttribute("aria-pressed", on ? "true" : "false");
   });
   try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
-  // Refresh festival banner text after language change
   if(typeof refreshFestivalBanner === "function") refreshFestivalBanner();
+  if(typeof updateMusicBtnTitle === "function") updateMusicBtnTitle();
 }
 
 document.querySelectorAll(".lang-btn").forEach(btn=>{
@@ -679,6 +704,338 @@ function playSummonSound(){
 }
 
 /* =========================================================
+   Background Music (Web Audio synth music box / wind chimes)
+   - Soft, ~25% volume
+   - Auto-start attempt on load; fallback to first user gesture
+   - Mute toggle
+   - Pause when YouTube plays
+   ========================================================= */
+const BG_VOLUME = 0.25;
+const musicBtn = document.getElementById("musicBtn");
+
+let bgMasterGain = null;
+let bgMusicOn = false;
+let bgUserWantsMusic = true; // user intent
+let bgScheduler = null;
+let bgStep = 0;
+let bgNextNoteTime = 0;
+let bgMuteByYt = false;
+
+// Festival melodies (note sequences). Frequencies in Hz.
+// Each note = { f: freq, d: duration(s), v: velocity(0-1) }. Rest = f:null
+const NOTE = {
+  C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88,
+  C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77,
+  C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00
+};
+
+// Music box + soft triangle wave is used.
+// Melody ideas: gentle pentatonic / diatonic phrases.
+const MELODIES = {
+  christmas: [
+    // Simple, dreamy Jingle-Bells-ish contour (original-ish, not exact)
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:1.0},{f:NOTE.C5,d:0.9,v:0.9},
+    {f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.E5,d:1.6,v:1.0},
+    {f:null,d:0.8,v:0},
+    {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.F5,d:1.2,v:1.0},
+    {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:1.0},
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:0.6,v:0.9},{f:NOTE.D5,d:0.6,v:0.9},
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.D5,d:1.6,v:0.9},
+    {f:null,d:1.2,v:0}
+  ],
+  newyear: [
+    {f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:0.9,v:1.0},
+    {f:NOTE.B5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:0.9},{f:NOTE.E5,d:0.9,v:0.9},
+    {f:NOTE.D5,d:0.5,v:0.9},{f:NOTE.F5,d:0.5,v:0.9},{f:NOTE.A5,d:0.5,v:1.0},{f:NOTE.D6,d:0.9,v:1.0},
+    {f:NOTE.C6,d:0.5,v:0.9},{f:NOTE.A5,d:0.5,v:0.9},{f:NOTE.F5,d:0.9,v:0.9},
+    {f:null,d:0.8,v:0},
+    {f:NOTE.C5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.G5,d:0.5,v:1.0},{f:NOTE.C6,d:1.4,v:1.0},
+    {f:null,d:0.8,v:0}
+  ],
+  lunar: [
+    // Pentatonic, celebratory
+    {f:NOTE.G4,d:0.45,v:0.95},{f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:0.45,v:0.9},
+    {f:NOTE.G4,d:0.9,v:1.0},
+    {f:NOTE.A4,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.C5,d:0.45,v:0.95},
+    {f:NOTE.A4,d:0.9,v:1.0},
+    {f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.D5,d:0.45,v:1.0},{f:NOTE.E5,d:0.45,v:1.0},{f:NOTE.G5,d:1.2,v:1.0},
+    {f:NOTE.E5,d:0.45,v:0.95},{f:NOTE.D5,d:0.45,v:0.95},{f:NOTE.C5,d:0.45,v:1.0},{f:NOTE.A4,d:1.2,v:1.0},
+    {f:null,d:0.8,v:0}
+  ],
+  valentine: [
+    // Romantic waltz-ish
+    {f:NOTE.C5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.95},{f:NOTE.G5,d:1.0,v:1.0},
+    {f:NOTE.F5,d:0.6,v:0.9},{f:NOTE.E5,d:0.6,v:0.95},{f:NOTE.D5,d:1.0,v:0.95},
+    {f:NOTE.E5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},
+    {f:NOTE.B5,d:0.6,v:0.9},{f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:1.2,v:0.95},
+    {f:null,d:0.8,v:0},
+    {f:NOTE.A5,d:0.6,v:0.9},{f:NOTE.G5,d:0.6,v:0.9},{f:NOTE.E5,d:1.2,v:0.95},
+    {f:null,d:0.8,v:0}
+  ],
+  easter: [
+    // Bright spring waltz
+    {f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:0.8,v:1.0},
+    {f:NOTE.B5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.9},{f:NOTE.E5,d:0.8,v:0.95},
+    {f:NOTE.A5,d:0.4,v:0.95},{f:NOTE.F5,d:0.4,v:0.9},{f:NOTE.A5,d:0.4,v:0.95},{f:NOTE.D6,d:0.8,v:1.0},
+    {f:NOTE.C6,d:0.4,v:0.9},{f:NOTE.A5,d:0.4,v:0.9},{f:NOTE.F5,d:0.8,v:0.95},
+    {f:null,d:0.6,v:0},
+    {f:NOTE.E5,d:0.4,v:0.9},{f:NOTE.G5,d:0.4,v:0.95},{f:NOTE.C6,d:1.0,v:1.0},
+    {f:null,d:0.6,v:0}
+  ],
+  halloween: [
+    // Minor, mysterious
+    {f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.C5,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:1.0},{f:NOTE.A5,d:0.9,v:1.0},
+    {f:NOTE.G5,d:0.5,v:0.9},{f:NOTE.E5,d:0.5,v:0.9},{f:NOTE.C5,d:0.9,v:0.95},
+    {f:NOTE.B4,d:0.5,v:0.9},{f:NOTE.D5,d:0.5,v:0.95},{f:NOTE.F5,d:0.5,v:1.0},{f:NOTE.B5,d:0.9,v:1.0},
+    {f:NOTE.A5,d:0.5,v:0.9},{f:NOTE.F5,d:0.5,v:0.9},{f:NOTE.D5,d:0.9,v:0.95},
+    {f:null,d:0.8,v:0},
+    {f:NOTE.A4,d:0.5,v:0.95},{f:NOTE.E5,d:0.5,v:0.95},{f:NOTE.A5,d:1.2,v:1.0},
+    {f:null,d:0.8,v:0}
+  ],
+  default: [
+    // Healing forest wind-chime / music box ambience (pentatonic)
+    {f:NOTE.C5,d:0.7,v:0.85},{f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.G5,d:0.9,v:0.9},
+    {f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:0.7,v:0.8},{f:NOTE.E5,d:1.2,v:0.85},
+    {f:null,d:0.9,v:0},
+    {f:NOTE.D5,d:0.7,v:0.8},{f:NOTE.G5,d:0.7,v:0.85},{f:NOTE.A5,d:0.9,v:0.9},
+    {f:NOTE.C6,d:0.7,v:0.85},{f:NOTE.A5,d:0.7,v:0.8},{f:NOTE.G5,d:1.4,v:0.85},
+    {f:null,d:1.2,v:0},
+    {f:NOTE.E5,d:0.7,v:0.8},{f:NOTE.A5,d:0.7,v:0.85},{f:NOTE.G5,d:1.2,v:0.85},
+    {f:null,d:1.4,v:0}
+  ]
+};
+
+// Map festival id -> melody key
+const MELODY_KEY = {
+  christmas:"christmas", newyear:"newyear", lunar:"lunar",
+  valentine:"valentine", easter:"easter", halloween:"halloween",
+  default:"default"
+};
+
+function getMelody(){
+  const key = MELODY_KEY[activeFestival] || "default";
+  return MELODIES[key] || MELODIES.default;
+}
+
+function setupBgAudio(){
+  if(bgMasterGain) return;
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  bgMasterGain = ctx.createGain();
+  bgMasterGain.gain.value = 0; // will fade in
+  bgMasterGain.connect(ctx.destination);
+}
+
+function playMusicBoxNote(freq, startTime, duration, velocity){
+  const ctx = getAudioCtx();
+  if(!ctx || !bgMasterGain || freq == null) return;
+  // Music-box: sine + 2nd harmonic + tiny triangle
+  const osc = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const g = ctx.createGain();
+  const g2 = ctx.createGain();
+  osc.type = "sine";
+  osc2.type = "triangle";
+  osc.frequency.value = freq;
+  osc2.frequency.value = freq * 2.005; // slight detune for shimmer
+  // Envelope: fast attack, exponential decay
+  const attack = 0.01;
+  const decay = Math.max(0.35, duration * 1.4);
+  g.gain.setValueAtTime(0.0001, startTime);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0001, velocity * 0.6), startTime + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, startTime + attack + decay);
+  g2.gain.setValueAtTime(0.0001, startTime);
+  g2.gain.exponentialRampToValueAtTime(Math.max(0.0001, velocity * 0.18), startTime + attack);
+  g2.gain.exponentialRampToValueAtTime(0.0001, startTime + attack + decay * 0.9);
+  osc.connect(g); g.connect(bgMasterGain);
+  osc2.connect(g2); g2.connect(bgMasterGain);
+  osc.start(startTime);
+  osc2.start(startTime);
+  osc.stop(startTime + attack + decay + 0.1);
+  osc2.stop(startTime + attack + decay + 0.1);
+}
+
+function scheduleMusicLoop(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const lookahead = 0.25; // seconds
+  const melody = getMelody();
+  while(bgNextNoteTime < ctx.currentTime + lookahead){
+    const note = melody[bgStep % melody.length];
+    const dur = note.d;
+    if(note.f != null){
+      playMusicBoxNote(note.f, bgNextNoteTime, dur, note.v);
+      // Soft echo / harmony: optional 5th above at lower velocity for some notes
+      if(bgStep % 4 === 2){
+        playMusicBoxNote(note.f * 1.5, bgNextNoteTime + 0.06, dur * 0.9, note.v * 0.35);
+      }
+    }
+    bgNextNoteTime += dur;
+    bgStep++;
+  }
+}
+
+function startBgScheduler(){
+  if(bgScheduler) return;
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  bgNextNoteTime = ctx.currentTime + 0.1;
+  bgScheduler = setInterval(scheduleMusicLoop, 120);
+}
+
+function stopBgScheduler(){
+  if(bgScheduler){
+    clearInterval(bgScheduler);
+    bgScheduler = null;
+  }
+}
+
+function fadeTo(target, duration){
+  const ctx = getAudioCtx();
+  if(!ctx || !bgMasterGain) return;
+  const now = ctx.currentTime;
+  bgMasterGain.gain.cancelScheduledValues(now);
+  bgMasterGain.gain.setValueAtTime(bgMasterGain.gain.value, now);
+  bgMasterGain.gain.linearRampToValueAtTime(target, now + duration);
+}
+
+function startMusicIfAllowed(){
+  if(!bgUserWantsMusic) return;
+  if(bgMuteByYt) return;
+  setupBgAudio();
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  if(ctx.state === "suspended"){
+    // will retry on gesture
+    return;
+  }
+  if(!bgMusicOn){
+    bgMusicOn = true;
+    bgStep = 0;
+    startBgScheduler();
+    fadeTo(BG_VOLUME, 1.5);
+  } else {
+    // already running; ensure volume
+    fadeTo(BG_VOLUME, 0.6);
+  }
+  updateMusicBtnIcon();
+}
+
+function pauseMusicFade(){
+  if(!bgMusicOn) return;
+  fadeTo(0, 0.4);
+  // stop scheduler after fade
+  setTimeout(()=>{
+    if(bgMusicOn && bgMasterGain && bgMasterGain.gain.value < 0.01){
+      stopBgScheduler();
+      bgMusicOn = false;
+      updateMusicBtnIcon();
+    }
+  }, 450);
+}
+
+function toggleMusic(){
+  if(bgUserWantsMusic){
+    bgUserWantsMusic = false;
+    pauseMusicFade();
+    updateMusicBtnIcon();
+  } else {
+    bgUserWantsMusic = true;
+    if(bgMuteByYt){
+      // still muted due to YouTube; just flip intent
+      updateMusicBtnIcon();
+      return;
+    }
+    startMusicIfAllowed();
+  }
+}
+
+function updateMusicBtnIcon(){
+  if(!musicBtn) return;
+  const playing = bgUserWantsMusic && !bgMuteByYt;
+  musicBtn.textContent = playing ? "🔊" : "🔇";
+  musicBtn.classList.toggle("muted", !playing);
+}
+
+function updateMusicBtnTitle(){
+  if(!musicBtn) return;
+  const key = (bgUserWantsMusic && !bgMuteByYt) ? "music.on" : "music.off";
+  const txt = (I18N[currentLang] && I18N[currentLang][key]) || (key==="music.on"?"Music: On":"Music: Off");
+  musicBtn.title = txt;
+  musicBtn.setAttribute("aria-label", txt);
+}
+
+if(musicBtn){
+  musicBtn.addEventListener("click", toggleMusic);
+}
+
+// "First user gesture" unlock: any click or touch or key
+function firstGestureUnlock(){
+  const ctx = getAudioCtx();
+  if(ctx && ctx.state === "suspended"){ ctx.resume(); }
+  if(bgUserWantsMusic && !bgMusicOn && !bgMuteByYt){
+    startMusicIfAllowed();
+  }
+  // Remove listeners after first gesture fires (they can re-add if needed; keep simple)
+  window.removeEventListener("pointerdown", firstGestureUnlock, true);
+  window.removeEventListener("touchstart", firstGestureUnlock, true);
+  window.removeEventListener("keydown", firstGestureUnlock, true);
+}
+window.addEventListener("pointerdown", firstGestureUnlock, true);
+window.addEventListener("touchstart", firstGestureUnlock, true);
+window.addEventListener("keydown", firstGestureUnlock, true);
+
+/* =========================================================
+   YouTube IFrame API — pause BGM when video plays
+   ========================================================= */
+let ytPlayer = null;
+let ytApiReady = false;
+function loadYouTubeAPI(){
+  if(window.YT && window.YT.Player){ ytApiReady = true; initYTPlayer(); return; }
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady = function(){
+    ytApiReady = true;
+    initYTPlayer();
+  };
+}
+function initYTPlayer(){
+  const frame = document.getElementById("ytFrame");
+  if(!frame || !ytApiReady) return;
+  try{
+    ytPlayer = new window.YT.Player("ytFrame", {
+      events: {
+        "onStateChange": function(ev){
+          // 1 = playing
+          if(ev.data === 1){
+            if(bgMusicOn || (bgUserWantsMusic && !bgMuteByYt)){
+              bgMuteByYt = true;
+              pauseMusicFade();
+              updateMusicBtnIcon();
+              updateMusicBtnTitle();
+            }
+          } else if(ev.data === 0 || ev.data === 2 || ev.data === 5){
+            // ended / paused / cued
+            if(bgMuteByYt){
+              bgMuteByYt = false;
+              if(bgUserWantsMusic){
+                startMusicIfAllowed();
+              }
+              updateMusicBtnIcon();
+              updateMusicBtnTitle();
+            }
+          }
+        }
+      }
+    });
+  }catch(e){ /* ignore */ }
+}
+loadYouTubeAPI();
+
+/* =========================================================
    Merge burst particles (DOM, on top of canvas layer)
    ========================================================= */
 function spawnParticles(x, y, count){
@@ -704,12 +1061,15 @@ function spawnParticles(x, y, count){
    ========================================================= */
 const TIERS = [
   { emoji:"🌱", name:{zh:"小樹苗", en:"Tiny Sprout", ja:"小さな芽"} },
-  { emoji:"🌿", name:{zh:"魔法草", en:"Magic Herb", ja:"魔法の草"} },
+  { emoji:"🌿", name:"魔法草", en:"Magic Herb", ja:"魔法の草"} }, // placeholder fixed below
   { emoji:"🌸", name:{zh:"精靈花", en:"Fairy Flower", ja:"精霊の花"} },
   { emoji:"🍄", name:{zh:"奇幻菇", en:"Mystic Mushroom", ja:"不思議キノコ"} },
   { emoji:"🎄", name:{zh:"聖誕奇蹟樹", en:"Miracle Tree", ja:"奇跡の木"} },
   { emoji:"👑", name:{zh:"森林皇冠", en:"Forest Crown", ja:"森の王冠"} }
 ];
+// fix tier 1 properly
+TIERS[1] = { emoji:"🌿", name:{zh:"魔法草", en:"Magic Herb", ja:"魔法の草"} };
+
 const BOARD_SIZE = 4;
 const MAX_TIER = TIERS.length - 1;
 
@@ -860,13 +1220,12 @@ shareBtn.addEventListener("click", async ()=>{
     try{
       await navigator.share({ title, text, url: SHARE_URL });
       return;
-    }catch(e){ /* user cancelled or failed, fallback to copy */ }
+    }catch(e){ /* fallthrough */ }
   }
   try{
     await navigator.clipboard.writeText(SHARE_URL);
     showCopyToast(I18N[currentLang]["demo.share.done"]);
   }catch(e){
-    // legacy fallback
     try{
       const ta = document.createElement("textarea");
       ta.value = SHARE_URL;
@@ -885,7 +1244,6 @@ shareBtn.addEventListener("click", async ()=>{
 /* =========================================================
    Festival Calendar (2026–2048) + Theme + Particle FX
    ========================================================= */
-// Lunar New Year (正月初一) dates, 2026–2048
 const LUNAR_NEW_YEAR = {
   2026:[2,17], 2027:[2,6],  2028:[1,26], 2029:[2,13], 2030:[2,3],
   2031:[1,23], 2032:[2,11], 2033:[1,31], 2034:[2,19], 2035:[2,8],
@@ -893,7 +1251,6 @@ const LUNAR_NEW_YEAR = {
   2041:[2,1],  2042:[1,22], 2043:[2,10], 2044:[1,30], 2045:[2,17],
   2046:[2,6],  2047:[1,26], 2048:[2,14]
 };
-// Easter Sunday dates, 2026–2048 (Gregorian)
 const EASTER = {
   2026:[4,5],  2027:[3,28], 2028:[4,16], 2029:[4,1],  2030:[4,21],
   2031:[4,13], 2032:[3,28], 2033:[4,17], 2034:[4,9],  2035:[3,25],
@@ -902,12 +1259,7 @@ const EASTER = {
   2046:[3,25], 2047:[4,14], 2048:[4,5]
 };
 
-function pad(n){ return n<10 ? "0"+n : ""+n; }
-
-function mdToDate(y,m,d){
-  // Use local date at noon to avoid TZ edge cases for window comparison
-  return new Date(y, m-1, d, 12, 0, 0, 0);
-}
+function mdToDate(y,m,d){ return new Date(y, m-1, d, 12, 0, 0, 0); }
 function isWithinWindow(today, centerMD, before, after, year){
   const c = mdToDate(year, centerMD[0], centerMD[1]);
   const start = new Date(c.getTime() - before*86400000);
@@ -916,10 +1268,8 @@ function isWithinWindow(today, centerMD, before, after, year){
 }
 
 function detectFestival(forced){
-  if(forced){
-    if(["christmas","newyear","lunar","valentine","easter","halloween","default"].includes(forced)){
-      return forced;
-    }
+  if(forced && ["christmas","newyear","lunar","valentine","easter","halloween","default"].includes(forced)){
+    return forced;
   }
   const now = new Date();
   const y = now.getFullYear();
@@ -927,17 +1277,11 @@ function detectFestival(forced){
   const d = now.getDate();
   const today = mdToDate(y, m, d);
 
-  // Christmas 12/15 - 12/28
   if((m===12 && d>=15 && d<=28)) return "christmas";
-  // New Year 12/29 - 1/5 (cross-year)
   if((m===12 && d>=29) || (m===1 && d<=5)) return "newyear";
-  // Lunar New Year ±7 days
   if(LUNAR_NEW_YEAR[y] && isWithinWindow(today, LUNAR_NEW_YEAR[y], 7, 7, y)) return "lunar";
-  // Valentine 2/10 - 2/16
   if(m===2 && d>=10 && d<=16) return "valentine";
-  // Easter ±7 days
   if(EASTER[y] && isWithinWindow(today, EASTER[y], 7, 7, y)) return "easter";
-  // Halloween 10/24 - 11/2
   if((m===10 && d>=24) || (m===11 && d<=2)) return "halloween";
   return "default";
 }
@@ -1000,20 +1344,20 @@ function applyFestivalTheme(id){
   activeFestival = id;
   const t = FESTIVAL_THEME[id] || FESTIVAL_THEME.default;
 
-  // Banner background
   const bannerEl = document.getElementById("festivalBanner");
   bannerEl.style.background = t.bannerBg;
 
-  // CSS vars for frame
   document.documentElement.style.setProperty("--frame-color", t.frame);
   document.documentElement.style.setProperty("--frame-glow", t.frameGlow);
   document.body.style.background = t.bodyBg;
 
-  // Banner text via i18n
   refreshFestivalBanner();
-
-  // Particle system
   startParticles(t.particles);
+
+  // If music already playing, seamlessly switch melody from next note on (bgStep reset)
+  if(bgMusicOn){
+    bgStep = 0;
+  }
 }
 
 let bannerVisible = false;
@@ -1022,7 +1366,6 @@ function refreshFestivalBanner(){
   const bannerEl = document.getElementById("festivalBanner");
   const text = I18N[currentLang][t.bannerKey] || "";
   bannerEl.textContent = text;
-  // Always show banner (both festival & default)
   bannerEl.classList.add("show");
   if(!bannerVisible){
     bannerVisible = true;
@@ -1053,55 +1396,29 @@ function makeParticle(cfg){
   const w = window.innerWidth;
   const h = window.innerHeight;
   const type = cfg.type;
-  // Pick a random glyph from list
   const glyphs = cfg.emoji;
   const glyph = glyphs[Math.floor(Math.random()*glyphs.length)];
   const p = {
-    glyph,
-    x: rand(0, w),
-    y: -30,
-    size: rand(14, 26),
-    vy: rand(0.6, 1.8),
-    vx: rand(-0.6, 0.6),
-    rot: rand(-0.5, 0.5),
-    vrot: rand(-0.02, 0.02),
-    alpha: 1,
-    life: 0,
-    maxLife: rand(600, 1200),
-    twinkle: rand(0.02, 0.08),
-    color: cfg.color,
-    isDot: false
+    glyph, x: rand(0, w), y: -30, size: rand(14, 26),
+    vy: rand(0.6, 1.8), vx: rand(-0.6, 0.6),
+    rot: rand(-0.5, 0.5), vrot: rand(-0.02, 0.02),
+    alpha: 1, life: 0, maxLife: rand(600, 1200),
+    twinkle: rand(0.02, 0.08), color: cfg.color, isDot: false
   };
   if(type === "snow"){
-    p.size = rand(10, 22);
-    p.vy = rand(0.5, 1.6);
-    p.vx = rand(-0.8, 0.8);
+    p.size = rand(10, 22); p.vy = rand(0.5, 1.6); p.vx = rand(-0.8, 0.8);
     p.twinkle = rand(0.01, 0.05);
-    // Some snowflakes render as soft dots
     if(Math.random() < 0.5){ p.isDot = true; }
   } else if(type === "firefly"){
-    // Fireflies hover, slow, glow dots
-    p.glyph = "·";
-    p.isDot = true;
-    p.size = rand(2, 5);
-    p.vy = rand(-0.4, 0.4);
-    p.vx = rand(-0.5, 0.5);
-    p.y = rand(0, h);
-    p.twinkle = rand(0.03, 0.1);
-    p.alpha = rand(0.2, 0.9);
+    p.glyph = "·"; p.isDot = true; p.size = rand(2, 5);
+    p.vy = rand(-0.4, 0.4); p.vx = rand(-0.5, 0.5); p.y = rand(0, h);
+    p.twinkle = rand(0.03, 0.1); p.alpha = rand(0.2, 0.9);
   } else if(type === "sparkle"){
-    p.vy = rand(0.8, 2.2);
-    p.vx = rand(-1.2, 1.2);
-    p.twinkle = rand(0.04, 0.12);
+    p.vy = rand(0.8, 2.2); p.vx = rand(-1.2, 1.2); p.twinkle = rand(0.04, 0.12);
   } else if(type === "petal"){
-    p.vy = rand(0.6, 1.6);
-    p.vx = rand(-1.2, 1.2);
-    p.vrot = rand(-0.03, 0.03);
+    p.vy = rand(0.6, 1.6); p.vx = rand(-1.2, 1.2); p.vrot = rand(-0.03, 0.03);
   } else if(type === "float"){
-    // Halloween: float upward
-    p.y = h + 20;
-    p.vy = rand(-1.4, -0.5);
-    p.vx = rand(-0.8, 0.8);
+    p.y = h + 20; p.vy = rand(-1.4, -0.5); p.vx = rand(-0.8, 0.8);
     p.twinkle = rand(0.02, 0.08);
   }
   return p;
@@ -1111,10 +1428,8 @@ function startParticles(cfg){
   currentParticleCfg = cfg;
   particles = [];
   const count = cfg.count || 45;
-  // Pre-populate so screen isn't empty at start
   for(let i=0;i<count;i++){
     const p = makeParticle(cfg);
-    // Scatter initial y
     p.y = rand(-50, window.innerHeight);
     p.life = rand(0, p.maxLife * 0.5);
     particles.push(p);
@@ -1144,21 +1459,16 @@ function tickParticles(){
     } else {
       p.alpha = 0.85;
     }
-
-    // Recycle when off-screen or life exceeded
     const off = (p.y > h + 40) || (p.y < -60) || (p.x < -60) || (p.x > w + 60) || (p.life > p.maxLife);
     if(off){
       particles[i] = makeParticle(cfg);
       continue;
     }
-
-    // Draw
     ctx.save();
     ctx.globalAlpha = p.alpha;
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot);
     if(p.isDot){
-      // soft glow dot
       const grad = ctx.createRadialGradient(0,0,0, 0,0,p.size*2);
       grad.addColorStop(0, p.color);
       grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -1166,7 +1476,6 @@ function tickParticles(){
       ctx.beginPath();
       ctx.arc(0,0,p.size*2,0,Math.PI*2);
       ctx.fill();
-      // bright core
       ctx.globalAlpha = p.alpha * 0.9;
       ctx.fillStyle = p.color;
       ctx.beginPath();
@@ -1176,20 +1485,17 @@ function tickParticles(){
       ctx.font = p.size + "px 'Noto Sans TC','Noto Sans JP',system-ui,sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      // Slight shadow for readability
       ctx.shadowColor = "rgba(0,0,0,0.25)";
       ctx.shadowBlur = 4;
       ctx.fillText(p.glyph, 0, 0);
     }
     ctx.restore();
   }
-
   rafId = requestAnimationFrame(tickParticles);
 }
 
 window.addEventListener("resize", ()=>{
   resizeCanvas();
-  // Re-scatter particles to fit new size
   if(currentParticleCfg){
     for(let i=0;i<particles.length;i++){
       particles[i].x = Math.min(particles[i].x, window.innerWidth);
@@ -1221,13 +1527,25 @@ function getQueryParam(name){
   }
   applyLang(saved);
 
-  // Festival (URL override or auto)
+  // Festival
   const forced = getQueryParam("fest");
   const festivalId = detectFestival(forced);
   applyFestivalTheme(festivalId);
 
   // Board
   initBoard();
+
+  // Music: try auto-start now (may be blocked); gesture handlers already registered
+  setupBgAudio();
+  // Attempt on load (if browser allows)
+  setTimeout(()=>{
+    const ctx2 = getAudioCtx();
+    if(ctx2 && ctx2.state === "running"){
+      startMusicIfAllowed();
+    }
+    updateMusicBtnIcon();
+    updateMusicBtnTitle();
+  }, 200);
 })();
 </script>
 </body>
