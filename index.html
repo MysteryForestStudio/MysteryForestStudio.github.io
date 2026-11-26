@@ -394,6 +394,7 @@ const I18N = {
     bubbleIdle: "🌿 森林管家：歡迎回到咖啡屋！點擊兩個相同的物品開始合成吧～",
     bubbleMerge: ["太棒了！又進化了一步！", "森林因為你的魔法閃亮起來了！", "繼續加油，皇冠就在前方！"],
     bubbleNoMatch: "咦？這兩個物品不一樣哦，再試試看～",
+    bubbleMax: "👑 已經係最高級皇冠喇，兩個皇冠無法再合併！",
     promptTitle: "🎉 解鎖完整版傳說！",
     promptDesc: "你已經合成了稀有的森林奇蹟！前往 Google Play 下載完整版，解鎖更多精靈、寵物與節日活動。",
     gp: "▶ 前往 Google Play 下載",
@@ -487,6 +488,7 @@ const I18N = {
     bubbleIdle: "🌿 Forest Butler: Welcome home to the café! Tap two matching items to start merging～",
     bubbleMerge: ["Wonderful! One more evolution!", "The forest sparkles with your magic!", "Keep going, the crown is near!"],
     bubbleNoMatch: "Hmm? These two don't match. Try again～",
+    bubbleMax: "👑 This is the final crown; two crowns can't merge any further!",
     promptTitle: "🎉 Unlock the Full Legend!",
     promptDesc: "You've merged a rare forest wonder! Get the full version on Google Play to unlock more spirits, pets and events.",
     gp: "▶ Get it on Google Play",
@@ -580,6 +582,7 @@ const I18N = {
     bubbleIdle: "🌿 森の執事：カフェへおかえりなさい！同じアイテムを2つタップして合成しよう～",
     bubbleMerge: ["すごい！もう一段進化したね！", "君の魔法で森が輝いたよ！", "この調子で王冠を目指そう！"],
     bubbleNoMatch: "ん？この2つは違うみたい。もう一度試してね～",
+    bubbleMax: "👑 これが最上位の王冠です。王冠同士はこれ以上合成できません。",
     promptTitle: "🎉 完全版の伝説を解放！",
     promptDesc: "レアな森の奇跡を合成しました！Google Play で完全版を入手し、さらなる精霊・ペット・イベントを解放しよう。",
     gp: "▶ Google Play で入手",
@@ -1288,9 +1291,11 @@ window.addEventListener("message", (ev)=>{
   let data = null;
   try { data = typeof ev.data==="string" ? JSON.parse(ev.data) : ev.data; } catch(e){ return; }
   if (!data) return;
-  const state = data.event || (data.infoListData && data.infoListData.state);
+  let state = null;
+  if (data.event === "onStateChange") state = data.info;
+  else if (typeof data.infoListData === "object" && typeof data.infoListData.state === "number") state = data.infoListData.state;
   if (state === 1){ musicPausedByVideo = true; if(audioCtx) musicGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.1); }
-  else if (state === 2 || state === 0){ musicPausedByVideo = false; if(audioCtx && musicOn) musicGain.gain.setTargetAtTime(0.25, audioCtx.currentTime, 0.2); }
+  else if (state === 2 || state === 0){ musicPausedByVideo = false; if(audioCtx && musicOn){ musicGain.gain.setTargetAtTime(0.25, audioCtx.currentTime, 0.2); nextNoteTime = Math.max(nextNoteTime, audioCtx.currentTime+0.05); } }
 });
 
 function playMergeSound(levelUp){
@@ -1347,7 +1352,11 @@ function onCellClick(i){
   if (selected===-1){ selected=i; renderBoard(); return; }
   if (selected===i){ selected=-1; renderBoard(); return; }
   const a = board[selected], b = board[i];
-  if (a===b && a<LEVELS.length-1){
+  if (a===b && a>=LEVELS.length-1){
+    /* 最高級（皇冠）：兩個皇冠已達頂級，不可再合併，統一提示 */
+    updateBubble(t("bubbleMax"));
+    selected=-1; renderBoard();
+  } else if (a===b){
     board[selected] = a+1;
     board[i] = null;
     playMergeSound(a+1);
@@ -1355,9 +1364,6 @@ function onCellClick(i){
     const pool = t("bubbleMerge");
     updateBubble(pool[Math.floor(Math.random()*pool.length)]);
     if (a+1>=4){ showDownloadPrompt(); }
-    selected=-1; renderBoard();
-  } else if (a===b){
-    updateBubble(t("bubbleNoMatch"));
     selected=-1; renderBoard();
   } else {
     selected=i; renderBoard();
